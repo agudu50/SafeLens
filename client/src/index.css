@@ -8,14 +8,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --background: #f4f7fb;
+  --primary: rgb(230, 60, 28);
+  --primary-hover: rgb(200, 40, 16);
+  --background: #fdf4f0;
   --surface: #ffffff;
-  --surface-strong: #eef4ff;
+  --surface-strong: #ffe8e1;
   --text: #0f172a;
   --muted: #5b6472;
-  --border: #dbe3f0;
+  --border: #f0d7d1;
   --success: #0f9d73;
   --warning: #f59e0b;
   --danger: #dc2626;
@@ -100,7 +100,7 @@ button {
   width: 2.2rem;
   height: 2.2rem;
   border-radius: 0.8rem;
-  background: linear-gradient(135deg, var(--primary), #60a5fa);
+  background: var(--primary);
   color: white;
   display: grid;
   place-items: center;
@@ -191,7 +191,7 @@ button {
 }
 
 .hero-panel {
-  background: linear-gradient(135deg, var(--surface-strong), #f5f9ff);
+  background: var(--surface-strong);
   border-radius: 1.2rem;
   padding: 1.2rem;
   min-height: 220px;
@@ -468,7 +468,7 @@ button {
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  background: conic-gradient(var(--danger) 0 87%, #e5e7eb 87% 100%);
+  background: #f5f2f0;
   display: grid;
   place-items: center;
   font-size: 1.5rem;
