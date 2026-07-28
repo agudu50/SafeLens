@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
@@ -7,22 +7,80 @@ import { createMockScanResult } from '../services/scannerService'
 
 const options = ['Message', 'Screenshot', 'Link', 'Email']
 
+const loadingMessages = {
+  message: [
+    { title: 'Reading submitted content', detail: 'Parsing text and characters...' },
+    { title: 'Evaluating message urgency', detail: 'Looking for coercion patterns...' },
+    { title: 'Checking financial request hooks', detail: 'Reviewing MoMo transfer directions...' },
+    { title: 'Structuring safety suggestions', detail: 'Creating custom recommendations...' },
+  ],
+  screenshot: [
+    { title: 'Uploading image file', detail: 'Analyzing dimensions and format...' },
+    { title: 'Running text extraction (OCR)', detail: 'Transcribing image content into text...' },
+    { title: 'Checking transcribed text signatures', detail: 'Running analysis on scam phrases...' },
+    { title: 'Finalizing safety recommendations', detail: 'Assembling risk breakdown report...' },
+  ],
+  link: [
+    { title: 'Parsing link URL structure', detail: 'Deconstructing protocols and subdomains...' },
+    { title: 'Checking SSL/TLS safety status', detail: 'Verifying HTTPS certificate flags...' },
+    { title: 'Evaluating domain extension reputation', detail: 'Matching against known blacklisted extensions...' },
+    { title: 'Computing threat indices', detail: 'Calculating security rating score...' },
+  ],
+  email: [
+    { title: 'Reading email body & metadata', detail: 'Importing header and sender domains...' },
+    { title: 'Analyzing domain spoofing indicators', detail: 'Checking sender credibility indices...' },
+    { title: 'Scanning for credentials solicitation', detail: 'Reviewing passcode and verification hooks...' },
+    { title: 'Drafting safety recommendations', detail: 'Formulating step-by-step defense plan...' },
+  ],
+}
+
 export default function Scanner() {
   const navigate = useNavigate()
   const [selectedType, setSelectedType] = useState('Message')
+  
+  // Input states
   const [message, setMessage] = useState('')
+  const [linkUrl, setLinkUrl] = useState('')
+  const [emailSender, setEmailSender] = useState('')
+  const [emailContent, setEmailContent] = useState('')
+  
+  // Screenshot states
   const [fileName, setFileName] = useState('')
   const [previewUrl, setPreviewUrl] = useState('')
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef(null)
+
+  // Scanning states
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState('')
+  const [activeStep, setActiveStep] = useState(0)
 
   const characterCount = useMemo(() => message.length, [message])
 
+  // Stepper simulation
+  useEffect(() => {
+    if (!isAnalyzing) return
+    const timer = setInterval(() => {
+      setActiveStep((prev) => {
+        if (prev >= 3) {
+          clearInterval(timer)
+          return 3
+        }
+        return prev + 1
+      })
+    }, 500)
+    return () => clearInterval(timer)
+  }, [isAnalyzing])
+
   const handleFileChange = (event) => {
     const file = event.target.files?.[0]
+    processFile(file)
+  }
+
+  const processFile = (file) => {
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file such as PNG or JPG.')
+      setError('Please upload an image file such as PNG, JPG, or WEBP.')
       return
     }
     setError('')
@@ -30,38 +88,98 @@ export default function Scanner() {
     setPreviewUrl(URL.createObjectURL(file))
   }
 
-  const handleAnalyze = () => {
-    if (selectedType === 'Message' && message.trim().length < 10) {
-      setError('Please enter a message with at least 10 characters.')
-      return
-    }
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
 
-    if (selectedType === 'Screenshot' && !previewUrl) {
-      setError('Please upload a screenshot before analyzing.')
-      return
+  const handleDragLeave = () => {
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    processFile(file)
+  }
+
+  const handleAnalyze = () => {
+    let inputPayload = ''
+    
+    if (selectedType === 'Message') {
+      if (message.trim().length < 10) {
+        setError('Please enter a message with at least 10 characters.')
+        return
+      }
+      inputPayload = message
+    } else if (selectedType === 'Screenshot') {
+      if (!previewUrl) {
+        setError('Please upload a screenshot before analyzing.')
+        return
+      }
+      inputPayload = `Screenshot: ${fileName}`
+    } else if (selectedType === 'Link') {
+      if (linkUrl.trim().length < 5) {
+        setError('Please enter a valid link (e.g. http://example.com).')
+        return
+      }
+      inputPayload = linkUrl
+    } else if (selectedType === 'Email') {
+      if (emailContent.trim().length < 15) {
+        setError('Please enter at least 15 characters of email content.')
+        return
+      }
+      inputPayload = `Sender: ${emailSender || 'Unknown'}\n\nContent:\n${emailContent}`
     }
 
     setError('')
     setIsAnalyzing(true)
+    setActiveStep(0)
 
     window.setTimeout(() => {
-      const riskLevel = message.toLowerCase().includes('payment') || message.toLowerCase().includes('urgent') ? 'high' : 'medium'
+      let riskLevel = 'low'
+      const checkText = inputPayload.toLowerCase()
+      
+      if (
+        checkText.includes('payment') || 
+        checkText.includes('urgent') || 
+        checkText.includes('momo') || 
+        checkText.includes('cashout') || 
+        checkText.includes('promo') ||
+        checkText.includes('pin') ||
+        checkText.includes('fee') ||
+        checkText.includes('claim')
+      ) {
+        riskLevel = 'high'
+      } else if (
+        checkText.includes('http://') || 
+        checkText.includes('update') || 
+        checkText.includes('verify') ||
+        checkText.includes('select')
+      ) {
+        riskLevel = 'medium'
+      }
+
       const result = createMockScanResult({
         type: selectedType.toLowerCase(),
-        input: selectedType === 'Message' ? message : fileName,
+        input: inputPayload,
         riskLevel,
       })
+      
       setIsAnalyzing(false)
       navigate(`/results/${result.id}`)
-    }, 1600)
+    }, 2100)
   }
+
+  const stepsList = loadingMessages[selectedType.toLowerCase()] || loadingMessages.message
 
   return (
     <PageContainer>
       <section className="scanner-card">
         <div className="section-heading">
-          <h1>Check a suspicious message</h1>
-          <p>Share a message or screenshot and SafeLens will walk you through a clear risk review.</p>
+          <h1>Scan for threats</h1>
+          <p>Share a message, upload a screenshot, paste a link, or review an email body. SafeLens runs direct checks and details warning indicators.</p>
         </div>
 
         <div className="chip-row" role="tablist" aria-label="Content types">
@@ -70,24 +188,29 @@ export default function Scanner() {
               key={option}
               type="button"
               className={`chip ${selectedType === option ? 'chip--active' : ''}`}
-              onClick={() => setSelectedType(option)}
+              onClick={() => {
+                setSelectedType(option)
+                setError('')
+              }}
+              disabled={isAnalyzing}
             >
               {option}
             </button>
           ))}
         </div>
 
-        {error ? <Alert title="Please review" tone="danger">{error}</Alert> : null}
+        {error ? <Alert title="Check inputs" tone="danger">{error}</Alert> : null}
 
-        {selectedType === 'Message' ? (
-          <div className="scanner-panel">
-            <label className="sr-only" htmlFor="message-input">Suspicious message</label>
+        {/* Message Panel */}
+        {selectedType === 'Message' && !isAnalyzing ? (
+          <div className="scanner-panel animate-fade-in">
+            <label className="input-label" htmlFor="message-input">Paste suspicious message text</label>
             <textarea
               id="message-input"
               className="scanner-textarea"
               value={message}
               onChange={(event) => setMessage(event.target.value)}
-              placeholder="Paste the suspicious message here..."
+              placeholder="Paste SMS alerts, WhatsApp chats, or cashout instructions..."
             />
             <div className="scanner-toolbar">
               <span>{characterCount} / 5000 characters</span>
@@ -98,21 +221,51 @@ export default function Scanner() {
           </div>
         ) : null}
 
-        {selectedType === 'Screenshot' ? (
-          <div className="scanner-panel">
-            <label className="upload-box">
-              <input type="file" accept="image/*" onChange={handleFileChange} />
+        {/* Screenshot Panel */}
+        {selectedType === 'Screenshot' && !isAnalyzing ? (
+          <div className="scanner-panel animate-fade-in">
+            <div
+              className={`upload-box ${isDragging ? 'upload-box--active' : ''}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                cursor: 'pointer',
+                borderColor: isDragging ? 'var(--primary)' : 'var(--border)',
+                background: isDragging ? 'var(--background)' : 'white',
+                transition: 'all 0.2s',
+              }}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
               <div>
-                <strong>Upload a screenshot</strong>
-                <p>PNG, JPG, or WEBP up to 5MB.</p>
+                <strong>Drag and drop image here, or click to upload</strong>
+                <p>PNG, JPG, or WEBP screenshots up to 5MB.</p>
               </div>
-            </label>
+            </div>
+            
             {previewUrl ? (
-              <div className="preview-card">
-                <img src={previewUrl} alt="Uploaded preview" />
+              <div className="preview-card screenshot-container animate-fade-in" style={{ marginTop: '1rem' }}>
+                <div className="ocr-scanner">
+                  <img src={previewUrl} alt="Uploaded chat preview" />
+                </div>
                 <div className="preview-meta">
-                  <span>{fileName}</span>
-                  <Button type="button" variant="ghost" onClick={() => { setFileName(''); setPreviewUrl(''); }}>
+                  <span style={{ fontWeight: 600 }}>📷 {fileName}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setFileName('')
+                      setPreviewUrl('')
+                    }}
+                  >
                     Remove
                   </Button>
                 </div>
@@ -121,30 +274,95 @@ export default function Scanner() {
           </div>
         ) : null}
 
-        {selectedType !== 'Message' && selectedType !== 'Screenshot' ? (
-          <div className="scanner-panel scanner-panel--coming-soon">
-            <h3>{selectedType} scanning</h3>
-            <p>This option is coming soon. SafeLens will support it in a future release.</p>
+        {/* Link Panel */}
+        {selectedType === 'Link' && !isAnalyzing ? (
+          <div className="scanner-panel animate-fade-in">
+            <label className="input-label" htmlFor="link-input">Suspicious link URL</label>
+            <input
+              id="link-input"
+              type="url"
+              className="scanner-input"
+              value={linkUrl}
+              onChange={(event) => setLinkUrl(event.target.value)}
+              placeholder="Paste suspicious website URL (e.g. http://mtn-bonus-claim.xyz)..."
+            />
+            <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
+              We evaluate secure HTTP protocols (HTTPS), domain registrar profiles, and matching phishing strings.
+            </p>
           </div>
         ) : null}
 
-        <div className="scanner-actions">
-          <Button type="button" onClick={handleAnalyze} disabled={isAnalyzing}>
-            {isAnalyzing ? 'Analyzing…' : 'Analyze with SafeLens'}
-          </Button>
-        </div>
+        {/* Email Panel */}
+        {selectedType === 'Email' && !isAnalyzing ? (
+          <div className="scanner-panel animate-fade-in">
+            <label className="input-label" htmlFor="sender-input">Sender Email Address (Optional)</label>
+            <input
+              id="sender-input"
+              type="text"
+              className="scanner-input"
+              value={emailSender}
+              onChange={(event) => setEmailSender(event.target.value)}
+              placeholder="e.g. security-mtn@gmail.com, or support@fidelitybank-gh.xyz"
+            />
+            
+            <label className="input-label" htmlFor="email-body-input">Email Subject & Body Content</label>
+            <textarea
+              id="email-body-input"
+              className="scanner-textarea"
+              value={emailContent}
+              onChange={(event) => setEmailContent(event.target.value)}
+              placeholder="Paste the email title, sender signature, and body message..."
+              style={{ minHeight: '160px' }}
+            />
+          </div>
+        ) : null}
 
+        {!isAnalyzing ? (
+          <div className="scanner-actions">
+            <Button type="button" onClick={handleAnalyze}>
+              Analyze with SafeLens
+            </Button>
+          </div>
+        ) : null}
+
+        {/* Active Analysis Stepper Screen */}
         {isAnalyzing ? (
-          <div className="loading-card" aria-live="polite">
-            <div className="loading-card__header">
-              <h3>SafeLens is taking a closer look…</h3>
-              <p>Reading submitted content • Checking suspicious patterns • Preparing your safety report</p>
+          <div className="loading-card animate-fade-in" aria-live="polite" style={{ marginTop: '2rem' }}>
+            <div className="loading-card__header" style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+              <h3 style={{ margin: '0 0 0.4rem' }}>SafeLens is auditing submissions...</h3>
+              <p style={{ margin: 0 }}>Step {activeStep + 1} of 4: {stepsList[activeStep].detail}</p>
             </div>
-            <div className="loading-steps">
-              <span className="step completed">✓ Reading submitted content</span>
-              <span className="step completed">✓ Checking suspicious patterns</span>
-              <span className="step active">● Analyzing potential red flags</span>
-              <span className="step">○ Preparing your safety report</span>
+            
+            {/* If screenshot, show image with horizontal scanning line overlay */}
+            {selectedType === 'Screenshot' && previewUrl ? (
+              <div className="ocr-scanner" style={{ maxWidth: '280px', margin: '0 auto 1.5rem', position: 'relative' }}>
+                <div className="ocr-scan-line" />
+                <img src={previewUrl} alt="Scanning source" style={{ width: '100%', opacity: 0.6, borderRadius: '0.8rem' }} />
+              </div>
+            ) : null}
+
+            <div className="loading-steps" style={{ gap: '0.9rem' }}>
+              {stepsList.map((step, idx) => {
+                let statusClass = 'step'
+                let bullet = '○'
+                if (idx < activeStep) {
+                  statusClass = 'step completed'
+                  bullet = '✓'
+                } else if (idx === activeStep) {
+                  statusClass = 'step active'
+                  bullet = '●'
+                }
+                
+                return (
+                  <div key={idx} className={statusClass} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '1.1rem', lineHeight: '1', width: '15px' }}>{bullet}</span>
+                    <div>
+                      <strong style={{ display: 'block' }}>{step.title}</strong>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>{step.detail}</span>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
         ) : null}
