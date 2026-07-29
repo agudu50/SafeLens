@@ -88,6 +88,18 @@ export default function About() {
     if (currentQuestion + 1 < quizQuestions.length) {
       setCurrentQuestion((prev) => prev + 1)
     } else {
+      const finalScore = score
+      const rank = finalScore === quizQuestions.length
+        ? 'Scam Guardian'
+        : finalScore > 1
+          ? 'Vigilant Citizen'
+          : 'Vulnerable Wallet'
+      try {
+        localStorage.setItem('safelens_quiz_score', String(finalScore))
+        localStorage.setItem('safelens_quiz_rank', rank)
+      } catch (err) {
+        console.error('Failed to save quiz rank to localStorage', err)
+      }
       setQuizFinished(true)
     }
   }
@@ -197,11 +209,11 @@ export default function About() {
             </div>
 
             {showFeedback && (
-              <div className="animate-fade-in" style={{ marginTop: '1.2rem', padding: '1rem', borderRadius: '0.75rem', background: selectedOption.isCorrect ? '#eff6ff' : '#fee2e2', border: selectedOption.isCorrect ? '1px solid #bfdbfe' : '1px solid #fca5a5' }}>
-                <strong style={{ color: selectedOption.isCorrect ? '#1d4ed8' : '#991b1b', display: 'block', marginBottom: '0.25rem' }}>
-                  {selectedOption.isCorrect ? '✓ Correct Answer!' : '✗ Incorrect!'}
+              <div className={`animate-fade-in ${selectedOption.isCorrect ? 'quiz-feedback--correct' : 'quiz-feedback--incorrect'}`} style={{ marginTop: '1.2rem', padding: '1rem', borderRadius: '0.75rem' }}>
+                <strong style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 'bold' }}>
+                  {selectedOption.isCorrect ? 'Correct Answer!' : 'Incorrect!'}
                 </strong>
-                <p style={{ margin: 0, fontSize: '0.92rem', color: selectedOption.isCorrect ? '#1e3a8a' : '#7f1d1d', lineHeight: '1.4' }}>
+                <p style={{ margin: 0, fontSize: '0.92rem', lineHeight: '1.4', color: 'inherit' }}>
                   {quizQuestions[currentQuestion].explanation}
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
@@ -221,12 +233,29 @@ export default function About() {
               {score} / {quizQuestions.length}
             </div>
 
-            <h3 style={{ margin: '0 0 1rem' }}>
-              {score === quizQuestions.length 
-                ? '🏅 Scam Guardian' 
-                : score > 1 
-                  ? '🥈 Vigilant Citizen' 
-                  : '⚠️ Vulnerable Wallet'}
+            <h3 style={{ margin: '0 0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+              {score === quizQuestions.length ? (
+                <>
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.4rem', height: '1.4rem', color: 'var(--success)' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                  Scam Guardian
+                </>
+              ) : score > 1 ? (
+                <>
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.4rem', height: '1.4rem', color: 'var(--warning)' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-6.75a1.125 1.125 0 00-1.125 1.125v3.375m9 0h-9M9 6a3 3 0 116 0 3 3 0 01-6 0z" />
+                  </svg>
+                  Vigilant Citizen
+                </>
+              ) : (
+                <>
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.4rem', height: '1.4rem', color: 'var(--danger)' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Vulnerable Wallet
+                </>
+              )}
             </h3>
 
             <p style={{ maxWidth: '480px', margin: '0 auto 1.5rem', fontSize: '0.95rem', lineHeight: '1.4' }}>

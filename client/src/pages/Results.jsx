@@ -50,13 +50,13 @@ export default function Results() {
 
   const copyReport = async () => {
     await navigator.clipboard.writeText(
-      `🛡️ SafeLens Scan Report\nRisk Level: ${result.riskLevel.toUpperCase()} (${result.riskScore}% Risk)\n\nSummary: ${result.summary}\n\nOriginal Text: "${result.originalContent}"`
+      `[SafeLens Scan Report]\nRisk Level: ${result.riskLevel.toUpperCase()} (${result.riskScore}% Risk)\n\nSummary: ${result.summary}\n\nOriginal Text: "${result.originalContent}"`
     )
     setCopied(true)
   }
 
   // Pre-compiled share text optimized for Ghanaian users sharing on WhatsApp
-  const shareText = `⚠️ Scam Alert! I checked this suspicious message on SafeLens and it has a ${result.riskScore}% scam risk:\n\n"${result.originalContent.length > 80 ? result.originalContent.slice(0, 80) + '...' : result.originalContent}"\n\nBe careful! Do not send money or click links. Check suspicious texts with SafeLens.`
+  const shareText = `[Scam Alert] I checked this suspicious message on SafeLens and it has a ${result.riskScore}% scam risk:\n\n"${result.originalContent.length > 80 ? result.originalContent.slice(0, 80) + '...' : result.originalContent}"\n\nBe careful! Do not send money or click links. Check suspicious texts with SafeLens.`
 
   const copyShareText = async () => {
     await navigator.clipboard.writeText(shareText)
@@ -144,14 +144,17 @@ export default function Results() {
         </div>
 
         {/* WhatsApp & Family Share Builder */}
-        <div className="info-card animate-fade-in" style={{ marginTop: '2rem', border: '1px solid #93c5fd', background: '#eff6ff' }}>
-          <h3 style={{ color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: 0, marginBottom: '0.5rem' }}>
-            📢 Share with Family & Friends
+        <div className="info-card animate-fade-in" style={{ marginTop: '2rem', border: '1px solid var(--border)', background: 'var(--surface-alt)' }}>
+          <h3 style={{ color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: 0, marginBottom: '0.5rem' }}>
+            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.15rem', height: '1.15rem', display: 'inline-block' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+            </svg>
+            Share with Family & Friends
           </h3>
-          <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', color: '#1e3a8a' }}>
+          <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', color: 'var(--muted)' }}>
             Scammers often target multiple contacts. Alert your friends on WhatsApp so they do not fall victim.
           </p>
-          <div style={{ background: 'white', padding: '0.8rem', borderRadius: '0.5rem', fontSize: '0.88rem', border: '1px solid #bfdbfe', fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: '#1e293b', marginBottom: '1rem' }}>
+          <div style={{ background: 'var(--surface)', padding: '0.8rem', borderRadius: '0.5rem', fontSize: '0.88rem', border: '1px solid var(--border)', fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: 'var(--text)', marginBottom: '1rem' }}>
             {shareText}
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -209,8 +212,11 @@ export default function Results() {
               <div className="modal-action-box">
                 <strong style={{ color: 'var(--success)' }}>3. Submit to SafeLens Registry</strong>
                 {isSubmittedToBlacklist ? (
-                  <p style={{ color: 'var(--success)', fontWeight: 'bold', marginTop: '0.25rem' }}>
-                    ✓ Thank you! This scam has been cataloged in the local database.
+                  <p style={{ color: 'var(--success)', fontWeight: 'bold', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <svg fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', display: 'inline-block' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Thank you! This scam has been cataloged in the local database.
                   </p>
                 ) : (
                   <div>
