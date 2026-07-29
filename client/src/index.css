@@ -622,20 +622,31 @@ html.dark .hero-panel__card {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface);
-  padding: 0.6rem 0.9rem;
+  padding: 0.6rem 0.95rem;
   color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.chip:hover {
+  border-color: var(--primary);
+  background: var(--surface-strong);
+  color: var(--primary);
 }
 
 .chip--active {
   background: var(--surface-strong);
   color: var(--primary);
-  border-color: #93c5fd;
+  border-color: var(--primary);
+  font-weight: 600;
 }
 
 .scanner-panel {
   border: 1px solid var(--border);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 1.2rem;
   background: var(--surface-alt);
 }
 
@@ -647,6 +658,8 @@ html.dark .hero-panel__card {
   background: transparent;
   color: var(--text);
   outline: none;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .scanner-toolbar {
@@ -654,18 +667,32 @@ html.dark .hero-panel__card {
   justify-content: space-between;
   align-items: center;
   color: var(--muted);
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
 }
 
 .upload-box {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  border: 1px dashed var(--border);
+  gap: 0.8rem;
+  border: 2px dashed var(--border);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 2.5rem 1.5rem;
   text-align: center;
   background: var(--surface);
+  transition: all 0.2s ease;
+}
+
+.upload-box:hover {
+  border-color: var(--primary);
+  background: var(--surface-strong);
+}
+
+.upload-box--active {
+  border-color: var(--primary) !important;
+  background: var(--surface-strong) !important;
 }
 
 .upload-box input {
