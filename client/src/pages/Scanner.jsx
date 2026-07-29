@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
+import Badge from '../components/ui/Badge'
 import { createMockScanResult } from '../services/scannerService'
 
 const messageIcon = (
@@ -210,10 +211,41 @@ export default function Scanner() {
     <PageContainer>
       <section className="scanner-card">
         <div className="section-heading">
-          <h1>Scan for threats</h1>
-          <p>Share a message, upload a screenshot, paste a link, or review an email body. SafeLens runs direct checks and details warning indicators.</p>
+          <div style={{ marginBottom: '0.6rem' }}>
+            <Badge tone="neutral">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', marginRight: '0.35rem', display: 'inline-block', verticalAlign: 'middle', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              AI THREAT SCANNER ENGINE
+            </Badge>
+          </div>
+          <h1>Scan Messages &amp; Digital Threats</h1>
+          <p className="hero-text" style={{ marginTop: '0.4rem' }}>Paste suspicious text messages, copy web links, upload chat screenshots, or review email headers. SafeLens evaluates warning signals in seconds.</p>
+
+          {/* Scanner Trust Signals */}
+          <div className="hero-trust-grid" style={{ marginTop: '1rem', marginBottom: '1.5rem' }}>
+            <span className="trust-pill">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+              </svg>
+              Instant 3-Sec Scan
+            </span>
+            <span className="trust-pill">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--success)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+              100% Private &amp; Anonymous
+            </span>
+            <span className="trust-pill">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 3v18m-9-9h18" />
+              </svg>
+              Ghana MoMo &amp; Telecom Protection
+            </span>
+          </div>
         </div>
 
+        {/* Tab Selection */}
         <div className="chip-row" role="tablist" aria-label="Content types">
           {options.map((option) => (
             <button
@@ -238,7 +270,34 @@ export default function Scanner() {
         {/* Message Panel */}
         {selectedType === 'Message' && !isAnalyzing ? (
           <div className="scanner-panel animate-fade-in">
-            <label className="input-label" htmlFor="message-input">Paste suspicious message text</label>
+            <div className="scanner-input-header">
+              <label className="input-label" htmlFor="message-input" style={{ margin: 0 }}>Paste suspicious message text</label>
+              <div className="preset-sample-row">
+                <span className="preset-sample-title">TRY SAMPLES:</span>
+                <button
+                  type="button"
+                  className="preset-sample-btn"
+                  onClick={() => setMessage('Hello, I just sent 850 GHS to your number by mistake. Please send it back immediately to 0551234567. God bless you!')}
+                >
+                  MoMo Refund
+                </button>
+                <button
+                  type="button"
+                  className="preset-sample-btn"
+                  onClick={() => setMessage('MTN Customer Care: You won 5,000 GHS in promo! Dial *170# -> option 6 -> option 5 to approve your cashout approval request immediately.')}
+                >
+                  MTN Promo
+                </button>
+                <button
+                  type="button"
+                  className="preset-sample-btn"
+                  onClick={() => setMessage('WORK FROM HOME! Earn 500 GHS daily by liking videos. Pay only 50 GHS registration fee to join.')}
+                >
+                  Job Fee Scam
+                </button>
+              </div>
+            </div>
+
             <textarea
               id="message-input"
               className="scanner-textarea"
@@ -272,12 +331,12 @@ export default function Scanner() {
                 onChange={handleFileChange}
                 style={{ display: 'none' }}
               />
-              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '2.4rem', height: '2.4rem', color: 'var(--muted)', marginBottom: '0.4rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '2.4rem', height: '2.4rem', color: 'var(--primary)', marginBottom: '0.4rem' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
               </svg>
               <div>
-                <strong>Drag and drop image here, or click to upload</strong>
-                <p>PNG, JPG, or WEBP screenshots up to 5MB.</p>
+                <strong style={{ fontSize: '1rem', color: 'var(--text)' }}>Drag and drop conversation screenshot here, or click to upload</strong>
+                <p style={{ margin: '0.3rem 0 0', fontSize: '0.82rem', color: 'var(--muted)' }}>PNG, JPG, or WEBP screenshots up to 5MB.</p>
               </div>
             </div>
             
@@ -314,7 +373,19 @@ export default function Scanner() {
         {/* Link Panel */}
         {selectedType === 'Link' && !isAnalyzing ? (
           <div className="scanner-panel animate-fade-in">
-            <label className="input-label" htmlFor="link-input">Suspicious link URL</label>
+            <div className="scanner-input-header">
+              <label className="input-label" htmlFor="link-input" style={{ margin: 0 }}>Suspicious link URL</label>
+              <div className="preset-sample-row">
+                <span className="preset-sample-title">TRY SAMPLE:</span>
+                <button
+                  type="button"
+                  className="preset-sample-btn"
+                  onClick={() => setLinkUrl('http://mtn-bonus-cashout-claim.xyz/verify-momo')}
+                >
+                  Phishing Link
+                </button>
+              </div>
+            </div>
             <input
               id="link-input"
               type="url"
@@ -323,8 +394,8 @@ export default function Scanner() {
               onChange={(event) => setLinkUrl(event.target.value)}
               placeholder="Paste suspicious website URL (e.g. http://mtn-bonus-claim.xyz)..."
             />
-            <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
-              We evaluate secure HTTP protocols (HTTPS), domain registrar profiles, and matching phishing strings.
+            <p style={{ margin: '0.4rem 0 0.5rem', fontSize: '0.84rem', color: 'var(--muted)' }}>
+              SafeLens evaluates secure HTTP protocols (HTTPS), domain registrar profiles, blacklists, and matching phishing strings.
             </p>
           </div>
         ) : null}
@@ -332,7 +403,22 @@ export default function Scanner() {
         {/* Email Panel */}
         {selectedType === 'Email' && !isAnalyzing ? (
           <div className="scanner-panel animate-fade-in">
-            <label className="input-label" htmlFor="sender-input">Sender Email Address (Optional)</label>
+            <div className="scanner-input-header">
+              <label className="input-label" htmlFor="sender-input" style={{ margin: 0 }}>Sender Email Address (Optional)</label>
+              <div className="preset-sample-row">
+                <span className="preset-sample-title">TRY SAMPLE:</span>
+                <button
+                  type="button"
+                  className="preset-sample-btn"
+                  onClick={() => {
+                    setEmailSender('security-fidelitybank@gmail.com')
+                    setEmailContent('URGENT: Your Fidelity Bank online access has been flagged due to unverified login attempts. Click the link immediately to verify your PIN and security question.')
+                  }}
+                >
+                  Bank Spoof Email
+                </button>
+              </div>
+            </div>
             <input
               id="sender-input"
               type="text"
@@ -342,7 +428,7 @@ export default function Scanner() {
               placeholder="e.g. security-mtn@gmail.com, or support@fidelitybank-gh.xyz"
             />
             
-            <label className="input-label" htmlFor="email-body-input">Email Subject & Body Content</label>
+            <label className="input-label" htmlFor="email-body-input" style={{ marginTop: '0.8rem' }}>Email Subject &amp; Body Content</label>
             <textarea
               id="email-body-input"
               className="scanner-textarea"
@@ -356,7 +442,10 @@ export default function Scanner() {
 
         {!isAnalyzing ? (
           <div className="scanner-actions">
-            <Button type="button" onClick={handleAnalyze}>
+            <Button type="button" onClick={handleAnalyze} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.6rem', fontSize: '0.98rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
               Analyze with SafeLens
             </Button>
           </div>
