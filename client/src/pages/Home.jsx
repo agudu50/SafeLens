@@ -193,22 +193,87 @@ export default function Home() {
 
       <section className="hero-card animate-slide-up delay-1">
         <div className="hero-copy">
-          <Badge tone="neutral">AI-powered scam awareness</Badge>
+          <div style={{ marginBottom: '0.8rem' }}>
+            <Badge tone="neutral">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', marginRight: '0.35rem', display: 'inline-block', verticalAlign: 'middle', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+              AI-POWERED SCAM INTELLIGENCE
+            </Badge>
+          </div>
+
           <h1>Not sure if it&apos;s a <span className="text-highlight">scam?</span></h1>
-          <p className="hero-text">Let SafeLens take a closer look. We help people in Ghana and beyond review suspicious messages, links, and emails before they act.</p>
+          <p className="hero-text">Let SafeLens take a closer look. We help people in Ghana and beyond review suspicious messages, links, and screenshots before taking financial risks.</p>
+
+          {/* Key Trust Signals */}
+          <div className="hero-trust-grid">
+            <span className="trust-pill">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+              </svg>
+              Instant AI Scan
+            </span>
+            <span className="trust-pill">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--success)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+              99% Detection
+            </span>
+            <span className="trust-pill">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 3v18m-9-9h18" />
+              </svg>
+              Ghana MoMo Protection
+            </span>
+          </div>
+
           <div className="hero-actions">
-            <Button as={Link} to="/scan" variant="primary">Scan a Message</Button>
-            <Button as={Link} to="/about" variant="secondary">Learn How It Works</Button>
+            <Button as={Link} to="/scan" variant="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              Scan a Message
+            </Button>
+            <Button as={Link} to="/about" variant="secondary">
+              Learn How It Works
+            </Button>
           </div>
         </div>
+
         <div className="hero-panel">
           <div className="hero-panel__card animate-fade-in" key={tickerIndex}>
-            <p className="hero-panel__label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
-              <span className="live-pulse-dot" />
-              Live local threat
-            </p>
-            <h3>{locationIcon} {tickerReports[tickerIndex].region}</h3>
-            <p>{tickerReports[tickerIndex].type} reported. Risk level is high; remain vigilant.</p>
+            <div className="hero-panel__header">
+              <span className="live-pulse-badge">
+                <span className="live-pulse-dot" />
+                LIVE THREAT MONITOR
+              </span>
+              <span className="hero-risk-chip danger">HIGH RISK</span>
+            </div>
+
+            <div className="hero-panel__body">
+              <div className="hero-location-tag">
+                {locationIcon}
+                <span>{tickerReports[tickerIndex].region}, Ghana</span>
+              </div>
+              <h3 className="hero-threat-title">{tickerReports[tickerIndex].type}</h3>
+              <p className="hero-threat-desc">Active scam incident reported in this region. Risk level is high; remain vigilant before authorizing transactions.</p>
+              
+              <div className="hero-threat-meta">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {tickerReports[tickerIndex].time}
+                </span>
+                <span>• Verified Feed</span>
+              </div>
+            </div>
+
+            <div className="hero-panel__footer">
+              <Link to="/scan" className="hero-quick-scan-link">
+                Test a similar threat message &rarr;
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -282,8 +347,16 @@ export default function Home() {
               <span className="threat-tags-label">DETECTED RISK FLAGS:</span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.35rem' }}>
                 {selectedPreset.threatTags.map((tag) => (
-                  <span key={tag} className="sandbox-threat-chip">
-                    {selectedPreset.riskLevel === 'high' ? '⚠️ ' : '✅ '}
+                  <span key={tag} className="sandbox-threat-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                    {selectedPreset.riskLevel === 'high' ? (
+                      <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem', color: 'var(--danger)' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                      </svg>
+                    ) : (
+                      <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem', color: 'var(--success)' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    )}
                     {tag}
                   </span>
                 ))}
@@ -295,8 +368,11 @@ export default function Home() {
               <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.88rem', lineHeight: '1.5' }}>
                 <strong>AI Analysis:</strong> {selectedPreset.explanation}
               </p>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: '1.5', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
-                <strong>🛡️ Safety Advice:</strong> {selectedPreset.advice}
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: '1.5', borderTop: '1px solid var(--border)', paddingTop: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.35rem' }}>
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', color: 'var(--primary)', flexShrink: 0, marginTop: '0.15rem' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+                <span><strong>Safety Advice:</strong> {selectedPreset.advice}</span>
               </p>
             </div>
 
@@ -312,24 +388,73 @@ export default function Home() {
       {/* How it works section */}
       <section className="section-block animate-slide-up delay-3">
         <div className="section-heading">
-          <Badge tone="low">How SafeLens works</Badge>
-          <h2>Simple steps to stay safer</h2>
+          <Badge tone="low">HOW SAFELENS WORKS</Badge>
+          <h2>Simple Steps to Stay Safer</h2>
+          <p className="hero-text" style={{ marginTop: '0.4rem' }}>Our 3-stage security process helps you evaluate suspicious communications before taking financial risks.</p>
         </div>
+
         <div className="steps-grid">
-          <div className="info-card animate-slide-up delay-4">
-            <div className="step-number">01</div>
-            <h3>Submit</h3>
-            <p>Paste a message, copy a link, or upload a conversation screenshot.</p>
+          {/* Step 01 */}
+          <div className="info-card step-card animate-slide-up delay-4">
+            <div className="step-card__header">
+              <span className="step-number">01</span>
+              <div className="step-icon-wrapper">
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.35rem', height: '1.35rem', color: 'var(--primary)' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                </svg>
+              </div>
+            </div>
+
+            <h3 className="step-card__title">Submit Content</h3>
+            <p className="step-card__desc">Paste a suspicious SMS message, copy a promotion URL, or upload a WhatsApp conversation screenshot.</p>
+
+            <div className="step-features">
+              <span className="step-feature-chip">SMS & Text</span>
+              <span className="step-feature-chip">Web Links</span>
+              <span className="step-feature-chip">Screenshots</span>
+            </div>
           </div>
-          <div className="info-card animate-slide-up delay-5">
-            <div className="step-number">02</div>
-            <h3>Analyze</h3>
-            <p>SafeLens scans for indicators of transaction tricks, urgency, and identity spoofing.</p>
+
+          {/* Step 02 */}
+          <div className="info-card step-card animate-slide-up delay-5">
+            <div className="step-card__header">
+              <span className="step-number">02</span>
+              <div className="step-icon-wrapper">
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.35rem', height: '1.35rem', color: 'var(--warning)' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+                </svg>
+              </div>
+            </div>
+
+            <h3 className="step-card__title">AI Pattern Analysis</h3>
+            <p className="step-card__desc">SafeLens evaluates language indicators, transaction directives, urgency pressure, and sender credentials.</p>
+
+            <div className="step-features">
+              <span className="step-feature-chip">MoMo Lure Check</span>
+              <span className="step-feature-chip">Urgency Audit</span>
+              <span className="step-feature-chip">Domain Safety</span>
+            </div>
           </div>
-          <div className="info-card animate-slide-up delay-6">
-            <div className="step-number">03</div>
-            <h3>Protect</h3>
-            <p>Receive clear score breakdowns and steps to report scams safely.</p>
+
+          {/* Step 03 */}
+          <div className="info-card step-card animate-slide-up delay-6">
+            <div className="step-card__header">
+              <span className="step-number">03</span>
+              <div className="step-icon-wrapper">
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.35rem', height: '1.35rem', color: 'var(--success)' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+              </div>
+            </div>
+
+            <h3 className="step-card__title">Protect & Report</h3>
+            <p className="step-card__desc">Get an instant 0–100% Risk Score breakdown, clear safety advice, and one-tap options to report scams to authorities.</p>
+
+            <div className="step-features">
+              <span className="step-feature-chip">Scam Risk Score</span>
+              <span className="step-feature-chip">Safety Steps</span>
+              <span className="step-feature-chip">CSA / 1917 Report</span>
+            </div>
           </div>
         </div>
       </section>
