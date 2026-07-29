@@ -27,37 +27,53 @@ const testimonials = [
 
 const presets = [
   {
+    id: 'momo',
     title: 'MoMo Wrong Transfer',
-    description: 'Urgent mobile money refund request',
-    content: 'Hello, I just sent 850 GHS to your number by mistake. Please send it back immediately to 0551234567. God bless you!',
+    description: 'Fake mobile money refund lure',
+    category: 'MoMo Fraud',
     riskLevel: 'high',
     riskScore: 92,
-    explanation: 'Requests immediate MoMo refund transfers to a different phone number. Legitimate wrong transactions are reversed by dialing telecom networks directly, not transferring back manually.',
+    content: 'Hello, I just sent 850 GHS to your number by mistake. Please send it back immediately to 0551234567. God bless you!',
+    threatTags: ['Financial Demand', 'Urgency Pressure', 'Manual Redirect'],
+    explanation: 'Tricks victims into sending money to a scammer under the guise of an accidental MoMo transfer. Telecom operators handle reversals directly—you should never send funds back manually.',
+    advice: 'Do NOT send money back manually. Advise the sender to dial 100 or contact network support to initiate an official reversal.'
   },
   {
-    title: 'Fake Promotion Cashout',
-    description: 'Fake MTN cashout authorization trick',
-    content: 'MTN Ghana Customer Care: You have won 5,000 GHS in the MTN 50th Anniversary Promo. Dial *170# -> option 6 -> option 5 to approve your cashout.',
+    id: 'promo',
+    title: 'Fake Promo Cashout',
+    description: 'MTN cashout approval trick',
+    category: 'Wallet Exploit',
     riskLevel: 'high',
     riskScore: 97,
-    explanation: 'Attempts to trick you into authorizing a "Cash Out" request on your Mobile Money wallet. Telecom operators never ask you to authorize withdrawals to receive rewards.',
+    content: 'MTN Customer Care: You won 5,000 GHS in promo! Dial *170# -> option 6 -> option 5 to approve your cashout approval request immediately.',
+    threatTags: ['Wallet Authorization', 'Operator Spoofing', 'PIN Prompt'],
+    explanation: 'Exploits the MoMo Cash Out feature to drain your wallet. Telecom providers never require customers to approve cashout prompts to receive prize money.',
+    advice: 'Never approve cashout requests on *170# for promos. Report the sender number immediately to 1917.'
   },
   {
+    id: 'job',
     title: 'Unrealistic Job Offer',
-    description: 'Upfront fee request for fake remote work',
-    content: 'WORK FROM HOME! Earn 500 GHS daily by liking social media videos. Pay only 50 GHS registration fee to join. WhatsApp us now.',
+    description: 'Upfront fee remote job scam',
+    category: 'Advance Fee',
     riskLevel: 'high',
     riskScore: 89,
-    explanation: 'Requires an upfront registration fee for remote employment. Legit employers will never charge applicants money to apply or work.',
+    content: 'WORK FROM HOME! Earn 500 GHS daily by liking videos. Pay only 50 GHS registration fee to join. WhatsApp us now on 0501234567.',
+    threatTags: ['Upfront Registration Fee', 'Unrealistic Pay', 'Unverified Recruiter'],
+    explanation: 'Classic advance-fee scam. Legitimate companies never charge job applicants registration, training, or onboarding fees.',
+    advice: 'Refuse to pay upfront registration fees for jobs. Legit employers pay you; they do not solicit fees.'
   },
   {
-    title: 'Safe Message',
-    description: 'Routine personal meetup instruction',
-    content: 'Hey Ama, are we still meeting at the Accra Mall food court by 4:00 PM today? Let me know so I can order.',
+    id: 'safe',
+    title: 'Verified Safe Message',
+    description: 'Routine personal conversation',
+    category: 'Clean Message',
     riskLevel: 'low',
     riskScore: 12,
-    explanation: 'Contains routine conversational patterns with no financial instructions, urgency, or credential solicitations.',
-  },
+    content: 'Hey Ama, are we still meeting at the Accra Mall food court by 4:00 PM today? Let me know so I can order lunch.',
+    threatTags: ['Personal Context', 'Zero Financial Directives', 'No Unknown Links'],
+    explanation: 'Conversational message with zero threat indicators, financial demands, or suspicious URLs.',
+    advice: 'Message is verified safe. No scam indicators detected.'
+  }
 ]
 
 const FAQs = [
@@ -202,41 +218,93 @@ export default function Home() {
         <div className="section-heading">
           <Badge tone="medium">Try SafeLens Now</Badge>
           <h2>Instant Scan Sandbox</h2>
-          <p className="hero-text" style={{ marginTop: '0.4rem' }}>Click a preset scam message below to see how SafeLens analyzes warning flags immediately.</p>
+          <p className="hero-text" style={{ marginTop: '0.4rem' }}>Select a sample threat below to watch SafeLens detect scam signals, highlight risk triggers, and provide actionable safety steps in real-time.</p>
         </div>
 
         <div className="sandbox-container">
+          {/* Presets Column */}
           <div className="sandbox-presets">
             {presets.map((preset) => (
               <button
-                key={preset.title}
+                key={preset.id}
                 type="button"
-                className={`sandbox-btn ${selectedPreset.title === preset.title ? 'sandbox-btn--active' : ''}`}
+                className={`sandbox-btn ${selectedPreset.id === preset.id ? 'sandbox-btn--active' : ''}`}
                 onClick={() => setSelectedPreset(preset)}
               >
-                <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{preset.title}</span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.1rem' }}>{preset.description}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="sandbox-category-badge">{preset.category}</span>
+                  <Badge tone={toneMap[preset.riskLevel]}>{preset.riskLevel.toUpperCase()}</Badge>
+                </div>
+                <span style={{ fontWeight: 800, fontSize: '0.98rem', marginTop: '0.35rem', color: 'var(--text)' }}>{preset.title}</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.15rem' }}>{preset.description}</span>
               </button>
             ))}
           </div>
 
-          <div className="sandbox-preview animate-fade-in" key={selectedPreset.title}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-              <Badge tone={toneMap[selectedPreset.riskLevel]}>{selectedPreset.riskLevel.toUpperCase()} RISK</Badge>
-              <strong style={{ fontSize: '1.25rem', color: 'var(--text)' }}>{selectedPreset.riskScore}% Scam Risk</strong>
+          {/* Live Scanner Display */}
+          <div className="sandbox-preview animate-fade-in" key={selectedPreset.id}>
+            <div className="sandbox-preview-header">
+              <div>
+                <span className="sandbox-live-status">
+                  <span className="live-pulse-dot" />
+                  AI SCAN ANALYSIS
+                </span>
+                <h3 style={{ margin: '0.2rem 0 0 0', fontSize: '1.2rem', color: 'var(--text)' }}>{selectedPreset.title}</h3>
+              </div>
+              <div className="sandbox-score-badge">
+                <span style={{ fontSize: '1.4rem', fontWeight: 900, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)' }}>
+                  {selectedPreset.riskScore}%
+                </span>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Scam Score</span>
+              </div>
             </div>
 
-            <div className="sandbox-meter-track" style={{ height: '6px', background: 'var(--surface-strong)', borderRadius: '3px', overflow: 'hidden', marginBottom: '1.2rem' }}>
-              <div style={{ width: `${selectedPreset.riskScore}%`, height: '100%', background: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : selectedPreset.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)', transition: 'width 0.4s ease' }} />
+            <div className="sandbox-meter-track">
+              <div
+                className="sandbox-meter-fill"
+                style={{
+                  width: `${selectedPreset.riskScore}%`,
+                  background: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : selectedPreset.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)'
+                }}
+              />
             </div>
 
+            {/* Message Box */}
             <div className="chat-bubble-preview">
-              &ldquo;{selectedPreset.content}&rdquo;
+              <span className="bubble-sender">SUBMITTED TEXT CONTENT:</span>
+              <p style={{ margin: '0.4rem 0 0 0', fontWeight: 500, lineHeight: 1.5, fontSize: '0.92rem' }}>
+                &ldquo;{selectedPreset.content}&rdquo;
+              </p>
             </div>
-            
-            <p style={{ margin: 0, fontSize: '0.92rem', lineHeight: '1.4' }}>
-              <strong>SafeLens analysis:</strong> {selectedPreset.explanation}
-            </p>
+
+            {/* Detected Threat Flags */}
+            <div className="sandbox-threat-tags">
+              <span className="threat-tags-label">DETECTED RISK FLAGS:</span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.35rem' }}>
+                {selectedPreset.threatTags.map((tag) => (
+                  <span key={tag} className="sandbox-threat-chip">
+                    {selectedPreset.riskLevel === 'high' ? '⚠️ ' : '✅ '}
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Analysis & Advice */}
+            <div className="sandbox-analysis-box">
+              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.88rem', lineHeight: '1.5' }}>
+                <strong>AI Analysis:</strong> {selectedPreset.explanation}
+              </p>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: '1.5', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                <strong>🛡️ Safety Advice:</strong> {selectedPreset.advice}
+              </p>
+            </div>
+
+            <div style={{ marginTop: '1.2rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <Button as={Link} to="/scan" variant="primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem' }}>
+                Scan Your Own Message &rarr;
+              </Button>
+            </div>
           </div>
         </div>
       </section>

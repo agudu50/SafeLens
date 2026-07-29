@@ -577,7 +577,7 @@ html.dark .dark-bg-animation {
 }
 
 .tip-prefix {
-  background: linear-gradient(135deg, var(--primary) 0%, rgb(255, 90, 60) 100%);
+  background: var(--primary);
   color: #ffffff;
   font-size: 0.64rem;
   padding: 0.16rem 0.48rem;
@@ -585,19 +585,33 @@ html.dark .dark-bg-animation {
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  box-shadow: 0 2px 8px rgba(230, 60, 28, 0.35);
+  box-shadow: 0 2px 8px rgba(230, 60, 28, 0.2);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.node-1 { top: 12%; left: 5%; animation-delay: 0s; }
-.node-2 { top: 36%; left: 14%; animation-delay: 2.5s; }
-.node-3 { top: 66%; left: 3%; animation-delay: 5s; }
-.node-4 { top: 86%; left: 12%; animation-delay: 7.5s; }
-.node-5 { top: 16%; left: 80%; animation-delay: 1.2s; }
-.node-6 { top: 42%; left: 88%; animation-delay: 3.7s; }
-.node-7 { top: 70%; left: 82%; animation-delay: 6.2s; }
-.node-8 { top: 90%; left: 72%; animation-delay: 8.7s; }
+/* Outer Margin Perimeter Trajectory Placement (Active Vertical Trajectory Movement) */
+.node-1, .node-2, .node-3, .node-4 {
+  left: 2.5%;
+  right: auto;
+  animation: floatNodeLeftTrack 28s linear infinite;
+}
+
+.node-5, .node-6, .node-7, .node-8 {
+  right: 2.5%;
+  left: auto;
+  animation: floatNodeRightTrack 28s linear infinite;
+}
+
+.node-1 { top: 50%; animation-delay: 0s; }
+.node-2 { top: 50%; animation-delay: -7s; }
+.node-3 { top: 50%; animation-delay: -14s; }
+.node-4 { top: 50%; animation-delay: -21s; }
+
+.node-5 { top: 50%; animation-delay: -3.5s; }
+.node-6 { top: 50%; animation-delay: -10.5s; }
+.node-7 { top: 50%; animation-delay: -17.5s; }
+.node-8 { top: 50%; animation-delay: -24.5s; }
 
 @keyframes scrollBg {
   0% { background-position: 0 0; }
@@ -609,23 +623,64 @@ html.dark .dark-bg-animation {
   100% { top: 100%; }
 }
 
-@keyframes floatNodeLight {
+/* Continuous Active Left Margin Upward Motion Trajectory (Auto-dims behind page content) */
+@keyframes floatNodeLeftTrack {
   0% {
-    transform: translate3d(-4px, 24px, 0) scale(0.96);
+    transform: translate3d(0, 50vh, 0) scale(0.84);
     opacity: 0;
   }
-  18% {
-    opacity: 1;
+  14% {
+    opacity: 0.42;
+  }
+  30% {
+    /* Dim opacity as chip moves into content card zone */
+    opacity: 0.15;
   }
   50% {
-    transform: translate3d(6px, 0px, 0) scale(1);
-    opacity: 1;
+    /* Ultra-subtle ghost opacity while passing behind main content cards */
+    transform: translate3d(12px, 0, 0) scale(0.96);
+    opacity: 0.12;
   }
-  82% {
-    opacity: 1;
+  70% {
+    /* Dim opacity while exiting content card zone */
+    opacity: 0.15;
+  }
+  86% {
+    opacity: 0.42;
   }
   100% {
-    transform: translate3d(-4px, -45px, 0) scale(0.96);
+    transform: translate3d(0, -50vh, 0) scale(0.84);
+    opacity: 0;
+  }
+}
+
+/* Continuous Active Right Margin Downward Motion Trajectory (Auto-dims behind page content) */
+@keyframes floatNodeRightTrack {
+  0% {
+    transform: translate3d(0, -50vh, 0) scale(0.84);
+    opacity: 0;
+  }
+  14% {
+    opacity: 0.42;
+  }
+  30% {
+    /* Dim opacity as chip moves into content card zone */
+    opacity: 0.15;
+  }
+  50% {
+    /* Ultra-subtle ghost opacity while passing behind main content cards */
+    transform: translate3d(-12px, 0, 0) scale(0.96);
+    opacity: 0.12;
+  }
+  70% {
+    /* Dim opacity while exiting content card zone */
+    opacity: 0.15;
+  }
+  86% {
+    opacity: 0.42;
+  }
+  100% {
+    transform: translate3d(0, 50vh, 0) scale(0.84);
     opacity: 0;
   }
 }
@@ -1477,18 +1532,14 @@ html.dark .hero-panel__card {
 
 .sandbox-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 340px 1fr;
+  gap: 1.5rem;
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 1.2rem;
+  border-radius: 1.5rem;
   padding: 1.5rem;
   margin-top: 1.5rem;
-}
-
-.sandbox-header {
-  grid-column: span 2;
-  margin-bottom: 0.5rem;
+  box-shadow: var(--shadow);
 }
 
 .sandbox-presets {
@@ -1503,34 +1554,83 @@ html.dark .hero-panel__card {
   color: var(--text);
   border: 1px solid var(--border);
   padding: 1rem;
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
+  border-radius: 1rem;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
 .sandbox-btn:hover {
   border-color: var(--primary);
-  background: var(--background);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(230, 60, 28, 0.12);
 }
 
 .sandbox-btn--active {
   border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 8px 24px -4px rgba(230, 60, 28, 0.18), 0 0 0 1.5px var(--primary);
+}
+
+.sandbox-category-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
   background: var(--surface-strong);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
 }
 
 .sandbox-preview {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   padding: 1.5rem;
-  min-height: 220px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+}
+
+.sandbox-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.sandbox-live-status {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sandbox-score-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.sandbox-meter-track {
+  height: 8px;
+  background: var(--surface-strong);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+
+.sandbox-meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .chat-bubble-preview {
@@ -1538,14 +1638,46 @@ html.dark .hero-panel__card {
   border: 1px solid var(--border);
   border-radius: 0.85rem;
   padding: 1rem;
-  margin-top: 0.8rem;
-  margin-bottom: 1.2rem;
-  font-style: italic;
+  margin-bottom: 1rem;
   color: var(--text);
-  font-size: 0.92rem;
-  line-height: 1.4;
   border-left: 4px solid var(--primary);
-  position: relative;
+}
+
+.bubble-sender {
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.sandbox-threat-tags {
+  margin-bottom: 1rem;
+}
+
+.threat-tags-label {
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.sandbox-threat-chip {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.sandbox-analysis-box {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 1rem;
 }
 
 /* FAQ Accordion */
