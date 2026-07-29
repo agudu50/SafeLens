@@ -1,133 +1,101 @@
-# SafeLens
+# SafeLens — AI-Powered Scam & Fraud Detector 🛡️🇬🇭
 
-SafeLens is an AI-assisted scam detection application intended to help users in Ghana identify suspicious messages, links, and screenshots before they take action.
-
-This repository is organized as a monorepo with separate `client` and `server` folders. The current focus is on the client-side experience.
-
-## Project Vision
-
-SafeLens is designed to feel:
-- modern
-- trustworthy
-- simple
-- professional
-- security-focused
-
-The initial product is tailored for Ghana, but the architecture is intentionally scalable to support other African markets later.
-
-## Current Status
-
-- `client/` contains the React/Vite frontend with a landing page, scanner UI, results page, and mock data flow.
-- `server/` exists as a separate folder for future backend work. It is not modified yet.
-- Root-level dependency management is intentionally kept out of the client and server folders.
-
-## Folder Structure
-
-```
-SafeLens/
-├── client/          # Frontend application (React + Vite)
-├── server/          # Backend API and integration (future)
-├── README.md        # Project overview and implementation plan
-└── package-lock.json? # should not be in root long term
-```
-
-### Client Structure
-
-The `client` app follows a feature-oriented layout:
-
-```
-client/
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   │   ├── ui/
-│   │   ├── layout/
-│   │   └── common/
-│   ├── features/
-│   ├── pages/
-│   ├── routes/
-│   ├── services/
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-├── package.json
-├── package-lock.json
-└── vite.config.js
-```
-
-## Implementation Plan
-
-The project is implemented in stages to keep the client simple, polished, and extensible.
-
-### Stage 1 — Project Foundation
-- Establish the client app as a React + Vite project.
-- Create a clean folder structure that separates UI components, pages, routes, and services.
-
-### Stage 2 — Design System
-- Define global color tokens, typography, spacing, buttons, forms, cards, and alerts.
-- Build reusable UI components to keep the interface consistent.
-
-### Stage 3 — Navigation
-- Implement a responsive Navbar and Footer.
-- Support mobile-friendly navigation with a hamburger menu.
-
-### Stage 4 — Home Page
-- Create a landing page with a strong hero section.
-- Add a features section and explain how SafeLens works.
-
-### Stage 5 — Scanner
-- Build the main scan experience at `/scan`.
-- Support Message and Screenshot scanning UI.
-- Use mock functionality for now instead of real AI integration.
-
-### Stage 6 — Results
-- Build a results page at `/results/:id`.
-- Show risk score, summary, red flags, explanation, recommendation, and original content.
-
-### Stage 7 — History
-- Build a history interface with mock scan data.
-- Allow users to revisit previous scan reports.
-
-### Stage 8 — Backend Integration
-- Prepare the frontend for API integration after the UI is complete.
-- Keep API logic separate from UI components.
-
-## Current Client Features
-
-- Responsive landing page
-- Scanner UI for message input and screenshot upload
-- Mock analysis flow with loading state
-- Results page with risk scoring and actionable guidance
-- History view using mock data
-- Clear UX language for "Potential Scam", "High Risk", "Medium Risk", and "Low Risk"
-
-## Development Notes
-
-- The client app is the main working area for now. Do not modify or create files outside `client/` or `server/` unless you are updating this root README.
-- The backend should be added later in `server/` and should handle AI API keys securely.
-- No gradients are used in the theme; the design uses flat color surfaces.
-- The primary brand color is `rgb(230, 60, 28)`.
-
-## Running the Client
-
-From the `client/` folder:
-
-```bash
-npm install
-npm run dev
-```
-
-Then open the local Vite URL in your browser.
-
-## Future Work
-
-- Implement the server-side API for real AI analysis
-- Add support for link and email scanning
-- Add user session history and saved reports
-- Improve screenshot parsing and OCR support
-- Extend the app for additional African markets
+> **Look closer. Stay safer.**  
+> SafeLens is an AI-assisted threat detection and awareness platform designed to help everyday citizens in Ghana and beyond identify suspicious Mobile Money (MoMo) alerts, SMS lures, phishing URLs, and job recruitment scams before taking action.
 
 ---
 
-> Note: Keep repository-level files minimal and avoid placing client-only modules outside `client/`.
+## 🌟 Key Features
+
+- **⚡ Multi-Vector AI Threat Scanner**:
+  - **Message Scan**: Detects MoMo cashout tricks, urgency coercion, and SMS fraud.
+  - **Screenshot OCR Analysis**: Upload conversation screenshots for automated text extraction & threat evaluation.
+  - **Link Reputation Audit**: Evaluates HTTPS security, domain registrar age, and phishing blacklists.
+  - **Email Header & Body Scan**: Identifies domain spoofing and credential harvesting lures.
+
+- **🔒 Authentication & Protected Features**:
+  - Account protection (`ProtectedRoute`) for scanning tools, scan logs, and profile management.
+  - Local authentication with demo credentials (`kofi@example.com` / `password123`) & 1-click test drive option.
+
+- **📜 Personal Scan Logs & History**:
+  - Filterable audit trail of previous scans with risk severity tags (`High`, `Medium`, `Low`).
+
+- **🎯 Interactive Instant Scan Sandbox**:
+  - Test pre-configured real-world Ghanaian scams with interactive visual analysis overlays.
+
+- **🎓 Ghana Security Education Center & Quiz**:
+  - Common scam tactics library (MoMo wrong transfer, fake job registration fees, brand impersonation).
+  - Interactive 3-stage **Scam Spotter Quiz** with score calculation and rank badges (*Scam Guardian*, *Vigilant Citizen*, *Vulnerable Wallet*).
+
+- **📱 Full Mobile & Tablet Responsiveness**:
+  - Fluid typography, touch-swipe tab rows, and responsive media query system.
+
+- **🎨 Modern Dark & Light Mode Theme**:
+  - Smooth glassmorphism visuals, ambient security radar waves, and quick theme toggle.
+
+---
+
+## 📁 Repository Architecture
+
+```
+SafeLens/
+├── client/                 # React 19 + Vite Frontend Application
+│   ├── public/             # Public assets (Logo, Favicon, Icons)
+│   └── src/
+│       ├── components/     # UI design system & layout components
+│       │   ├── auth/       # ProtectedRoute & auth guards
+│       │   ├── ui/         # Buttons, Badges, Alerts, Cards
+│       │   └── layout/     # Navbar, Footer, PageContainer, BackgroundAnimation
+│       ├── pages/          # Home, Scanner, Results, History, About, Login, Register, Profile
+│       ├── routes/         # AppRoutes configuration
+│       ├── services/       # Auth service, scanner service, mock database
+│       └── index.css       # Design tokens & responsive styles
+├── server/                 # Backend API and integration (future release)
+└── README.md               # Project documentation
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Node.js**: v18.x or higher
+- **npm**: v9.x or higher
+
+### Installation & Local Setup
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/agudu50/SafeLens.git
+   cd SafeLens/client
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser.
+
+4. **Production Build**:
+   ```bash
+   npm run build
+   ```
+
+---
+
+## 🌐 Live Hotlines & Emergency Contacts (Ghana)
+
+- **National Cyber Security Authority (CSA)**: Hotline `292`
+- **MTN Fraud Reporting Unit**: Toll-Free `1917`
+- **Ghana Police Service**: Emergency `18555` / `112`
+
+---
+
+## 📄 License
+
+This project is built for educational and community safety awareness.
