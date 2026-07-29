@@ -1,26 +1,31 @@
 export default function BackgroundAnimation() {
   return (
     <div className="cyber-page-bg" aria-hidden="true">
-      {/* Light Mode: Solid Colors, Geometric Shapes & Micro Grid (NO GRADIENTS) */}
+      {/* Light Mode: Professional, Non-Distracting Cybersecurity Animation */}
       <div className="light-bg-animation">
-        {/* Solid Color Floating Geometric Orbs / Shields */}
-        <div className="light-solid-shape shape-primary" />
-        <div className="light-solid-shape shape-slate" />
-        <div className="light-solid-shape shape-blue" />
+        {/* Technical Security Grid Overlay */}
+        <div className="light-cyber-grid" />
 
-        {/* Solid Line Blueprint Grid Matrix */}
-        <div className="light-blueprint-grid" />
+        {/* Thin Radar Scan Bar */}
+        <div className="light-cyber-radar-sweep" />
 
-        {/* Solid Scanning Bar Line */}
-        <div className="light-solid-scan-bar" />
+        {/* Concentric Safety Shield Radar Wave */}
+        <div className="light-radar-wave wave-1" />
+        <div className="light-radar-wave wave-2" />
 
-        {/* Solid Floating Micro Particles */}
-        <div className="light-solid-dot d1" />
-        <div className="light-solid-dot d2" />
-        <div className="light-solid-dot d3" />
-        <div className="light-solid-dot d4" />
-        <div className="light-solid-dot d5" />
-        <div className="light-solid-dot d6" />
+        {/* Security Status Monitoring Nodes */}
+        <div className="light-security-node node-a">
+          <span className="node-dot green" />
+          <span>ENCRYPTED PROTOCOL</span>
+        </div>
+        <div className="light-security-node node-b">
+          <span className="node-dot coral" />
+          <span>THREAT MONITOR ACTIVE</span>
+        </div>
+        <div className="light-security-node node-c">
+          <span className="node-dot blue" />
+          <span>REALTIME DB SYNC</span>
+        </div>
       </div>
 
       {/* Dark Mode Exclusive Cyber Background Animation */}

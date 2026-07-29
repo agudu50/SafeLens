@@ -262,7 +262,9 @@ html.dark .theme-toggle:hover {
 .hero-card,
 .scanner-card,
 .results-card {
-  background: rgba(255, 255, 255, 0.88);
+  position: relative;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.94);
   border: 1px solid var(--border);
   border-radius: 1.5rem;
   box-shadow: var(--shadow);
@@ -274,7 +276,7 @@ html.dark .theme-toggle:hover {
 html.dark .hero-card,
 html.dark .scanner-card,
 html.dark .results-card {
-  background: rgba(30, 41, 59, 0.86);
+  background: rgba(30, 41, 59, 0.92);
 }
 
 .hero-card {
@@ -284,7 +286,7 @@ html.dark .results-card {
   align-items: center;
   margin-bottom: 2rem;
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
 
 /* Fixed Cyber Background & Ambient Fluid Mesh Animations */
@@ -334,116 +336,121 @@ html.dark .dark-bg-animation {
 }
 
 /* ========================================================
-   LIGHT MODE EXCLUSIVE (Solid Colors & Blueprint Grid - NO GRADIENTS)
+   LIGHT MODE EXCLUSIVE (Professional Cybersecurity Blueprint Matrix)
    ======================================================== */
 
-/* Solid Blueprint Grid Matrix */
-.light-blueprint-grid {
+/* Technical Security Grid Overlay */
+.light-cyber-grid {
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='%23cbd5e1' stroke-width='1.2' opacity='0.45'/%3E%3C/svg%3E");
-  background-size: 40px 40px;
-  animation: gridScroll 45s linear infinite;
+  background-image: 
+    radial-gradient(rgba(148, 163, 184, 0.28) 1.2px, transparent 1.2px),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='%23cbd5e1' stroke-width='0.8' opacity='0.25'/%3E%3Cpath d='M 28 30 L 32 30 M 30 28 L 30 32' fill='none' stroke='%23e63c1c' stroke-width='0.8' opacity='0.22'/%3E%3C/svg%3E");
+  background-size: 30px 30px, 60px 60px;
+  opacity: 0.65;
+  mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 88%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 88%);
+  animation: cyberGridScroll 75s linear infinite;
 }
 
-@keyframes gridScroll {
-  0% { background-position: 0 0; }
-  100% { background-position: 160px 160px; }
+@keyframes cyberGridScroll {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 120px 120px, 240px 240px; }
 }
 
-/* Solid Floating Geometric Shapes (No Gradients) */
-.light-solid-shape {
-  position: absolute;
-  pointer-events: none;
-  will-change: transform;
-}
-
-.shape-primary {
-  top: 10%;
-  left: 12%;
-  width: 380px;
-  height: 380px;
-  background: rgba(230, 60, 28, 0.05);
-  border: 1.5px solid rgba(230, 60, 28, 0.16);
-  border-radius: 48px;
-  animation: floatSolid1 20s ease-in-out infinite alternate;
-}
-
-.shape-slate {
-  top: 42%;
-  right: 8%;
-  width: 420px;
-  height: 420px;
-  background: rgba(100, 116, 139, 0.04);
-  border: 1.5px solid rgba(100, 116, 139, 0.14);
-  border-radius: 50%;
-  animation: floatSolid2 24s ease-in-out infinite alternate;
-}
-
-.shape-blue {
-  bottom: 8%;
-  left: 22%;
-  width: 340px;
-  height: 340px;
-  background: rgba(59, 130, 246, 0.04);
-  border: 1.5px solid rgba(59, 130, 246, 0.15);
-  border-radius: 36px;
-  animation: floatSolid1 22s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes floatSolid1 {
-  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  50% { transform: translate3d(6vw, 8vh, 0) rotate(15deg); }
-  100% { transform: translate3d(-4vw, 4vh, 0) rotate(-15deg); }
-}
-
-@keyframes floatSolid2 {
-  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  50% { transform: translate3d(-8vw, -6vh, 0) rotate(-20deg); }
-  100% { transform: translate3d(5vw, 6vh, 0) rotate(10deg); }
-}
-
-/* Solid Scanning Bar Line (No Gradients) */
-.light-solid-scan-bar {
+/* Thin Radar Scan Bar Line */
+.light-cyber-radar-sweep {
   position: absolute;
   left: 0;
   right: 0;
-  height: 2px;
-  background: rgba(230, 60, 28, 0.28);
-  box-shadow: 0 0 12px rgba(230, 60, 28, 0.25);
-  animation: scanPage 12s ease-in-out infinite;
+  height: 1px;
+  background: rgba(230, 60, 28, 0.22);
+  box-shadow: 0 0 8px rgba(230, 60, 28, 0.2);
+  animation: scanPage 16s ease-in-out infinite;
 }
 
-/* Solid Floating Micro Particles (No Gradients) */
-.light-solid-dot {
+/* Concentric Safety Shield Radar Wave Circles */
+.light-radar-wave {
   position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid rgba(230, 60, 28, 0.12);
   border-radius: 50%;
   pointer-events: none;
-  animation: solidDotRise 14s ease-in-out infinite;
+  animation: lightRadarExpand 18s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
 }
 
-.d1 { top: 85%; left: 12%; width: 7px; height: 7px; background: rgba(230, 60, 28, 0.6); animation-delay: 0s; }
-.d2 { top: 90%; left: 34%; width: 6px; height: 6px; background: rgba(59, 130, 246, 0.6); animation-delay: 2.5s; }
-.d3 { top: 82%; left: 58%; width: 8px; height: 8px; background: rgba(15, 157, 115, 0.6); animation-delay: 5s; }
-.d4 { top: 92%; left: 78%; width: 6px; height: 6px; background: rgba(230, 60, 28, 0.5); animation-delay: 7.5s; }
-.d5 { top: 78%; left: 88%; width: 7px; height: 7px; background: rgba(59, 130, 246, 0.5); animation-delay: 10s; }
-.d6 { top: 88%; left: 24%; width: 6px; height: 6px; background: rgba(15, 157, 115, 0.5); animation-delay: 12s; }
+.wave-1 {
+  width: 480px;
+  height: 480px;
+  animation-delay: 0s;
+}
 
-@keyframes solidDotRise {
+.wave-2 {
+  width: 720px;
+  height: 720px;
+  animation-delay: 6s;
+}
+
+@keyframes lightRadarExpand {
   0% {
-    transform: translate3d(0, 0, 0);
+    transform: translate(-50%, -50%) scale(0.6);
     opacity: 0;
   }
-  20% {
-    opacity: 0.85;
+  30% {
+    opacity: 0.6;
   }
   80% {
-    opacity: 0.85;
+    opacity: 0.2;
   }
   100% {
-    transform: translate3d(15px, -320px, 0);
+    transform: translate(-50%, -50%) scale(1.25);
     opacity: 0;
   }
+}
+
+/* Non-Intrusive Security Status Monitoring Nodes */
+.light-security-node {
+  position: absolute;
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  opacity: 0.6;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+  animation: floatSecurityNode 35s ease-in-out infinite alternate;
+}
+
+.node-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.node-dot.green { background: #0f9d73; box-shadow: 0 0 6px rgba(15, 157, 115, 0.5); }
+.node-dot.coral { background: #e63c1c; box-shadow: 0 0 6px rgba(230, 60, 28, 0.5); }
+.node-dot.blue { background: #3b82f6; box-shadow: 0 0 6px rgba(59, 130, 246, 0.5); }
+
+.node-a { top: 12%; left: 8%; animation-delay: 0s; }
+.node-b { top: 48%; right: 6%; animation-delay: -12s; }
+.node-c { bottom: 12%; left: 14%; animation-delay: -24s; }
+
+@keyframes floatSecurityNode {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(3vw, 4vh, 0); }
+  100% { transform: translate3d(-2vw, 2vh, 0); }
 }
 
 /* ========================================================
@@ -543,7 +550,8 @@ html.dark .dark-bg-animation {
   align-items: center;
   gap: 0.45rem;
   white-space: nowrap;
-  z-index: 2;
+  z-index: 1;
+  pointer-events: none;
   will-change: transform, opacity;
 }
 
@@ -1404,6 +1412,8 @@ html.dark .hero-panel__card {
 
 /* Home Ticker & Sandbox */
 .ticker-container {
+  position: relative;
+  z-index: 5;
   background: var(--surface-alt);
   color: var(--text);
   padding: 0.6rem 1rem;
