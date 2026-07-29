@@ -3,37 +3,35 @@
   line-height: 1.5;
   font-weight: 400;
   color: #0f172a;
-  background: #f4f7fb;
+  background: #f8fafc;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --primary: rgb(230, 60, 28);
   --primary-hover: rgb(200, 40, 16);
-  --background: #fdf4f0;
+  --background: #f8fafc;
   --surface: #ffffff;
-  --surface-strong: #ffe8e1;
+  --surface-strong: #f1f5f9;
   --text: #0f172a;
-  --muted: #5b6472;
-  --border: #f0d7d1;
+  --muted: #64748b;
+  --border: #e2e8f0;
   --success: #0f9d73;
   --warning: #f59e0b;
   --danger: #dc2626;
-  --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-  --header-bg: rgba(255, 255, 255, 0.75);
+  --shadow: 0 14px 38px rgba(15, 23, 42, 0.06);
+  --header-bg: rgba(255, 255, 255, 0.85);
   --footer-bg: #ffffff;
-  --surface-alt: #fbfdff;
-  --pulse-color: rgba(230, 60, 28, 0.08);
-  --scan-glow-color: rgba(230, 60, 28, 0.06);
-  --mesh-orb-1: rgba(230, 60, 28, 0.35);
-  --mesh-orb-2: rgba(245, 158, 11, 0.32);
-  --mesh-orb-3: rgba(236, 72, 153, 0.28);
-  --mesh-orb-4: rgba(16, 185, 129, 0.25);
-  --shimmer-color: rgba(255, 255, 255, 0.85);
-  --grid-dot-color: rgba(230, 60, 28, 0.22);
-  --chip-bg: rgba(255, 255, 255, 0.94);
-  --chip-border: rgba(230, 60, 28, 0.25);
-  --chip-shadow: 0 12px 32px -4px rgba(230, 60, 28, 0.18), 0 4px 14px rgba(15, 23, 42, 0.06);
+  --surface-alt: #f8fafc;
+  --pulse-color: rgba(230, 60, 28, 0.05);
+  --scan-glow-color: rgba(230, 60, 28, 0.015);
+  --mesh-glow-1: rgba(230, 60, 28, 0.08);
+  --mesh-glow-2: rgba(59, 130, 246, 0.06);
+  --mesh-glow-3: rgba(148, 163, 184, 0.08);
+  --grid-dot-color: rgba(148, 163, 184, 0.2);
+  --chip-bg: rgba(255, 255, 255, 0.95);
+  --chip-border: #e2e8f0;
+  --chip-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
 }
 
 html.dark {
@@ -309,158 +307,155 @@ html.dark .results-card {
   overflow: hidden;
 }
 
-/* Fluid Animated Mesh Gradient Orbs (Light & Dark Mode) */
-.cyber-mesh-container {
+/* Light & Dark Mode Animation Mode Toggling */
+.light-bg-animation {
+  display: block;
   position: absolute;
   inset: 0;
   overflow: hidden;
-  filter: blur(55px);
-  opacity: 1;
   pointer-events: none;
-  isolation: isolate;
-  transform: translateZ(0);
 }
 
-.cyber-mesh-orb {
+.dark-bg-animation {
+  display: none;
   position: absolute;
-  border-radius: 45% 55% 65% 35% / 55% 35% 65% 45%;
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
-  will-change: transform, border-radius;
-  opacity: 0.9;
 }
 
-.orb-primary {
-  top: -12%;
-  left: 8%;
+html.dark .light-bg-animation {
+  display: none;
+}
+
+html.dark .dark-bg-animation {
+  display: block;
+}
+
+/* ========================================================
+   LIGHT MODE EXCLUSIVE (Slate Clean Off-White & Subtle Ambient Mesh Glow)
+   ======================================================== */
+
+/* Delicate Micro-Dot Grid */
+.light-dot-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.65;
+  mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 88%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 88%);
+}
+
+/* Soft Understated Ambient Mesh Glow Orbs */
+.light-mesh-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  opacity: 0.75;
+  will-change: transform;
+}
+
+.glow-1 {
+  top: -15%;
+  left: 10%;
   width: 55vw;
   height: 55vw;
-  max-width: 720px;
-  max-height: 720px;
-  background: radial-gradient(circle, var(--mesh-orb-1) 0%, rgba(230, 60, 28, 0.03) 60%, transparent 80%);
-  animation: meshFloat1 24s ease-in-out infinite alternate;
+  max-width: 700px;
+  max-height: 700px;
+  background: radial-gradient(circle, var(--mesh-glow-1) 0%, rgba(230, 60, 28, 0.02) 60%, transparent 80%);
+  animation: subtleGlowFloat1 30s ease-in-out infinite alternate;
 }
 
-.orb-amber {
-  top: 22%;
-  right: -8%;
+.glow-2 {
+  top: 25%;
+  right: -10%;
   width: 50vw;
   height: 50vw;
-  max-width: 660px;
-  max-height: 660px;
-  background: radial-gradient(circle, var(--mesh-orb-2) 0%, rgba(245, 158, 11, 0.03) 60%, transparent 80%);
-  animation: meshFloat2 28s ease-in-out infinite alternate;
+  max-width: 650px;
+  max-height: 650px;
+  background: radial-gradient(circle, var(--mesh-glow-2) 0%, rgba(59, 130, 246, 0.01) 60%, transparent 80%);
+  animation: subtleGlowFloat2 35s ease-in-out infinite alternate;
 }
 
-.orb-rose {
-  bottom: 2%;
-  left: -8%;
-  width: 48vw;
-  height: 48vw;
-  max-width: 620px;
-  max-height: 620px;
-  background: radial-gradient(circle, var(--mesh-orb-3) 0%, rgba(244, 63, 94, 0.02) 60%, transparent 80%);
-  animation: meshFloat3 22s ease-in-out infinite alternate;
+.glow-3 {
+  bottom: -10%;
+  left: 20%;
+  width: 45vw;
+  height: 45vw;
+  max-width: 600px;
+  max-height: 600px;
+  background: radial-gradient(circle, var(--mesh-glow-3) 0%, transparent 75%);
+  animation: subtleGlowFloat1 32s ease-in-out infinite alternate-reverse;
 }
 
-.orb-emerald {
-  bottom: 12%;
-  right: 12%;
-  width: 42vw;
-  height: 42vw;
-  max-width: 520px;
-  max-height: 520px;
-  background: radial-gradient(circle, var(--mesh-orb-4) 0%, rgba(16, 185, 129, 0.02) 60%, transparent 80%);
-  animation: meshFloat4 26s ease-in-out infinite alternate;
-}
-
-@keyframes meshFloat1 {
+@keyframes subtleGlowFloat1 {
   0% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
-    border-radius: 45% 55% 65% 35% / 55% 35% 65% 45%;
+    transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate(7vw, 10vh) scale(1.15) rotate(120deg);
-    border-radius: 65% 35% 35% 65% / 45% 55% 55% 45%;
+    transform: translate3d(5vw, 6vh, 0) scale(1.1);
   }
   100% {
-    transform: translate(-4vw, 5vh) scale(0.92) rotate(240deg);
-    border-radius: 50% 50% 60% 40% / 35% 65% 45% 55%;
+    transform: translate3d(-3vw, 4vh, 0) scale(0.95);
   }
 }
 
-@keyframes meshFloat2 {
+@keyframes subtleGlowFloat2 {
   0% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
+    transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate(-9vw, -7vh) scale(1.12) rotate(-90deg);
-    border-radius: 35% 65% 55% 45% / 65% 35% 65% 35%;
+    transform: translate3d(-6vw, -5vh, 0) scale(1.08);
   }
   100% {
-    transform: translate(5vw, 9vh) scale(0.96) rotate(180deg);
+    transform: translate3d(4vw, 5vh, 0) scale(0.96);
   }
 }
 
-@keyframes meshFloat3 {
-  0% {
-    transform: translate(0, 0) scale(0.95);
-  }
-  50% {
-    transform: translate(10vw, -8vh) scale(1.16);
-  }
-  100% {
-    transform: translate(-3vw, 4vh) scale(1);
-  }
-}
-
-@keyframes meshFloat4 {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(-7vw, 7vh) scale(1.18);
-  }
-  100% {
-    transform: translate(4vw, -5vh) scale(0.92);
-  }
-}
-
-/* Modern Light Shimmer Beam Wave */
-.cyber-shimmer-beam {
+/* ========================================================
+   DARK MODE EXCLUSIVE BACKGROUND ANIMATION (Neon Cyber Command)
+   ======================================================== */
+.dark-mesh-orb {
   position: absolute;
-  top: -60%;
-  left: -60%;
-  width: 220%;
-  height: 220%;
-  background: linear-gradient(
-    125deg,
-    transparent 0%,
-    transparent 42%,
-    var(--shimmer-color) 50%,
-    transparent 58%,
-    transparent 100%
-  );
-  transform: rotate(-15deg);
+  border-radius: 50%;
+  filter: blur(80px);
   pointer-events: none;
-  animation: shimmerSweep 20s ease-in-out infinite;
-  opacity: 0.55;
+  opacity: 0.8;
 }
 
-@keyframes shimmerSweep {
-  0% {
-    transform: translateY(-45%) translateX(-45%) rotate(-15deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.6;
-  }
-  85% {
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(45%) translateX(45%) rotate(-15deg);
-    opacity: 0;
-  }
+.orb-cyber-red {
+  top: -10%;
+  left: 10%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 700px;
+  max-height: 700px;
+  background: radial-gradient(circle, rgba(230, 60, 28, 0.35) 0%, transparent 75%);
+  animation: auroraFlow1 24s ease-in-out infinite alternate;
+}
+
+.orb-cyber-blue {
+  top: 30%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  max-width: 650px;
+  max-height: 650px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 75%);
+  animation: auroraFlow2 28s ease-in-out infinite alternate;
+}
+
+.orb-cyber-purple {
+  bottom: -10%;
+  left: 20%;
+  width: 45vw;
+  height: 45vw;
+  max-width: 600px;
+  max-height: 600px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.28) 0%, transparent 75%);
+  animation: auroraFlow3 22s ease-in-out infinite alternate;
 }
 
 /* Cyber Radial Masked Grid Overlay */
