@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
@@ -114,24 +115,64 @@ export default function About() {
 
   return (
     <PageContainer>
-      <section className="scanner-card">
+      <section className="scanner-card animate-fade-in">
         <div className="section-heading">
-          <h1>About SafeLens</h1>
-          <p>SafeLens is an educational and analysis platform helping everyday users in Ghana identify suspicious communications and report fraudulent attempts.</p>
+          <div style={{ marginBottom: '0.6rem' }}>
+            <Badge tone="neutral">
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', marginRight: '0.35rem', display: 'inline-block', verticalAlign: 'middle', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 3v18m-9-9h18" />
+              </svg>
+              SECURITY EDUCATION & MISSION
+            </Badge>
+          </div>
+          <h1>Empowering Citizens Against Scams</h1>
+          <p className="hero-text" style={{ marginTop: '0.4rem' }}>
+            SafeLens provides real-time digital threat analysis and educational security toolkits tailored for Ghana and beyond. We help everyday users review suspicious Mobile Money alerts, fake URLs, and job lures before taking action.
+          </p>
+
+          <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.2rem', flexWrap: 'wrap' }}>
+            <Button as={Link} to="/scan" variant="primary" style={{ gap: '0.4rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              Scan a Message
+            </Button>
+            <Button as="a" href="#quiz-section" variant="secondary" style={{ gap: '0.4rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 18h.01" />
+              </svg>
+              Take Security Quiz
+            </Button>
+          </div>
         </div>
 
-        <div className="feature-grid" style={{ marginBottom: '3rem' }}>
+        <div className="feature-grid" style={{ marginTop: '2rem' }}>
           <div className="info-card">
+            <div className="info-card-icon" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', background: 'rgba(230, 60, 28, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.8rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.2rem', height: '1.2rem', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h12" />
+              </svg>
+            </div>
             <h3>Plain Language Verdicts</h3>
             <p>We present threat analysis reports in simple, clear terms without technical security jargon so anyone can make safe decisions.</p>
           </div>
           <div className="info-card">
+            <div className="info-card-icon" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', background: 'rgba(34, 197, 94, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.8rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.2rem', height: '1.2rem', color: 'var(--success)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
             <h3>Actionable Directives</h3>
             <p>Every analysis provides immediate next steps—how to report, who to contact, and how to verify claims safely.</p>
           </div>
           <div className="info-card">
+            <div className="info-card-icon" style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', background: 'rgba(230, 60, 28, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.8rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.2rem', height: '1.2rem', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 3v18m-9-9h18" />
+              </svg>
+            </div>
             <h3>Ghanaian Focused</h3>
-            <p>SafeLens addresses scams prevalent in the local market, including Mobile Money (MoMo) tricks and fake job boards.</p>
+            <p>SafeLens addresses scams prevalent in the local market, including Mobile Money (MoMo) tricks, fake recruitment, and SMS lures.</p>
           </div>
         </div>
       </section>
@@ -163,9 +204,11 @@ export default function About() {
       </section>
 
       {/* Interactive Scam Spotter Quiz */}
-      <section className="quiz-section animate-fade-in">
+      <section id="quiz-section" className="quiz-section animate-fade-in" style={{ marginTop: '2.5rem' }}>
         <div className="quiz-intro">
-          <Badge tone="low">Interactive Quiz</Badge>
+          <div style={{ marginBottom: '0.6rem' }}>
+            <Badge tone="low">INTERACTIVE LEARNING TOOLKIT</Badge>
+          </div>
           <h2>Scam Spotter Quiz</h2>
           <p className="hero-text" style={{ marginTop: '0.4rem' }}>Test your awareness of common fraudulent messages in Ghana and sharpen your security habits.</p>
         </div>
