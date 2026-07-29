@@ -25,6 +25,15 @@
   --surface-alt: #fbfdff;
   --pulse-color: rgba(230, 60, 28, 0.05);
   --scan-glow-color: rgba(230, 60, 28, 0.015);
+  --mesh-orb-1: rgba(230, 60, 28, 0.16);
+  --mesh-orb-2: rgba(245, 158, 11, 0.14);
+  --mesh-orb-3: rgba(244, 63, 94, 0.10);
+  --mesh-orb-4: rgba(16, 185, 129, 0.08);
+  --shimmer-color: rgba(255, 255, 255, 0.7);
+  --grid-dot-color: rgba(230, 60, 28, 0.14);
+  --chip-bg: rgba(255, 255, 255, 0.94);
+  --chip-border: rgba(230, 60, 28, 0.25);
+  --chip-shadow: 0 12px 32px -4px rgba(230, 60, 28, 0.18), 0 4px 14px rgba(15, 23, 42, 0.06);
 }
 
 html.dark {
@@ -40,6 +49,15 @@ html.dark {
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
   --pulse-color: rgba(230, 60, 28, 0.16);
   --scan-glow-color: rgba(230, 60, 28, 0.04);
+  --mesh-orb-1: rgba(230, 60, 28, 0.24);
+  --mesh-orb-2: rgba(59, 130, 246, 0.18);
+  --mesh-orb-3: rgba(168, 85, 247, 0.15);
+  --mesh-orb-4: rgba(16, 185, 129, 0.12);
+  --shimmer-color: rgba(255, 255, 255, 0.08);
+  --grid-dot-color: rgba(255, 255, 255, 0.08);
+  --chip-bg: rgba(15, 23, 42, 0.92);
+  --chip-border: rgba(230, 60, 28, 0.32);
+  --chip-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -260,74 +278,284 @@ html.dark .theme-toggle:hover {
   z-index: 2;
 }
 
-/* Fixed Cyber Background Animations */
+/* Fixed Cyber Background & Ambient Fluid Mesh Animations */
 .cyber-page-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
+  isolation: isolate;
+  transform: translateZ(0);
 }
 
+/* Floating tips container layer */
+.cyber-floating-tips-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Fluid Animated Mesh Gradient Orbs (Light & Dark Mode) */
+.cyber-mesh-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  filter: blur(80px);
+  opacity: 0.92;
+  pointer-events: none;
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+.cyber-mesh-orb {
+  position: absolute;
+  border-radius: 45% 55% 65% 35% / 55% 35% 65% 45%;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  will-change: transform, border-radius;
+}
+
+html.dark .cyber-mesh-orb {
+  mix-blend-mode: screen;
+}
+
+.orb-primary {
+  top: -12%;
+  left: 8%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 720px;
+  max-height: 720px;
+  background: radial-gradient(circle, var(--mesh-orb-1) 0%, rgba(230, 60, 28, 0.03) 60%, transparent 80%);
+  animation: meshFloat1 24s ease-in-out infinite alternate;
+}
+
+.orb-amber {
+  top: 22%;
+  right: -8%;
+  width: 50vw;
+  height: 50vw;
+  max-width: 660px;
+  max-height: 660px;
+  background: radial-gradient(circle, var(--mesh-orb-2) 0%, rgba(245, 158, 11, 0.03) 60%, transparent 80%);
+  animation: meshFloat2 28s ease-in-out infinite alternate;
+}
+
+.orb-rose {
+  bottom: 2%;
+  left: -8%;
+  width: 48vw;
+  height: 48vw;
+  max-width: 620px;
+  max-height: 620px;
+  background: radial-gradient(circle, var(--mesh-orb-3) 0%, rgba(244, 63, 94, 0.02) 60%, transparent 80%);
+  animation: meshFloat3 22s ease-in-out infinite alternate;
+}
+
+.orb-emerald {
+  bottom: 12%;
+  right: 12%;
+  width: 42vw;
+  height: 42vw;
+  max-width: 520px;
+  max-height: 520px;
+  background: radial-gradient(circle, var(--mesh-orb-4) 0%, rgba(16, 185, 129, 0.02) 60%, transparent 80%);
+  animation: meshFloat4 26s ease-in-out infinite alternate;
+}
+
+@keyframes meshFloat1 {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    border-radius: 45% 55% 65% 35% / 55% 35% 65% 45%;
+  }
+  50% {
+    transform: translate(7vw, 10vh) scale(1.15) rotate(120deg);
+    border-radius: 65% 35% 35% 65% / 45% 55% 55% 45%;
+  }
+  100% {
+    transform: translate(-4vw, 5vh) scale(0.92) rotate(240deg);
+    border-radius: 50% 50% 60% 40% / 35% 65% 45% 55%;
+  }
+}
+
+@keyframes meshFloat2 {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate(-9vw, -7vh) scale(1.12) rotate(-90deg);
+    border-radius: 35% 65% 55% 45% / 65% 35% 65% 35%;
+  }
+  100% {
+    transform: translate(5vw, 9vh) scale(0.96) rotate(180deg);
+  }
+}
+
+@keyframes meshFloat3 {
+  0% {
+    transform: translate(0, 0) scale(0.95);
+  }
+  50% {
+    transform: translate(10vw, -8vh) scale(1.16);
+  }
+  100% {
+    transform: translate(-3vw, 4vh) scale(1);
+  }
+}
+
+@keyframes meshFloat4 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-7vw, 7vh) scale(1.18);
+  }
+  100% {
+    transform: translate(4vw, -5vh) scale(0.92);
+  }
+}
+
+/* Modern Light Shimmer Beam Wave */
+.cyber-shimmer-beam {
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: linear-gradient(
+    125deg,
+    transparent 0%,
+    transparent 42%,
+    var(--shimmer-color) 50%,
+    transparent 58%,
+    transparent 100%
+  );
+  transform: rotate(-15deg);
+  pointer-events: none;
+  animation: shimmerSweep 20s ease-in-out infinite;
+  opacity: 0.55;
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateY(-45%) translateX(-45%) rotate(-15deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.6;
+  }
+  85% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(45%) translateX(45%) rotate(-15deg);
+    opacity: 0;
+  }
+}
+
+/* Cyber Radial Masked Grid Overlay */
 .cyber-grid-overlay {
   position: absolute;
   inset: 0;
   background-image: 
-    radial-gradient(var(--border) 1px, transparent 1px);
-  background-size: 32px 32px;
-  opacity: 0.45;
-  animation: scrollBg 80s linear infinite;
+    radial-gradient(var(--grid-dot-color) 1.2px, transparent 1.2px),
+    linear-gradient(to right, rgba(230, 60, 28, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(230, 60, 28, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px, 64px 64px, 64px 64px;
+  opacity: 0.6;
+  mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 88%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 88%);
+  animation: scrollBg 70s linear infinite;
 }
 
 .cyber-scan-glow {
   position: absolute;
   left: 0;
   right: 0;
-  height: 120px;
-  background: var(--scan-glow-color);
-  filter: blur(40px);
+  height: 140px;
+  background: linear-gradient(180deg, transparent 0%, var(--scan-glow-color) 50%, transparent 100%);
+  border-bottom: 1px solid rgba(230, 60, 28, 0.15);
+  filter: blur(25px);
   animation: scanPage 14s ease-in-out infinite;
 }
 
+/* High-Clarity Cyber Floating Chips / Tip Nodes */
 .cyber-node {
   position: absolute;
   font-family: inherit;
-  font-size: 0.76rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 700;
   color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 0.35rem 0.8rem;
-  box-shadow: var(--shadow);
+  background: var(--chip-bg);
+  border: 1.5px solid var(--chip-border);
+  border-radius: 999px;
+  padding: 0.42rem 0.95rem;
+  box-shadow: var(--chip-shadow);
   opacity: 0;
-  pointer-events: none;
-  animation: floatNode 14s ease-in-out infinite;
+  pointer-events: auto;
+  cursor: default;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: flat;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  animation: floatNodeLight 14s ease-in-out infinite;
   display: flex;
   align-items: center;
+  gap: 0.45rem;
   white-space: nowrap;
-  z-index: 1;
+  z-index: 2;
+  will-change: transform, opacity;
+}
+
+.cyber-node:hover {
+  transform: translate3d(0, -5px, 0) scale(1.05) !important;
+  border-color: var(--primary);
+  box-shadow: 0 16px 38px -4px rgba(230, 60, 28, 0.28), 0 6px 18px rgba(15, 23, 42, 0.1);
+}
+
+.tip-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: inline-block;
+  box-shadow: 0 0 8px var(--primary);
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.6; }
 }
 
 .tip-prefix {
-  background: var(--primary);
-  color: white;
-  font-size: 0.65rem;
-  padding: 0.12rem 0.35rem;
-  border-radius: 4px;
+  background: linear-gradient(135deg, var(--primary) 0%, rgb(255, 90, 60) 100%);
+  color: #ffffff;
+  font-size: 0.64rem;
+  padding: 0.16rem 0.48rem;
+  border-radius: 6px;
   font-weight: 800;
-  margin-right: 0.45rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(230, 60, 28, 0.35);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.node-1 { top: 12%; left: 6%; animation-delay: 0s; }
-.node-2 { top: 38%; left: 16%; animation-delay: 2.5s; }
-.node-3 { top: 68%; left: 4%; animation-delay: 5s; }
-.node-4 { top: 88%; left: 14%; animation-delay: 7.5s; }
-.node-5 { top: 18%; left: 82%; animation-delay: 1.2s; }
-.node-6 { top: 44%; left: 90%; animation-delay: 3.7s; }
-.node-7 { top: 72%; left: 84%; animation-delay: 6.2s; }
-.node-8 { top: 92%; left: 74%; animation-delay: 8.7s; }
+.node-1 { top: 12%; left: 5%; animation-delay: 0s; }
+.node-2 { top: 36%; left: 14%; animation-delay: 2.5s; }
+.node-3 { top: 66%; left: 3%; animation-delay: 5s; }
+.node-4 { top: 86%; left: 12%; animation-delay: 7.5s; }
+.node-5 { top: 16%; left: 80%; animation-delay: 1.2s; }
+.node-6 { top: 42%; left: 88%; animation-delay: 3.7s; }
+.node-7 { top: 70%; left: 82%; animation-delay: 6.2s; }
+.node-8 { top: 90%; left: 72%; animation-delay: 8.7s; }
 
 @keyframes scrollBg {
   0% { background-position: 0 0; }
@@ -339,18 +567,48 @@ html.dark .theme-toggle:hover {
   100% { top: 100%; }
 }
 
-@keyframes floatNode {
+@keyframes floatNodeLight {
   0% {
-    transform: translateY(30px);
+    transform: translate3d(-4px, 24px, 0) scale(0.96);
     opacity: 0;
   }
-  15%, 85% {
-    opacity: 0.85;
+  18% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate3d(6px, 0px, 0) scale(1);
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
   }
   100% {
-    transform: translateY(-50px);
+    transform: translate3d(-4px, -45px, 0) scale(0.96);
     opacity: 0;
   }
+}
+
+/* Crisp Spring Pop-In Animation for Badges & Text Cards */
+@keyframes popInText {
+  0% {
+    transform: translate3d(0, 10px, 0) scale(0.92);
+    opacity: 0;
+  }
+  65% {
+    transform: translate3d(0, -2px, 0) scale(1.03);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pop {
+  animation: popInText 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .cyber-pulse-ring {
@@ -365,6 +623,7 @@ html.dark .theme-toggle:hover {
   opacity: 0;
   pointer-events: none;
   animation: pulseShield 16s linear infinite;
+  box-shadow: inset 0 0 20px rgba(230, 60, 28, 0.02);
 }
 
 .ring-1 {
@@ -372,21 +631,25 @@ html.dark .theme-toggle:hover {
 }
 
 .ring-2 {
-  animation-delay: 8s;
+  animation-delay: 5.3s;
+}
+
+.ring-3 {
+  animation-delay: 10.6s;
 }
 
 @keyframes pulseShield {
   0% {
-    width: 150px;
-    height: 150px;
+    width: 160px;
+    height: 160px;
     opacity: 0;
   }
   20% {
-    opacity: 0.15;
+    opacity: 0.22;
   }
   100% {
-    width: 750px;
-    height: 750px;
+    width: 800px;
+    height: 800px;
     opacity: 0;
   }
 }

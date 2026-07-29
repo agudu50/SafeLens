@@ -122,24 +122,22 @@ export default function Home() {
 
   return (
     <PageContainer>
-      {/* Cybersecurity animated page background */}
-      <div className="cyber-page-bg">
-        <div className="cyber-grid-overlay" />
-        <div className="cyber-scan-glow" />
-        
+      {/* Floating safety pulse rings & scam awareness tip chips */}
+      <div className="cyber-floating-tips-layer" aria-hidden="true">
         {/* Human-centered safety pulse rings */}
         <div className="cyber-pulse-ring ring-1" />
         <div className="cyber-pulse-ring ring-2" />
+        <div className="cyber-pulse-ring ring-3" />
         
-        {/* Scam awareness floating safety tip chips */}
-        <div className="cyber-node node-1"><span className="tip-prefix">TIP</span> Never share OTPs</div>
-        <div className="cyber-node node-2"><span className="tip-prefix">TIP</span> MTN won&apos;t ask for PIN</div>
-        <div className="cyber-node node-3"><span className="tip-prefix">TIP</span> Dial operator to reverse</div>
-        <div className="cyber-node node-4"><span className="tip-prefix">TIP</span> No upfront job fees</div>
-        <div className="cyber-node node-5"><span className="tip-prefix">TIP</span> Report scams to 1917</div>
-        <div className="cyber-node node-6"><span className="tip-prefix">TIP</span> Verify sender IDs</div>
-        <div className="cyber-node node-7"><span className="tip-prefix">TIP</span> Reject cashout prompts</div>
-        <div className="cyber-node node-8"><span className="tip-prefix">TIP</span> Report links to 292</div>
+        {/* Scam awareness floating safety tip chips with glassmorphic design */}
+        <div className="cyber-node node-1"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Never share OTPs</div>
+        <div className="cyber-node node-2"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> MTN won&apos;t ask for PIN</div>
+        <div className="cyber-node node-3"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Dial operator to reverse</div>
+        <div className="cyber-node node-4"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> No upfront job fees</div>
+        <div className="cyber-node node-5"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Report scams to 1917</div>
+        <div className="cyber-node node-6"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Verify sender IDs</div>
+        <div className="cyber-node node-7"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Reject cashout prompts</div>
+        <div className="cyber-node node-8"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Report links to 292</div>
       </div>
 
       {/* Live Scam Ticker */}

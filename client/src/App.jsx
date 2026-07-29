@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import AppRoutes from './routes/AppRoutes'
+import BackgroundAnimation from './components/layout/BackgroundAnimation'
 import { authService } from './services/authService'
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app-shell">
+        <BackgroundAnimation />
         <Navbar user={user} setUser={setUser} theme={theme} setTheme={setTheme} />
         <main className="main-content">
           <AppRoutes user={user} setUser={setUser} />
