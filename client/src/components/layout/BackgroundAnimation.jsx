@@ -1,24 +1,32 @@
 export default function BackgroundAnimation() {
   return (
     <div className="cyber-page-bg" aria-hidden="true">
-      {/* Light Mode: Subtle Ambient Mesh Glow & Micro-Dots */}
+      {/* Light Mode: Solid Colors, Geometric Shapes & Micro Grid (NO GRADIENTS) */}
       <div className="light-bg-animation">
-        {/* Soft Understated Ambient Mesh Glow Orbs */}
-        <div className="light-mesh-glow glow-1" />
-        <div className="light-mesh-glow glow-2" />
-        <div className="light-mesh-glow glow-3" />
+        {/* Solid Color Floating Geometric Orbs / Shields */}
+        <div className="light-solid-shape shape-primary" />
+        <div className="light-solid-shape shape-slate" />
+        <div className="light-solid-shape shape-blue" />
 
-        {/* Delicate Micro-Dot Grid */}
-        <div className="light-dot-grid" />
+        {/* Solid Line Blueprint Grid Matrix */}
+        <div className="light-blueprint-grid" />
+
+        {/* Solid Scanning Bar Line */}
+        <div className="light-solid-scan-bar" />
+
+        {/* Solid Floating Micro Particles */}
+        <div className="light-solid-dot d1" />
+        <div className="light-solid-dot d2" />
+        <div className="light-solid-dot d3" />
+        <div className="light-solid-dot d4" />
+        <div className="light-solid-dot d5" />
+        <div className="light-solid-dot d6" />
       </div>
 
       {/* Dark Mode Exclusive Cyber Background Animation */}
       <div className="dark-bg-animation">
         <div className="cyber-grid-overlay" />
         <div className="cyber-scan-glow" />
-        <div className="dark-mesh-orb orb-cyber-red" />
-        <div className="dark-mesh-orb orb-cyber-blue" />
-        <div className="dark-mesh-orb orb-cyber-purple" />
       </div>
     </div>
   )
