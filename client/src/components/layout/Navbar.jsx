@@ -25,9 +25,9 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
   return (
     <header className="site-header">
       <div className="nav-shell">
-        <Link to="/" className="brand" onClick={() => setOpen(false)}>
-          <span className="brand__mark">S</span>
-          <span className="brand__text">SafeLens</span>
+        <Link to="/" className="brand" onClick={() => setOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '50%', border: '1px solid var(--border)' }} />
+          <strong className="brand__text" style={{ fontSize: '1.25rem', color: 'var(--text)', fontWeight: 800 }}>SafeLens</strong>
         </Link>
 
         <button

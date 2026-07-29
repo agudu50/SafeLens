@@ -8,7 +8,7 @@ export default function Footer() {
           {/* Brand & Mission */}
           <div className="footer-brand-block">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
-              <span className="brand__mark" style={{ width: '1.9rem', height: '1.9rem', fontSize: '0.95rem' }}>S</span>
+              <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '50%', border: '1px solid var(--border)' }} />
               <strong style={{ fontSize: '1.15rem', color: 'var(--text)', fontWeight: 800 }}>SafeLens</strong>
             </div>
             <p className="footer-tagline">Look closer. Stay safer.</p>
