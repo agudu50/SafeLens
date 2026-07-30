@@ -354,10 +354,10 @@ export default function SafetyTips({ user }) {
 
         {/* Daily Scam Self-Defense Guide - Educational Auto-Moving Slideshow */}
         <section className="scanner-card safety-guide-section" style={{ background: 'var(--surface-alt)', padding: '1.8rem 1.4rem', position: 'relative', overflow: 'hidden' }}>
-          {/* Header Bar */}
-          <div className="safety-guide-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.2rem' }}>
+          {/* Header Bar with Unified Controls */}
+          <div className="safety-guide-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.2rem' }}>
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
                 <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--primary)' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                 </svg>
@@ -370,39 +370,63 @@ export default function SafetyTips({ user }) {
               </p>
             </div>
 
-            {/* Play/Pause Button */}
-            <button
-              onClick={() => setIsPlaying(!isPlaying)}
-              style={{
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
-                borderRadius: '999px',
-                padding: '0.35rem 0.75rem',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem'
-              }}
-            >
-              {isPlaying ? (
-                <>
-                  <svg fill="currentColor" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem', color: 'var(--primary)' }}>
-                    <path d="M15.75 5.25v13.5m-7.5-13.5v13.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                  </svg>
-                  <span>Pause Slideshow</span>
-                </>
-              ) : (
-                <>
-                  <svg fill="currentColor" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem', color: 'var(--success)' }}>
-                    <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
-                  </svg>
-                  <span>Play Slideshow</span>
-                </>
-              )}
-            </button>
+            {/* Unified Control Pill */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'var(--surface)', padding: '0.25rem 0.5rem', borderRadius: '999px', border: '1px solid var(--border)' }}>
+              <button
+                onClick={() => setIsPlaying(!isPlaying)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text)',
+                  fontSize: '0.76rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  padding: '0.2rem 0.4rem'
+                }}
+                title={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
+              >
+                {isPlaying ? (
+                  <>
+                    <svg fill="currentColor" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--primary)' }}>
+                      <path d="M15.75 5.25v13.5m-7.5-13.5v13.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                    <span>Pause</span>
+                  </>
+                ) : (
+                  <>
+                    <svg fill="currentColor" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--success)' }}>
+                      <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+                    </svg>
+                    <span>Play</span>
+                  </>
+                )}
+              </button>
+
+              <div style={{ width: '1px', height: '14px', background: 'var(--border)' }} />
+
+              <button
+                onClick={() => setCurrentSlideIndex(prev => (prev === 0 ? DEFENSE_SLIDES.length - 1 : prev - 1))}
+                style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface-alt)', border: 'none', color: 'var(--text)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                title="Previous Guide"
+              >
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+              </button>
+
+              <button
+                onClick={() => setCurrentSlideIndex(prev => (prev + 1) % DEFENSE_SLIDES.length)}
+                style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface-alt)', border: 'none', color: 'var(--text)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                title="Next Guide"
+              >
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Active Educational Slide Card */}
@@ -419,38 +443,14 @@ export default function SafetyTips({ user }) {
               transition: 'all 0.3s ease'
             }}
           >
-            {/* Top Slide Header */}
+            {/* Top Slide Category Bar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.9rem', flexWrap: 'wrap', gap: '0.4rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.22rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                  {activeSlide.tag}
-                </span>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)' }}>
-                  GUIDE {currentSlideIndex + 1} OF {DEFENSE_SLIDES.length}
-                </span>
-              </div>
-
-              {/* Prev / Next SVG Buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <button
-                  onClick={() => setCurrentSlideIndex(prev => (prev === 0 ? DEFENSE_SLIDES.length - 1 : prev - 1))}
-                  style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
-                  title="Previous Guide"
-                >
-                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setCurrentSlideIndex(prev => (prev + 1) % DEFENSE_SLIDES.length)}
-                  style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
-                  title="Next Guide"
-                >
-                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                </button>
-              </div>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.22rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                {activeSlide.tag}
+              </span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)' }}>
+                GUIDE {currentSlideIndex + 1} OF {DEFENSE_SLIDES.length}
+              </span>
             </div>
 
             {/* Slide Body */}
