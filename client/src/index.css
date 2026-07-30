@@ -3678,3 +3678,93 @@ html.dark .helpline-item-link:hover {
   }
 }
 
+/* Next-Gen Dashboard Custom Styles & Animations */
+.dash-container {
+  position: relative;
+  z-index: 1;
+}
+
+.dash-hero-card {
+  background: linear-gradient(135deg, var(--surface-alt) 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 2rem 1.8rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
+}
+
+.dash-hero-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(230, 60, 28, 0.15) 0%, rgba(230, 60, 28, 0) 70%);
+  pointer-events: none;
+  animation: dashPulseGlow 6s infinite alternate ease-in-out;
+}
+
+@keyframes dashPulseGlow {
+  0% { transform: scale(0.9) translate(0, 0); opacity: 0.5; }
+  100% { transform: scale(1.25) translate(-10px, 10px); opacity: 0.95; }
+}
+
+.dash-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.35rem 1.25rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.dash-stat-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 28px rgba(230, 60, 28, 0.12);
+}
+
+.dash-tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-tool-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+}
+
+.dash-tool-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.dash-tool-card:hover .dash-tool-icon {
+  transform: scale(1.1) rotate(-3deg);
+}
+
+@media (max-width: 600px) {
+  .dash-hero-card {
+    padding: 1.35rem 1.1rem !important;
+    border-radius: 18px !important;
+  }
+}
+
