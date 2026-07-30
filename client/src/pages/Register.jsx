@@ -5,6 +5,59 @@ import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
 import { authService } from '../services/authService'
 
+const getPasswordStrength = (pass) => {
+  if (!pass) return { score: 0, label: '', color: 'var(--muted)', percent: 0 }
+
+  let score = 0
+  if (pass.length >= 8) score += 25
+  if (/[A-Z]/.test(pass)) score += 25
+  if (/[0-9]/.test(pass)) score += 25
+  if (/[^a-zA-Z0-9]/.test(pass)) score += 25
+
+  if (pass.length < 8) {
+    return {
+      score,
+      percent: 25,
+      label: `Too short (${pass.length}/8 chars min)`,
+      color: 'var(--danger)',
+    }
+  }
+
+  if (score <= 25) {
+    return {
+      score,
+      percent: 35,
+      label: 'Weak — Add uppercase, numbers, or symbols',
+      color: 'var(--danger)',
+    }
+  }
+
+  if (score <= 50) {
+    return {
+      score,
+      percent: 55,
+      label: 'Fair — Add numbers or symbols (!@#$)',
+      color: 'var(--warning)',
+    }
+  }
+
+  if (score <= 75) {
+    return {
+      score,
+      percent: 80,
+      label: 'Good password',
+      color: '#0284c7',
+    }
+  }
+
+  return {
+    score,
+    percent: 100,
+    label: 'Strong & Secure Password',
+    color: 'var(--success)',
+  }
+}
+
 export default function Register({ setUser }) {
   const navigate = useNavigate()
   const [name, setName] = useState('')
@@ -16,6 +69,8 @@ export default function Register({ setUser }) {
   
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  const strength = getPasswordStrength(password)
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -30,8 +85,8 @@ export default function Register({ setUser }) {
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long.')
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.')
       return
     }
 
@@ -235,6 +290,44 @@ export default function Register({ setUser }) {
               </div>
             </div>
           </div>
+
+          {/* Password Strength Indicator Bar */}
+          {password ? (
+            <div style={{ marginTop: '0.2rem', background: 'var(--surface-strong)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                <span style={{ fontSize: '0.74rem', fontWeight: 700, color: strength.color }}>
+                  {strength.label}
+                </span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontWeight: 600 }}>
+                  {password.length}/8 chars
+                </span>
+              </div>
+
+              {/* Progress Bar Track */}
+              <div style={{ display: 'flex', gap: '3px', height: '4px', background: 'var(--border)', borderRadius: '999px', overflow: 'hidden' }}>
+                <div style={{ flex: 1, background: strength.percent >= 25 ? strength.color : 'transparent', transition: 'background 0.3s ease' }} />
+                <div style={{ flex: 1, background: strength.percent >= 55 ? strength.color : 'transparent', transition: 'background 0.3s ease' }} />
+                <div style={{ flex: 1, background: strength.percent >= 80 ? strength.color : 'transparent', transition: 'background 0.3s ease' }} />
+                <div style={{ flex: 1, background: strength.percent >= 100 ? strength.color : 'transparent', transition: 'background 0.3s ease' }} />
+              </div>
+
+              {/* Character Mix Requirements Checklist */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: password.length >= 8 ? 'var(--success)' : 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: '0.15rem' }}>
+                  {password.length >= 8 ? '✓' : '•'} 8+ Chars
+                </span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: /[A-Z]/.test(password) ? 'var(--success)' : 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: '0.15rem' }}>
+                  {/[A-Z]/.test(password) ? '✓' : '•'} Uppercase (A-Z)
+                </span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: /[0-9]/.test(password) ? 'var(--success)' : 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: '0.15rem' }}>
+                  {/[0-9]/.test(password) ? '✓' : '•'} Number (0-9)
+                </span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 600, color: /[^a-zA-Z0-9]/.test(password) ? 'var(--success)' : 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: '0.15rem' }}>
+                  {/[^a-zA-Z0-9]/.test(password) ? '✓' : '•'} Symbol (!@#$)
+                </span>
+              </div>
+            </div>
+          ) : null}
 
           {/* Show Password Option Checkbox */}
           <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem' }}>
