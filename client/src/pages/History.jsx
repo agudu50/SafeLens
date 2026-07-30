@@ -1,20 +1,13 @@
 import { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
-import Badge from '../components/ui/Badge'
-import Button from '../components/ui/Button'
 import { getScanHistory, clearScanHistory } from '../services/scannerService'
-
-const toneMap = {
-  low: 'low',
-  medium: 'medium',
-  high: 'high',
-}
 
 const typeOptions = ['All', 'Message', 'Screenshot', 'Link', 'Email']
 const riskOptions = ['All', 'High', 'Medium', 'Low']
 
 export default function History() {
+  const navigate = useNavigate()
   const [scans, setScans] = useState(() => getScanHistory())
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState('All')
@@ -32,12 +25,15 @@ export default function History() {
   // Filter history based on search query, type selection, and risk selection
   const filteredScans = useMemo(() => {
     return scans.filter((scan) => {
+      const query = searchQuery.toLowerCase()
       const matchesSearch =
-        scan.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        scan.originalContent.toLowerCase().includes(searchQuery.toLowerCase())
+        searchQuery === '' ||
+        scan.summary.toLowerCase().includes(query) ||
+        scan.originalContent.toLowerCase().includes(query) ||
+        (scan.redFlags && scan.redFlags.some(f => f.toLowerCase().includes(query)))
       
-      const matchesType = selectedType === 'All' || scan.type === selectedType.toLowerCase()
-      const matchesRisk = selectedRisk === 'All' || scan.riskLevel === selectedRisk.toLowerCase()
+      const matchesType = selectedType === 'All' || scan.type.toLowerCase() === selectedType.toLowerCase()
+      const matchesRisk = selectedRisk === 'All' || scan.riskLevel.toLowerCase() === selectedRisk.toLowerCase()
 
       return matchesSearch && matchesType && matchesRisk
     })
@@ -50,7 +46,7 @@ export default function History() {
     }
   }
 
-  // Generate and download a real CSV file directly in the browser
+  // Generate and download a CSV file directly in the browser
   const handleExportCSV = () => {
     if (scans.length === 0) return
     
@@ -75,179 +71,323 @@ export default function History() {
 
   return (
     <PageContainer>
-      <section className="scanner-card">
-        <div className="section-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.2rem', marginBottom: '1.5rem' }}>
-          <div>
-            <h1>Recent scan history</h1>
-            <p style={{ margin: 0 }}>Review previous safety checks and analyze past threat evaluations.</p>
-          </div>
-          {scans.length > 0 && (
-            <div style={{ display: 'flex', gap: '0.6rem' }}>
-              <Button variant="ghost" onClick={handleExportCSV}>Export CSV</Button>
-              <Button variant="secondary" onClick={handleClearHistory} style={{ background: '#fee2e2', color: '#dc2626' }}>
-                Clear All
-              </Button>
+      <div className="dash-container">
+        {/* Header section with Export & Clear action buttons */}
+        <section
+          className="dash-hero-card animate-fade-in"
+          style={{
+            background: 'var(--surface-alt)',
+            padding: '1.6rem 1.4rem',
+            marginBottom: '1.5rem',
+            borderRadius: '20px',
+            border: '1px solid var(--border)'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
+                <span className="live-pulse-dot" style={{ width: '8px', height: '8px', background: 'var(--primary)' }} />
+                <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  PERSONAL AUDIT LOGS
+                </span>
+              </div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
+                Scan History &amp; Threat Intelligence Logs
+              </h1>
+              <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: 0 }}>
+                Review past scan verdicts, filter threat categories, and export audit reports.
+              </p>
             </div>
-          )}
+
+            {scans.length > 0 && (
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={handleExportCSV}
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text)',
+                    padding: '0.55rem 1rem',
+                    borderRadius: '999px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem'
+                  }}
+                >
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                  <span>Export CSV</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleClearHistory}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    color: 'var(--danger)',
+                    padding: '0.55rem 1rem',
+                    borderRadius: '999px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear History
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* 3 Metric Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.8rem' }} className="animate-slide-up">
+          <div className="dash-stat-card">
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Total Scans Logged</span>
+            <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: '0.2rem 0 0 0', color: 'var(--text)' }}>
+              {stats.total}
+            </h2>
+            <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', marginTop: '0.2rem' }}>
+              Stored in Local Encrypted Memory
+            </span>
+          </div>
+
+          <div className="dash-stat-card">
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>High Risk Avoided</span>
+            <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: '0.2rem 0 0 0', color: 'var(--danger)' }}>
+              {stats.avoided}
+            </h2>
+            <span style={{ fontSize: '0.72rem', color: 'var(--danger)', fontWeight: 700, display: 'block', marginTop: '0.2rem' }}>
+              Threats Intercepted
+            </span>
+          </div>
+
+          <div className="dash-stat-card">
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Average Risk Score</span>
+            <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: '0.2rem 0 0 0', color: stats.avgScore > 50 ? 'var(--danger)' : 'var(--success)' }}>
+              {stats.avgScore}%
+            </h2>
+            <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', marginTop: '0.2rem' }}>
+              Overall Vulnerability Index
+            </span>
+          </div>
         </div>
 
-        {/* Statistics Dashboard widgets */}
-        <div className="stats-grid animate-fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
-          <div className="stat-card" style={{ display: 'flex', flexDirection: 'column', padding: '1.25rem', borderRadius: '1rem', background: 'var(--surface)', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Scans Done</h4>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.25rem', height: '1.25rem', color: 'var(--muted)' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <div className="stat-number" style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text)' }}>{stats.total}</div>
+        {/* Real-Time Filter & Search Bar */}
+        <section className="scanner-card animate-slide-up delay-1" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+          {/* Search Input */}
+          <div style={{ marginBottom: '1.1rem', position: 'relative' }}>
+            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', width: '1rem', height: '1rem', color: 'var(--muted)' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search content, red flags, or verdict summaries..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.65rem 0.9rem 0.65rem 2.5rem',
+                borderRadius: '12px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+                fontSize: '0.88rem',
+                outline: 'none'
+              }}
+            />
           </div>
 
-          <div className="stat-card" style={{ display: 'flex', flexDirection: 'column', padding: '1.25rem', borderRadius: '1rem', background: 'var(--surface)', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Scams Avoided</h4>
-              <svg fill="none" stroke="var(--danger)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.25rem', height: '1.25rem' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-              </svg>
-            </div>
-            <div className="stat-number" style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--danger)' }}>{stats.avoided}</div>
-          </div>
-
-          <div className="stat-card" style={{ display: 'flex', flexDirection: 'column', padding: '1.25rem', borderRadius: '1rem', background: 'var(--surface)', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Average Risk Score</h4>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.25rem', height: '1.25rem', color: 'var(--muted)' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <div className="stat-number" style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text)' }}>{stats.avgScore}%</div>
-          </div>
-        </div>
-
-        {/* Filter bar */}
-        <div className="history-toolbar animate-fade-in">
-          <div className="history-search-wrap">
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem', position: 'absolute', left: '0.85rem', color: 'var(--muted)' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search content or summaries..."
-                className="history-search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ paddingLeft: '2.3rem' }}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-            <div className="history-filters">
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', width: '60px' }}>TYPE:</span>
-              {typeOptions.map((type) => (
+          {/* TYPE Filters Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.9rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', minWidth: '55px' }}>
+              TYPE:
+            </span>
+            {typeOptions.map((type) => {
+              const isActive = selectedType === type
+              return (
                 <button
                   key={type}
-                  className={`filter-badge ${selectedType === type ? 'filter-badge--active' : ''}`}
+                  type="button"
                   onClick={() => setSelectedType(type)}
+                  style={{
+                    background: isActive ? 'var(--primary)' : 'var(--surface)',
+                    color: isActive ? '#ffffff' : 'var(--text)',
+                    border: isActive ? '1px solid var(--primary)' : '1px solid var(--border)',
+                    padding: '0.35rem 0.85rem',
+                    borderRadius: '999px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
                 >
                   {type}
                 </button>
-              ))}
-            </div>
+              )
+            })}
+          </div>
 
-            <div className="history-filters">
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', width: '60px' }}>RISK:</span>
-              {riskOptions.map((risk) => (
+          {/* RISK Filters Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', minWidth: '55px' }}>
+              RISK:
+            </span>
+            {riskOptions.map((risk) => {
+              const isActive = selectedRisk === risk
+              let activeBg = 'var(--primary)'
+              if (risk === 'High') activeBg = 'var(--danger)'
+              if (risk === 'Medium') activeBg = 'var(--warning)'
+              if (risk === 'Low') activeBg = 'var(--success)'
+
+              return (
                 <button
                   key={risk}
-                  className={`filter-badge ${selectedRisk === risk ? 'filter-badge--active' : ''}`}
+                  type="button"
                   onClick={() => setSelectedRisk(risk)}
+                  style={{
+                    background: isActive ? activeBg : 'var(--surface)',
+                    color: isActive ? '#ffffff' : 'var(--text)',
+                    border: isActive ? `1px solid ${activeBg}` : '1px solid var(--border)',
+                    padding: '0.35rem 0.85rem',
+                    borderRadius: '999px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
                 >
                   {risk}
                 </button>
-              ))}
-            </div>
+              )
+            })}
           </div>
-        </div>
+        </section>
 
-        {/* List of scanned cards */}
-        {filteredScans.length > 0 ? (
-          <div className="history-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-            {filteredScans.map((scan) => (
-              <Link 
-                to={`/results/${scan.id}`} 
-                key={scan.id} 
-                className="history-item animate-fade-in" 
-                style={{ 
-                  textDecoration: 'none', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'stretch',
-                  padding: '1.25rem',
-                  gap: '0.75rem',
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '1rem',
-                  transition: 'all 0.2s ease'
+        {/* Filtered History Log Records */}
+        <section className="scanner-card animate-slide-up delay-2" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+              Evaluation Logs ({filteredScans.length})
+            </h3>
+
+            {(searchQuery || selectedType !== 'All' || selectedRisk !== 'All') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('')
+                  setSelectedType('All')
+                  setSelectedRisk('All')
                 }}
+                style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                    <Badge tone={toneMap[scan.riskLevel] || 'neutral'}>{scan.riskLevel.toUpperCase()} RISK</Badge>
-                    <span style={{ fontSize: '0.72rem', background: 'var(--surface-strong)', padding: '0.2rem 0.55rem', borderRadius: '6px', textTransform: 'uppercase', fontWeight: 700, color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                      {scan.type === 'message' && (
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.12 2.9 2.78 2.9h1.12c.38 0 .74.15 1.01.42l1.93 1.93c.35.35.94.1 1.01-.4v-1.95c0-.41.34-.75.75-.75h2.12c1.66 0 2.78-1.3 2.78-2.9v-3c0-1.6-1.12-2.9-2.78-2.9H5.15C3.49 4.3 2.37 5.6 2.37 7.2v3z" />
-                        </svg>
-                      )}
-                      {scan.type === 'screenshot' && (
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                        </svg>
-                      )}
-                      {scan.type === 'link' && (
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
-                        </svg>
-                      )}
-                      {scan.type === 'email' && (
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                        </svg>
-                      )}
-                      {scan.type}
-                    </span>
-                  </div>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{scan.submittedAt}</span>
-                </div>
+                Reset Active Filters
+              </button>
+            )}
+          </div>
 
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text)', fontWeight: 700, lineHeight: '1.4' }}>{scan.summary}</h3>
-                  <div style={{ marginTop: '0.55rem', padding: '0.65rem 0.85rem', background: 'var(--surface-strong)', border: '1px solid var(--border)', borderRadius: '10px', fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--muted)', wordBreak: 'break-word' }}>
-                    &ldquo;{scan.originalContent}&rdquo;
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.2rem' }}>
-                  <div style={{ flex: 1, height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ width: `${scan.riskScore}%`, height: '100%', background: scan.riskLevel === 'high' ? 'var(--danger)' : scan.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)' }} />
-                  </div>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 750, color: 'var(--text)', minWidth: '35px', textAlign: 'right' }}>
-                    {scan.riskScore}%
-                  </span>
-                </div>
+          {filteredScans.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--surface)', borderRadius: '14px', border: '1px solid var(--border)' }}>
+              <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
+                No scan history records match your search or filter selections.
+              </p>
+              <Link to="/scan" className="button-primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.84rem', textDecoration: 'none', borderRadius: '999px' }}>
+                Run a New Scan
               </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="history-empty animate-fade-in">
-            <h3>No scan records found</h3>
-            <p>Try refining your filters or perform a new scan on the Scanner page.</p>
-            <Button as={Link} to="/scan" style={{ marginTop: '0.75rem' }}>Scan Now</Button>
-          </div>
-        )}
-      </section>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {filteredScans.map((scan) => {
+                const isHigh = scan.riskLevel === 'high' || scan.riskLevel === 'High'
+                const isMedium = scan.riskLevel === 'medium' || scan.riskLevel === 'Medium'
+
+                let badgeColor = 'var(--success)'
+                let badgeBg = 'rgba(16, 185, 129, 0.12)'
+                let badgeBorder = 'rgba(16, 185, 129, 0.25)'
+
+                if (isHigh) {
+                  badgeColor = 'var(--danger)'
+                  badgeBg = 'rgba(239, 68, 68, 0.12)'
+                  badgeBorder = 'rgba(239, 68, 68, 0.25)'
+                } else if (isMedium) {
+                  badgeColor = 'var(--warning)'
+                  badgeBg = 'rgba(245, 158, 11, 0.12)'
+                  badgeBorder = 'rgba(245, 158, 11, 0.25)'
+                }
+
+                return (
+                  <div
+                    key={scan.id}
+                    style={{
+                      background: 'var(--surface)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '16px',
+                      padding: '1.2rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.75rem',
+                      transition: 'transform 0.2s ease, border-color 0.2s ease'
+                    }}
+                  >
+                    {/* Record Top Row */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.18rem 0.6rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                          {scan.type.toUpperCase()}
+                        </span>
+                        <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 700 }}>
+                          {scan.submittedAt}
+                        </span>
+                      </div>
+
+                      <span style={{ fontSize: '0.76rem', fontWeight: 800, color: badgeColor, background: badgeBg, padding: '0.2rem 0.65rem', borderRadius: '999px', border: `1px solid ${badgeBorder}` }}>
+                        {scan.riskScore}% {scan.riskLevel.toUpperCase()} RISK
+                      </span>
+                    </div>
+
+                    {/* Scanned Input Text */}
+                    <div style={{ background: 'var(--surface-alt)', padding: '0.8rem 0.95rem', borderRadius: '10px', fontSize: '0.86rem', color: 'var(--text)', fontFamily: 'monospace', lineHeight: 1.45, border: '1px solid var(--border)' }}>
+                      &ldquo;{scan.originalContent}&rdquo;
+                    </div>
+
+                    {/* Summary */}
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
+                      <strong style={{ color: 'var(--text)' }}>Summary: </strong>
+                      {scan.summary}
+                    </p>
+
+                    {/* Red Flags Tags */}
+                    {scan.redFlags && scan.redFlags.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                        {scan.redFlags.map((flag) => (
+                          <span key={flag} style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', background: 'var(--surface-alt)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                            &bull; {flag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Action Bar */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.8rem', borderTop: '1px solid var(--border)', paddingTop: '0.65rem', marginTop: '0.2rem' }}>
+                      <Link
+                        to={`/results/${scan.id}`}
+                        style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--primary)', textDecoration: 'none' }}
+                      >
+                        View Full Report &rarr;
+                      </Link>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </section>
+      </div>
     </PageContainer>
   )
 }
