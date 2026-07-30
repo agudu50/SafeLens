@@ -5,12 +5,13 @@ import { authService } from '../../services/authService'
 export default function Navbar({ user, setUser, theme, setTheme }) {
   const [open, setOpen] = useState(false)
   const [showHelpline, setShowHelpline] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const location = useLocation()
 
   // Determine if user is inside internal App Workspace pages (/scan, /history, /profile, /results)
   const isAppWorkspace = user && ['/scan', '/history', '/profile', '/results'].some(path => location.pathname.startsWith(path))
 
-  // Clean navigation links (No duplicate "My Profile" in center, since Profile pill is on the right)
+  // Clean navigation links
   const links = isAppWorkspace
     ? [
         {
@@ -84,6 +85,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
   const handleSignOut = () => {
     authService.logout()
     setUser(null)
+    setShowProfileMenu(false)
     setOpen(false)
   }
 
@@ -114,7 +116,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           {/* User Status Bar in Mobile Drawer */}
           {open && user && (
             <div style={{ padding: '0.8rem 1rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', width: '100%' }}>
-              <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', color: 'var(--primary)', display: 'grid', placeItems: 'center', fontSize: '0.82rem', fontWeight: 800, border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+              <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.82rem', fontWeight: 800 }}>
                 {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
               </span>
               <div>
@@ -150,7 +152,10 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
             <button
               type="button"
               className="helpline-badge-btn"
-              onClick={() => setShowHelpline((prev) => !prev)}
+              onClick={() => {
+                setShowHelpline((prev) => !prev)
+                setShowProfileMenu(false)
+              }}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -222,7 +227,6 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {/* Cyber Security Authority (CSA) */}
                     <a href="tel:292" className="helpline-item-link">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--primary)', flexShrink: 0 }}>
@@ -236,7 +240,6 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                       <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '0.85rem', background: 'rgba(230,60,28,0.1)', padding: '0.2rem 0.5rem', borderRadius: '6px', flexShrink: 0 }}>292</span>
                     </a>
 
-                    {/* MTN MoMo Fraud */}
                     <a href="tel:1917" className="helpline-item-link">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--warning)', flexShrink: 0 }}>
@@ -250,7 +253,6 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                       <span style={{ fontWeight: 800, color: 'var(--warning)', fontSize: '0.85rem', background: 'rgba(245,158,11,0.1)', padding: '0.2rem 0.5rem', borderRadius: '6px', flexShrink: 0 }}>1917</span>
                     </a>
 
-                    {/* Telecel Cash */}
                     <a href="tel:100" className="helpline-item-link">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--danger)', flexShrink: 0 }}>
@@ -264,7 +266,6 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                       <span style={{ fontWeight: 800, color: 'var(--danger)', fontSize: '0.85rem', background: 'rgba(220,38,38,0.1)', padding: '0.2rem 0.5rem', borderRadius: '6px', flexShrink: 0 }}>100</span>
                     </a>
 
-                    {/* AT Money */}
                     <a href="tel:100" className="helpline-item-link">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: '#0284c7', flexShrink: 0 }}>
@@ -304,7 +305,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           
           <div className="nav-actions" style={{ marginLeft: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
             {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }} className="nav-user-container">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', position: 'relative' }} className="nav-user-container">
                 {/* On Public pages (Home page, Safety tips, About us), show primary "Go to Scanner" CTA button */}
                 {!isAppWorkspace && (
                   <Link
@@ -333,24 +334,27 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   </Link>
                 )}
 
-                {/* Profile Pill - Rounded Avatar (KM) + Name (Kofi) */}
-                <NavLink
-                  to="/profile"
-                  className={({ isActive }) => (isActive ? 'nav-user-pill nav-user-pill--active' : 'nav-user-pill')}
-                  onClick={() => setOpen(false)}
+                {/* Profile Avatar Button (KM Kofi) with Dropdown Toggle */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProfileMenu((prev) => !prev)
+                    setShowHelpline(false)
+                  }}
+                  className="nav-user-pill"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.45rem',
                     padding: '0.28rem 0.7rem',
                     borderRadius: '999px',
-                    background: location.pathname === '/profile' ? 'rgba(230, 60, 28, 0.12)' : 'var(--surface-alt)',
-                    border: location.pathname === '/profile' ? '1px solid var(--primary)' : '1px solid var(--border)',
-                    textDecoration: 'none',
+                    background: location.pathname === '/profile' || showProfileMenu ? 'rgba(230, 60, 28, 0.12)' : 'var(--surface-alt)',
+                    border: location.pathname === '/profile' || showProfileMenu ? '1px solid var(--primary)' : '1px solid var(--border)',
+                    cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     whiteSpace: 'nowrap'
                   }}
-                  title="View Profile Settings"
+                  title="Click for Profile Menu & Sign Out"
                 >
                   <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.78rem', fontWeight: 800, flexShrink: 0, boxShadow: '0 2px 8px rgba(230, 60, 28, 0.3)' }}>
                     {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
@@ -358,34 +362,147 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   <span className="nav-user-name" style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text)' }}>
                     {user.name ? user.name.split(' ')[0] : 'User'}
                   </span>
-                </NavLink>
-
-                {/* Sign Out Button */}
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="nav-action"
-                  style={{
-                    background: 'rgba(220, 38, 38, 0.08)',
-                    color: 'var(--danger)',
-                    border: '1px solid rgba(220, 38, 38, 0.25)',
-                    padding: '0.35rem 0.75rem',
-                    borderRadius: '999px',
-                    fontWeight: 700,
-                    fontSize: '0.78rem',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    whiteSpace: 'nowrap'
-                  }}
-                  title="Sign Out of SafeLens"
-                >
-                  <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem', color: 'var(--muted)', transform: showProfileMenu ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
-                  <span>Sign Out</span>
                 </button>
+
+                {/* Profile Dropdown Popover */}
+                {showProfileMenu && (
+                  <>
+                    <div
+                      className="helpline-backdrop-overlay"
+                      onClick={() => setShowProfileMenu(false)}
+                    />
+                    <div
+                      className="animate-fade-in"
+                      style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 8px)',
+                        right: 0,
+                        width: '240px',
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '16px',
+                        boxShadow: 'var(--shadow)',
+                        padding: '0.9rem',
+                        zIndex: 1000,
+                      }}
+                    >
+                      {/* Profile Card Header */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border)' }}>
+                        <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--primary)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.95rem', fontWeight: 900, flexShrink: 0, boxShadow: '0 4px 12px rgba(230, 60, 28, 0.3)' }}>
+                          {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
+                        </span>
+                        <div style={{ overflow: 'hidden' }}>
+                          <strong style={{ fontSize: '0.9rem', color: 'var(--text)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {user.name}
+                          </strong>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {user.email || 'kofi@example.com'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Quick Navigation Links */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', marginBottom: '0.75rem' }}>
+                        <Link
+                          to="/profile"
+                          onClick={() => setShowProfileMenu(false)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.55rem',
+                            padding: '0.45rem 0.65rem',
+                            borderRadius: '8px',
+                            color: 'var(--text)',
+                            fontSize: '0.82rem',
+                            fontWeight: 700,
+                            textDecoration: 'none',
+                            background: location.pathname === '/profile' ? 'var(--surface-alt)' : 'transparent'
+                          }}
+                        >
+                          <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem', color: 'var(--primary)' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                          </svg>
+                          <span>My Profile &amp; Settings</span>
+                        </Link>
+
+                        <Link
+                          to="/history"
+                          onClick={() => setShowProfileMenu(false)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.55rem',
+                            padding: '0.45rem 0.65rem',
+                            borderRadius: '8px',
+                            color: 'var(--text)',
+                            fontSize: '0.82rem',
+                            fontWeight: 700,
+                            textDecoration: 'none',
+                            background: location.pathname === '/history' ? 'var(--surface-alt)' : 'transparent'
+                          }}
+                        >
+                          <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem', color: 'var(--primary)' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 000 18z" />
+                          </svg>
+                          <span>Scan History</span>
+                        </Link>
+
+                        <Link
+                          to="/scan"
+                          onClick={() => setShowProfileMenu(false)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.55rem',
+                            padding: '0.45rem 0.65rem',
+                            borderRadius: '8px',
+                            color: 'var(--text)',
+                            fontSize: '0.82rem',
+                            fontWeight: 700,
+                            textDecoration: 'none',
+                            background: location.pathname === '/scan' ? 'var(--surface-alt)' : 'transparent'
+                          }}
+                        >
+                          <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem', color: 'var(--primary)' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                          </svg>
+                          <span>AI Threat Scanner</span>
+                        </Link>
+                      </div>
+
+                      {/* Sign Out Button in Dropdown */}
+                      <div style={{ paddingTop: '0.6rem', borderTop: '1px solid var(--border)' }}>
+                        <button
+                          type="button"
+                          onClick={handleSignOut}
+                          style={{
+                            width: '100%',
+                            background: 'rgba(220, 38, 38, 0.08)',
+                            color: 'var(--danger)',
+                            border: '1px solid rgba(220, 38, 38, 0.25)',
+                            padding: '0.45rem 0.75rem',
+                            borderRadius: '10px',
+                            fontWeight: 700,
+                            fontSize: '0.82rem',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justify: 'center',
+                            gap: '0.4rem'
+                          }}
+                        >
+                          <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
+                          </svg>
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
