@@ -1,59 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
-
-const mockScanRecords = [
-  {
-    id: 'scan-101',
-    type: 'Message',
-    content: 'Received GHS 450.00 from 0244123456. Ref: 98127391. Please refund immediately to 0551234567.',
-    riskLevel: 'High',
-    riskScore: 94,
-    category: 'MoMo Fraud',
-    summary: 'Fake wrong transfer SMS lure attempt to drain funds.',
-    date: '2026-07-30 14:15',
-  },
-  {
-    id: 'scan-102',
-    type: 'Link',
-    content: 'https://mtn-50th-anniversary.free-data.site/claim?user=ghana',
-    riskLevel: 'High',
-    riskScore: 98,
-    category: 'Phishing',
-    summary: 'Malicious domain requesting MoMo credentials for fake promo.',
-    date: '2026-07-29 11:30',
-  },
-  {
-    id: 'scan-103',
-    type: 'Screenshot',
-    content: 'WhatsApp Screenshot: Remote Video Liking Job - GHS 50 Registration Fee',
-    riskLevel: 'Medium',
-    riskScore: 68,
-    category: 'Advance Fee',
-    summary: 'Unverified recruiter demanding upfront registration fee.',
-    date: '2026-07-28 16:45',
-  },
-  {
-    id: 'scan-104',
-    type: 'Email',
-    content: 'Urgent Account Suspension Notice - Verify Your Banking Credentials',
-    riskLevel: 'High',
-    riskScore: 88,
-    category: 'Impersonation',
-    summary: 'Fake bank support email requesting OTP verification.',
-    date: '2026-07-27 09:20',
-  },
-  {
-    id: 'scan-105',
-    type: 'Message',
-    content: 'Hey Kofi, let us meet at Accra Mall food court by 4:00 PM for lunch.',
-    riskLevel: 'Low',
-    riskScore: 12,
-    category: 'Clean Message',
-    summary: 'Routine conversational message with zero threat indicators.',
-    date: '2026-07-26 13:10',
-  },
-]
 
 const graphData = [
   { day: 'Mon', scans: 4, highRisk: 2 },
@@ -65,27 +12,14 @@ const graphData = [
   { day: 'Sun', scans: 9, highRisk: 6 },
 ]
 
+const securityChecklist = [
+  { id: 1, title: 'MoMo Wallet PIN Protection', status: 'Optimal', iconColor: 'var(--success)' },
+  { id: 2, title: 'AI NLP Scam Analyzer Engine', status: 'Online (v2.4)', iconColor: 'var(--primary)' },
+  { id: 3, title: 'Ghana Telecom Fraud Gateway (100 / 1917)', status: 'Connected', iconColor: 'var(--success)' },
+  { id: 4, title: 'Cyber Security Authority Link (292)', status: 'Active 24/7', iconColor: 'var(--primary)' },
+]
+
 export default function Dashboard({ user }) {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterType, setFilterType] = useState('All')
-  const [filterRisk, setFilterRisk] = useState('All')
-
-  // Filter scan records based on search query, type, and risk level
-  const filteredRecords = useMemo(() => {
-    return mockScanRecords.filter((item) => {
-      const matchesSearch =
-        searchTerm === '' ||
-        item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase())
-
-      const matchesType = filterType === 'All' || item.type.toLowerCase() === filterType.toLowerCase()
-      const matchesRisk = filterRisk === 'All' || item.riskLevel.toLowerCase() === filterRisk.toLowerCase()
-
-      return matchesSearch && matchesType && matchesRisk
-    })
-  }, [searchTerm, filterType, filterRisk])
-
   // Metric Computations
   const totalScans = 3
   const scamsAvoided = 2
@@ -117,7 +51,7 @@ export default function Dashboard({ user }) {
                 Security Command Center
               </h1>
               <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: 0 }}>
-                Welcome back, {user?.name ? user.name.split(' ')[0] : 'Kofi'}! Monitor threat activity, filter scan logs, and run instant AI checks.
+                Welcome back, {user?.name ? user.name.split(' ')[0] : 'Kofi'}! Monitor threat activity, check system status, and run instant AI scans.
               </p>
             </div>
 
@@ -274,194 +208,69 @@ export default function Dashboard({ user }) {
           </div>
         </section>
 
-        {/* Real-Time Filter & Search Toolbar */}
-        <section className="scanner-card animate-slide-up delay-2" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: '0 0 1rem 0', color: 'var(--text)' }}>
-            Search &amp; Filter Threat Logs
-          </h2>
-
-          {/* Search Content Input */}
-          <div style={{ marginBottom: '1.1rem', position: 'relative' }}>
-            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', width: '1rem', height: '1rem', color: 'var(--muted)' }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search content or summaries..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.65rem 0.9rem 0.65rem 2.5rem',
-                borderRadius: '12px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
-                fontSize: '0.88rem',
-                outline: 'none'
-              }}
-            />
-          </div>
-
-          {/* TYPE Filters Row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', minWidth: '55px' }}>
-              TYPE:
-            </span>
-            {['All', 'Message', 'Screenshot', 'Link', 'Email'].map((type) => {
-              const isActive = filterType === type
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setFilterType(type)}
-                  style={{
-                    background: isActive ? 'var(--primary)' : 'var(--surface)',
-                    color: isActive ? '#ffffff' : 'var(--text)',
-                    border: isActive ? '1px solid var(--primary)' : '1px solid var(--border)',
-                    padding: '0.35rem 0.85rem',
-                    borderRadius: '999px',
-                    fontSize: '0.8rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {type}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* RISK Filters Row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', minWidth: '55px' }}>
-              RISK:
-            </span>
-            {['All', 'High', 'Medium', 'Low'].map((risk) => {
-              const isActive = filterRisk === risk
-
-              let activeBg = 'var(--primary)'
-              if (risk === 'High') activeBg = 'var(--danger)'
-              if (risk === 'Medium') activeBg = 'var(--warning)'
-              if (risk === 'Low') activeBg = 'var(--success)'
-
-              return (
-                <button
-                  key={risk}
-                  type="button"
-                  onClick={() => setFilterRisk(risk)}
-                  style={{
-                    background: isActive ? activeBg : 'var(--surface)',
-                    color: isActive ? '#ffffff' : 'var(--text)',
-                    border: isActive ? `1px solid ${activeBg}` : '1px solid var(--border)',
-                    padding: '0.35rem 0.85rem',
-                    borderRadius: '999px',
-                    fontSize: '0.8rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {risk}
-                </button>
-              )
-            })}
-          </div>
-        </section>
-
-        {/* Filtered Results Table / Grid */}
-        <section className="scanner-card animate-slide-up delay-3" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-              Scan Records ({filteredRecords.length})
+        {/* NEW FEATURE: System Security Status & Direct History Workspace Launcher */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }} className="animate-slide-up delay-2">
+          {/* Feature 1: Real-time System Security Status Checklist */}
+          <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.8rem 0', color: 'var(--text)' }}>
+              Active Defense Status
             </h3>
-            {(searchTerm || filterType !== 'All' || filterRisk !== 'All') && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchTerm('')
-                  setFilterType('All')
-                  setFilterRisk('All')
-                }}
-                style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
-              >
-                Reset Filters
-              </button>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              {securityChecklist.map((item) => (
+                <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface)', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem', color: item.iconColor }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text)' }}>{item.title}</span>
+                  </div>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: item.iconColor, background: 'rgba(16, 185, 129, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                    {item.status}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {filteredRecords.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'var(--surface)', borderRadius: '14px', border: '1px solid var(--border)' }}>
-              <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: 0 }}>
-                No scan records match your active search and filter options.
+          {/* Feature 2: Quick History Log Hub Link */}
+          <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--primary)', marginBottom: '0.85rem' }}>
+                <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.25rem', height: '1.25rem' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.35rem 0', color: 'var(--text)' }}>
+                Full Scan History &amp; Filter Logs
+              </h3>
+              <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: 0, lineHeight: 1.55 }}>
+                Search, filter by risk level (High/Medium/Low) or type (SMS, Link, Screenshot, Email), and export CSV reports on the dedicated History page.
               </p>
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {filteredRecords.map((item) => {
-                const isHigh = item.riskLevel === 'High'
-                const isMedium = item.riskLevel === 'Medium'
 
-                let badgeColor = 'var(--success)'
-                let badgeBg = 'rgba(16, 185, 129, 0.12)'
-                let badgeBorder = 'rgba(16, 185, 129, 0.25)'
-
-                if (isHigh) {
-                  badgeColor = 'var(--danger)'
-                  badgeBg = 'rgba(239, 68, 68, 0.12)'
-                  badgeBorder = 'rgba(239, 68, 68, 0.25)'
-                } else if (isMedium) {
-                  badgeColor = 'var(--warning)'
-                  badgeBg = 'rgba(245, 158, 11, 0.12)'
-                  badgeBorder = 'rgba(245, 158, 11, 0.25)'
-                }
-
-                return (
-                  <div
-                    key={item.id}
-                    style={{
-                      background: 'var(--surface)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '14px',
-                      padding: '1rem 1.1rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.65rem'
-                    }}
-                  >
-                    {/* Top Row */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                          {item.type.toUpperCase()}
-                        </span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)' }}>
-                          {item.date}
-                        </span>
-                      </div>
-
-                      <span style={{ fontSize: '0.74rem', fontWeight: 800, color: badgeColor, background: badgeBg, padding: '0.18rem 0.6rem', borderRadius: '999px', border: `1px solid ${badgeBorder}` }}>
-                        {item.riskScore}% {item.riskLevel.toUpperCase()} RISK
-                      </span>
-                    </div>
-
-                    {/* Content Snippet */}
-                    <div style={{ fontSize: '0.86rem', color: 'var(--text)', fontWeight: 600, lineHeight: 1.45 }}>
-                      &ldquo;{item.content}&rdquo;
-                    </div>
-
-                    {/* Summary */}
-                    <div style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.4 }}>
-                      <strong style={{ color: 'var(--text)' }}>Summary: </strong>
-                      {item.summary}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </section>
+            <Link
+              to="/history"
+              className="button-primary"
+              style={{
+                marginTop: '1.2rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justify: 'center',
+                gap: '0.4rem',
+                padding: '0.65rem 1.1rem',
+                borderRadius: '999px',
+                fontWeight: 800,
+                fontSize: '0.84rem',
+                textDecoration: 'none'
+              }}
+            >
+              <span>View All Records in History</span>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </Link>
+          </div>
+        </div>
       </div>
     </PageContainer>
   )
