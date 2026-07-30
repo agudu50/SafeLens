@@ -9,7 +9,7 @@ const DAILY_TIPS = [
   {
     id: 1,
     category: 'MoMo & Money',
-    title: 'Never Share Your Mobile Money PIN — Under Any Circumstances',
+    title: 'Never Share Your Mobile Money PIN Under Any Circumstances',
     tag: 'MoMo Rule #1',
     impact: 'HIGH CRITICAL',
     content: 'No official MTN, Telecel, or AT agent will EVER call or text asking for your 4-digit MoMo PIN. If someone claims your wallet is locked or money was sent by mistake and asks for your PIN, end the call immediately.',
