@@ -508,6 +508,94 @@ export default function SafetyTips({ user }) {
           </div>
         </section>
 
+        {/* Official Threat Advisories & Fraud Alerts Section */}
+        <section className="scanner-card animate-slide-up" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>
+                Official Threat Advisories &amp; Fraud Alerts
+              </h2>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0 }}>
+                Live bulletins issued by Cyber Security Authority (CSA) and Telecom Operators.
+              </p>
+            </div>
+            <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.2rem 0.6rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+              UPDATED TODAY
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {/* Advisory 1 */}
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '1rem 1.1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
+                    Telecom Alert
+                  </span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)' }}>
+                    Just Updated
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+                  HIGH RISK
+                </span>
+              </div>
+              <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
+                Surge in Fake MoMo Cash Out Prompts (*170#)
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
+                Fraudsters are initiating remote Cash Out approval requests. Reject any unexpected cashout PIN prompts immediately.
+              </p>
+            </div>
+
+            {/* Advisory 2 */}
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '1rem 1.1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
+                    Employment Fraud
+                  </span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)' }}>
+                    Today
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--warning)', background: 'rgba(245, 158, 11, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
+                  MEDIUM RISK
+                </span>
+              </div>
+              <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
+                Fake Job Agent Upfront Registration Fee Lures
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
+                Fake recruiters demanding GHS 50 - 200 mobile money transfers before scheduling online video interviews.
+              </p>
+            </div>
+
+            {/* Advisory 3 */}
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '1rem 1.1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
+                    Cyber Advisory
+                  </span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)' }}>
+                    Yesterday
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+                  CRITICAL
+                </span>
+              </div>
+              <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
+                Phishing Domain Targets Ghana Banking Apps
+              </h4>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
+                Unverified APK downloads and cloned bank login portals detected on social messaging platforms.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Emergency Hotline Bar */}
         <section style={{ textAlign: 'center', padding: '1.4rem 1.2rem', background: 'var(--surface-alt)', borderRadius: '16px', border: '1px solid var(--border)' }}>
           <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)' }}>

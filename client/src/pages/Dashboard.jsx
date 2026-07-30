@@ -12,33 +12,6 @@ const graphData = [
   { day: 'Sun', scans: 9, highRisk: 6 },
 ]
 
-const threatAdvisories = [
-  {
-    id: 'adv-1',
-    title: 'Surge in Fake MoMo Cash Out Prompts (*170#)',
-    category: 'Telecom Alert',
-    severity: 'High Risk',
-    date: 'Just Updated',
-    summary: 'Fraudsters are initiating remote Cash Out approval requests. Reject any unexpected cashout PIN prompts immediately.',
-  },
-  {
-    id: 'adv-2',
-    title: 'Fake Job Agent Upfront Registration Fee Lures',
-    category: 'Employment Fraud',
-    severity: 'Medium Risk',
-    date: 'Today',
-    summary: 'Fake recruiters demanding GHS 50 - 200 mobile money transfers before scheduling online video interviews.',
-  },
-  {
-    id: 'adv-3',
-    title: 'Phishing Domain Targets Ghana Banking Apps',
-    category: 'Cyber Advisory',
-    severity: 'Critical',
-    date: 'Yesterday',
-    summary: 'Unverified APK downloads and cloned bank login portals detected on social messaging platforms.',
-  }
-]
-
 const threatVectors = [
   { name: 'MoMo Transfer & Cashout Fraud', percentage: 54, count: '142 Flagged', color: 'var(--danger)' },
   { name: 'Fake Job & Recruitment Lures', percentage: 24, count: '63 Flagged', color: 'var(--warning)' },
@@ -123,7 +96,7 @@ export default function Dashboard({ user }) {
                 Security Command Center
               </h1>
               <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: 0 }}>
-                Welcome back, {user?.name ? user.name.split(' ')[0] : 'Kofi'}! Review threat advisories, analyze risk vectors, and run instant AI checks.
+                Welcome back, {user?.name ? user.name.split(' ')[0] : 'Kofi'}! Monitor threat activity, analyze risk vectors, and run instant AI checks.
               </p>
             </div>
 
@@ -275,64 +248,8 @@ export default function Dashboard({ user }) {
           </div>
         </section>
 
-        {/* NEW FEATURE 1: Ghana Cybersecurity Threat Advisories Feed */}
-        <section className="scanner-card animate-slide-up delay-2" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.4rem' }}>
-            <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 900, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>
-                Official Threat Advisories &amp; Fraud Alerts
-              </h2>
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0 }}>
-                Live bulletins issued by Cyber Security Authority (CSA) and Telecom Operators.
-              </p>
-            </div>
-            <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-              UPDATED TODAY
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            {threatAdvisories.map((adv) => (
-              <div
-                key={adv.id}
-                style={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '12px',
-                  padding: '1rem 1.1rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.4rem'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
-                      {adv.category}
-                    </span>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)' }}>
-                      {adv.date}
-                    </span>
-                  </div>
-
-                  <span style={{ fontSize: '0.74rem', fontWeight: 800, color: adv.severity === 'Critical' || adv.severity === 'High Risk' ? 'var(--danger)' : 'var(--warning)', background: adv.severity === 'Critical' || adv.severity === 'High Risk' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
-                    {adv.severity.toUpperCase()}
-                  </span>
-                </div>
-
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0.2rem 0 0.1rem 0', color: 'var(--text)' }}>
-                  {adv.title}
-                </h4>
-                <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
-                  {adv.summary}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* NEW FEATURE 2 GRID: AI Threat Vector Distribution & Interactive Risk Calculator */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-3">
+        {/* FEATURE 2 GRID: AI Threat Vector Distribution & Interactive Risk Calculator */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-2">
           {/* FEATURE 2A: Scam Type Distribution Breakdown */}
           <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.8rem 0', color: 'var(--text)' }}>
