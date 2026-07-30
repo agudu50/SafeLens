@@ -1,13 +1,17 @@
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { authService } from '../../services/authService'
 
 export default function Navbar({ user, setUser, theme, setTheme }) {
   const [open, setOpen] = useState(false)
   const [showHelpline, setShowHelpline] = useState(false)
+  const location = useLocation()
 
-  // Structured navigation links based on user authentication state
-  const links = user
+  // Determine if user is inside internal App Workspace pages (/scan, /history, /profile, /results)
+  const isAppWorkspace = user && ['/scan', '/history', '/profile', '/results'].some(path => location.pathname.startsWith(path))
+
+  // Distinct links structure: App Workspace vs Public Site Navbar
+  const links = isAppWorkspace
     ? [
         {
           to: '/',
@@ -318,6 +322,33 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           <div className="nav-actions" style={{ marginLeft: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }} className="nav-user-container">
+                {/* On Public pages (Home page, Safety tips, About us), show primary "Go to Scanner" button */}
+                {!isAppWorkspace && (
+                  <Link
+                    to="/scan"
+                    className="nav-action"
+                    onClick={() => setOpen(false)}
+                    style={{
+                      background: 'var(--primary)',
+                      color: '#ffffff',
+                      padding: '0.4rem 0.9rem',
+                      borderRadius: '999px',
+                      fontWeight: 800,
+                      fontSize: '0.82rem',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      boxShadow: '0 4px 14px rgba(230, 60, 28, 0.25)',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    <span>Go to AI Scanner</span>
+                  </Link>
+                )}
+
                 <Link
                   to="/profile"
                   className="nav-user-pill"
