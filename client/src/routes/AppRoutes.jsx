@@ -107,11 +107,18 @@ export default function AppRoutes({ user, setUser }) {
     <Routes>
       <Route path="/" element={<Home user={user} />} />
       <Route path="/about" element={<About user={user} />} />
-      <Route path="/safety-tips" element={<SafetyTips user={user} />} />
       <Route path="/login" element={<Login setUser={setUser} />} />
       <Route path="/register" element={<Register setUser={setUser} />} />
 
       {/* Protected Features (Accessible if user has an account) */}
+      <Route
+        path="/safety-tips"
+        element={
+          <ProtectedRoute user={user} setUser={setUser} title="Account Required for Ghana Safety Tips & Self-Defense">
+            <SafetyTips user={user} />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/scan"
         element={
