@@ -3685,26 +3685,13 @@ html.dark .helpline-item-link:hover {
 }
 
 .dash-hero-card {
-  background: linear-gradient(135deg, var(--surface-alt) 0%, var(--surface) 100%);
+  background: var(--surface-alt);
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 2rem 1.8rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04);
-}
-
-.dash-hero-card::before {
-  content: '';
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(230, 60, 28, 0.15) 0%, rgba(230, 60, 28, 0) 70%);
-  pointer-events: none;
-  animation: dashPulseGlow 6s infinite alternate ease-in-out;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
 @keyframes dashPulseGlow {
