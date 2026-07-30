@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-export default function Footer() {
+export default function Footer({ user }) {
   return (
     <footer className="site-footer">
       <div className="footer-shell">
@@ -21,8 +21,17 @@ export default function Footer() {
           <div className="footer-right-block">
             <div className="footer-nav-links">
               <Link to="/">Home Dashboard</Link>
-              <Link to="/scan">Scan Message</Link>
-              <Link to="/history">Scan Logs</Link>
+              {user ? (
+                <>
+                  <Link to="/scan">Scan Message</Link>
+                  <Link to="/history">Scan Logs</Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/login">Sign In</Link>
+                  <Link to="/register">Register</Link>
+                </>
+              )}
               <Link to="/about">Education Center</Link>
             </div>
 

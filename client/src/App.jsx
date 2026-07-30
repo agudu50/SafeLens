@@ -35,7 +35,7 @@ function App() {
         <main className="main-content">
           <AppRoutes user={user} setUser={setUser} />
         </main>
-        <Footer />
+        <Footer user={user} />
       </div>
     </BrowserRouter>
   )

@@ -2,15 +2,19 @@ import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { authService } from '../../services/authService'
 
-const links = [
-  { to: '/', label: 'Home' },
-  { to: '/scan', label: 'Scan' },
-  { to: '/history', label: 'History' },
-  { to: '/about', label: 'About' },
-]
-
 export default function Navbar({ user, setUser, theme, setTheme }) {
   const [open, setOpen] = useState(false)
+
+  const links = [
+    { to: '/', label: 'Home' },
+    ...(user
+      ? [
+          { to: '/scan', label: 'Scan' },
+          { to: '/history', label: 'History' },
+        ]
+      : []),
+    { to: '/about', label: 'About' },
+  ]
 
   const handleSignOut = () => {
     authService.logout()

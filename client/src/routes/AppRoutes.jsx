@@ -104,8 +104,8 @@ function ProtectedRoute({ user, setUser, children, title = 'Account Required for
 export default function AppRoutes({ user, setUser }) {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
+      <Route path="/" element={<Home user={user} />} />
+      <Route path="/about" element={<About user={user} />} />
       <Route path="/login" element={<Login setUser={setUser} />} />
       <Route path="/register" element={<Register setUser={setUser} />} />
 

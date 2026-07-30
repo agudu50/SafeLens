@@ -67,7 +67,7 @@ const quizQuestions = [
   },
 ]
 
-export default function About() {
+export default function About({ user }) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [score, setScore] = useState(0)
   const [selectedOption, setSelectedOption] = useState(null)
@@ -131,11 +131,11 @@ export default function About() {
           </p>
 
           <div style={{ display: 'flex', gap: '0.8rem', marginTop: '1.2rem', flexWrap: 'wrap' }}>
-            <Button as={Link} to="/scan" variant="primary" style={{ gap: '0.4rem' }}>
+            <Button as={Link} to={user ? "/scan" : "/login"} variant="primary" style={{ gap: '0.4rem' }}>
               <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
               </svg>
-              Scan a Message
+              {user ? "Scan a Message" : "Sign In to Scan"}
             </Button>
             <Button as="a" href="#quiz-section" variant="secondary" style={{ gap: '0.4rem' }}>
               <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}>

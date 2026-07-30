@@ -111,7 +111,7 @@ const tickerReports = [
   { region: 'Tamale', type: 'Wrong Transfer SMS', risk: 'High', time: '2 hrs ago' },
 ]
 
-export default function Home() {
+export default function Home({ user }) {
   const [selectedPreset, setSelectedPreset] = useState(presets[0])
   const [activeFAQ, setActiveFAQ] = useState(null)
   const [tickerIndex, setTickerIndex] = useState(0)
@@ -240,12 +240,29 @@ export default function Home() {
           </div>
 
           <div className="hero-actions">
-            <Button as={Link} to="/scan" variant="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              Scan a Message
-            </Button>
+            {user ? (
+              <>
+                <Button as={Link} to="/scan" variant="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                  </svg>
+                  Scan a Message
+                </Button>
+                <Button as={Link} to="/history" variant="secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Scan History
+                </Button>
+              </>
+            ) : (
+              <Button as={Link} to="/login" variant="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
+                </svg>
+                Sign In to Get Started
+              </Button>
+            )}
             <Button as={Link} to="/about" variant="secondary">
               Learn How It Works
             </Button>
@@ -282,8 +299,8 @@ export default function Home() {
             </div>
 
             <div className="hero-panel__footer">
-              <Link to="/scan" className="hero-quick-scan-link">
-                Test a similar threat message &rarr;
+              <Link to={user ? "/scan" : "/login"} className="hero-quick-scan-link">
+                {user ? "Test a similar threat message \u2192" : "Sign in to test threat messages \u2192"}
               </Link>
             </div>
           </div>
@@ -389,8 +406,8 @@ export default function Home() {
             </div>
 
             <div style={{ marginTop: '1.2rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button as={Link} to="/scan" variant="primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem' }}>
-                Scan Your Own Message &rarr;
+              <Button as={Link} to={user ? "/scan" : "/login"} variant="primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem' }}>
+                {user ? "Scan Your Own Message \u2192" : "Sign In to Start Scanning \u2192"}
               </Button>
             </div>
           </div>
