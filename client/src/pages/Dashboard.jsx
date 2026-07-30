@@ -19,6 +19,13 @@ const threatVectors = [
   { name: 'Impersonation & Advance Fee Scams', percentage: 8, count: '21 Flagged', color: 'var(--success)' },
 ]
 
+const securityAuditItems = [
+  { id: 1, title: 'SMS Sender Verification Shield', desc: 'Flags spoofed telco sender IDs & unverified numbers', status: 'Active', color: 'var(--success)' },
+  { id: 2, title: 'MoMo Cash Out Confirmation Guard', desc: 'Monitors remote *170# cashout approval requests', status: 'Active', color: 'var(--success)' },
+  { id: 3, title: 'Phishing Web Domain Detector', desc: 'Scans links for malicious extensions (.xyz, .top)', status: 'Active', color: 'var(--success)' },
+  { id: 4, title: 'Ghana Emergency Hotline Gateway', desc: 'Direct 24/7 hotline to CSA 292 & MTN 1917', status: 'Connected', color: 'var(--primary)' },
+]
+
 const tickerReports = [
   { region: 'Accra', type: 'MoMo Refund Fraud', risk: 'High', time: '2 mins ago' },
   { region: 'Kumasi', type: 'Fake Job Agent Fee', risk: 'High', time: '14 mins ago' },
@@ -28,20 +35,6 @@ const tickerReports = [
 ]
 
 export default function Dashboard({ user }) {
-  const [selectedFlags, setSelectedFlags] = useState({
-    unknownSender: false,
-    moneyRequest: false,
-    externalLink: false,
-    urgentAction: false
-  })
-
-  const toggleFlag = (key) => {
-    setSelectedFlags(prev => ({ ...prev, [key]: !prev[key] }))
-  }
-
-  // Calculate instant risk score based on selected risk factors
-  const calculatedRiskScore = Object.values(selectedFlags).filter(Boolean).length * 25
-
   const locationIcon = (
     <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', marginRight: '0.2rem', verticalAlign: 'middle', display: 'inline-block' }}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -248,7 +241,7 @@ export default function Dashboard({ user }) {
           </div>
         </section>
 
-        {/* FEATURE 2 GRID: AI Threat Vector Distribution & Interactive Risk Calculator */}
+        {/* FEATURE 2 GRID: AI Threat Vector Distribution & Security Health Audit */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-2">
           {/* FEATURE 2A: Scam Type Distribution Breakdown */}
           <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
@@ -270,42 +263,45 @@ export default function Dashboard({ user }) {
             </div>
           </div>
 
-          {/* FEATURE 2B: Interactive Risk Estimator Calculator */}
+          {/* FEATURE 2B: Security Health Audit Scorecard */}
           <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.35rem 0', color: 'var(--text)' }}>
-              Interactive Threat Risk Estimator
-            </h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0 0 0.9rem 0' }}>
-              Check suspicious red flags below to estimate threat score:
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', marginBottom: '1rem' }}>
-              <label onClick={() => toggleFlag('unknownSender')} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: 'var(--surface)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-                <input type="checkbox" checked={selectedFlags.unknownSender} onChange={() => {}} style={{ accentColor: 'var(--primary)' }} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)' }}>Unknown / Unverified Sender Number</span>
-              </label>
-
-              <label onClick={() => toggleFlag('moneyRequest')} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: 'var(--surface)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-                <input type="checkbox" checked={selectedFlags.moneyRequest} onChange={() => {}} style={{ accentColor: 'var(--danger)' }} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)' }}>Requests MoMo Refund or Cashout PIN</span>
-              </label>
-
-              <label onClick={() => toggleFlag('externalLink')} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: 'var(--surface)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-                <input type="checkbox" checked={selectedFlags.externalLink} onChange={() => {}} style={{ accentColor: 'var(--warning)' }} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)' }}>Contains External URL Link (.xyz / free data)</span>
-              </label>
-
-              <label onClick={() => toggleFlag('urgentAction')} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: 'var(--surface)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border)', cursor: 'pointer' }}>
-                <input type="checkbox" checked={selectedFlags.urgentAction} onChange={() => {}} style={{ accentColor: 'var(--danger)' }} />
-                <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)' }}>Urgent Pressure Tactics (&quot;Act within 10 mins&quot;)</span>
-              </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                System Security Health Audit
+              </h3>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                100% OPTIMAL
+              </span>
             </div>
 
-            <div style={{ background: 'var(--surface)', padding: '0.75rem 0.9rem', borderRadius: '12px', border: `1px solid ${calculatedRiskScore > 50 ? 'rgba(239, 68, 68, 0.3)' : 'var(--border)'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--muted)' }}>Estimated Threat Score:</span>
-              <span style={{ fontSize: '1.1rem', fontWeight: 900, color: calculatedRiskScore > 50 ? 'var(--danger)' : calculatedRiskScore > 0 ? 'var(--warning)' : 'var(--success)' }}>
-                {calculatedRiskScore}% {calculatedRiskScore > 50 ? 'HIGH RISK' : calculatedRiskScore > 0 ? 'MEDIUM RISK' : 'CLEAN'}
-              </span>
+            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0 0 0.9rem 0' }}>
+              Active protection protocols safeguarding your Mobile Money account &amp; messages:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              {securityAuditItems.map((item) => (
+                <div
+                  key={item.id}
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    padding: '0.75rem 0.9rem',
+                    display: 'flex',
+                    justify: 'space-between',
+                    alignItems: 'center',
+                    gap: '0.6rem'
+                  }}
+                >
+                  <div>
+                    <strong style={{ fontSize: '0.84rem', color: 'var(--text)', display: 'block' }}>{item.title}</strong>
+                    <span style={{ fontSize: '0.74rem', color: 'var(--muted)' }}>{item.desc}</span>
+                  </div>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: item.color, background: 'rgba(16, 185, 129, 0.1)', padding: '0.18rem 0.55rem', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+                    {item.status}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
