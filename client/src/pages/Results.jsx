@@ -143,6 +143,43 @@ export default function Results() {
           </div>
         </div>
 
+        {/* Matched Ghana Threat Vector & Category Likelihood Breakdown */}
+        {result.vectorBreakdown && result.vectorBreakdown.length > 0 && (
+          <div className="info-card animate-fade-in" style={{ marginTop: '1.5rem', border: '1px solid var(--border)', background: 'var(--surface-alt)', padding: '1.4rem', borderRadius: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.8rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)', fontWeight: 900 }}>
+                Matched Threat Vector Category
+              </h3>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+                {result.threatCategory || 'MoMo Transfer & Cashout Fraud'}
+              </span>
+            </div>
+
+            <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: '0 0 1rem 0', lineHeight: 1.45 }}>
+              SafeLens AI mapped this scanned input against top threat vectors reported in Ghana:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              {result.vectorBreakdown.map((vec) => (
+                <div key={vec.name} style={{ background: 'var(--surface)', padding: '0.75rem 0.9rem', borderRadius: '12px', border: vec.match ? '1px solid var(--primary)' : '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.82rem', fontWeight: 700 }}>
+                    <span style={{ color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      {vec.match && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--danger)' }} />}
+                      {vec.name}
+                    </span>
+                    <span style={{ color: vec.match ? 'var(--danger)' : 'var(--muted)', fontWeight: 800 }}>
+                      {vec.percentage}% Likelihood {vec.match ? '(Primary Match)' : ''}
+                    </span>
+                  </div>
+                  <div style={{ width: '100%', height: '7px', background: 'var(--surface-alt)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                    <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.match ? 'var(--danger)' : vec.color || 'var(--primary)', borderRadius: '999px' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* WhatsApp & Family Share Builder */}
         <div className="info-card animate-fade-in" style={{ marginTop: '2rem', border: '1px solid var(--border)', background: 'var(--surface-alt)' }}>
           <h3 style={{ color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: 0, marginBottom: '0.5rem' }}>

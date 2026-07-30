@@ -65,12 +65,48 @@ const saveHistory = () => {
 
 function buildResult({ type = 'message', input = '', riskLevel = '' }) {
   const cleaned = input.trim()
-  let finalRiskLevel = riskLevel
-  let riskScore
-  let summary
-  let redFlags
-  let explanation
-  let recommendation
+  let threatCategory = 'MoMo Transfer & Cashout Fraud'
+  let vectorBreakdown = [
+    { name: 'MoMo Transfer & Cashout Fraud', percentage: 92, match: true, color: 'var(--danger)' },
+    { name: 'Fake Job & Recruitment Lures', percentage: 24, match: false, color: 'var(--warning)' },
+    { name: 'Phishing Links & Spoofed Websites', percentage: 14, match: false, color: 'var(--primary)' },
+    { name: 'Impersonation & Advance Fee Scams', percentage: 8, match: false, color: 'var(--success)' },
+  ]
+
+  const lowerText = cleaned.toLowerCase()
+  if (type === 'link' || /http|\.xyz|\.top|\.site|claim|free-data|bonus/i.test(lowerText)) {
+    threatCategory = 'Phishing Links & Spoofed Websites'
+    vectorBreakdown = [
+      { name: 'Phishing Links & Spoofed Websites', percentage: 94, match: true, color: 'var(--danger)' },
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 14, match: false, color: 'var(--warning)' },
+      { name: 'Fake Job & Recruitment Lures', percentage: 8, match: false, color: 'var(--primary)' },
+      { name: 'Impersonation & Advance Fee Scams', percentage: 4, match: false, color: 'var(--success)' },
+    ]
+  } else if (/job|work|video|like|apply|agent fee|registration fee|recruiter/i.test(lowerText)) {
+    threatCategory = 'Fake Job & Recruitment Lures'
+    vectorBreakdown = [
+      { name: 'Fake Job & Recruitment Lures', percentage: 89, match: true, color: 'var(--danger)' },
+      { name: 'Impersonation & Advance Fee Scams', percentage: 18, match: false, color: 'var(--warning)' },
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 8, match: false, color: 'var(--primary)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 2, match: false, color: 'var(--success)' },
+    ]
+  } else if (/momo|cashout|refund|wrong transfer|\*170#|pin|otp|mtn|telecel|at money/i.test(lowerText)) {
+    threatCategory = 'MoMo Transfer & Cashout Fraud'
+    vectorBreakdown = [
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 92, match: true, color: 'var(--danger)' },
+      { name: 'Impersonation & Advance Fee Scams', percentage: 14, match: false, color: 'var(--warning)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 6, match: false, color: 'var(--primary)' },
+      { name: 'Fake Job & Recruitment Lures', percentage: 2, match: false, color: 'var(--success)' },
+    ]
+  } else {
+    threatCategory = 'Impersonation & Advance Fee Scams'
+    vectorBreakdown = [
+      { name: 'Impersonation & Advance Fee Scams', percentage: 82, match: true, color: 'var(--danger)' },
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 22, match: false, color: 'var(--warning)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 10, match: false, color: 'var(--primary)' },
+      { name: 'Fake Job & Recruitment Lures', percentage: 4, match: false, color: 'var(--success)' },
+    ]
+  }
 
   if (type === 'link') {
     const isHttps = cleaned.toLowerCase().startsWith('https://')
@@ -165,6 +201,8 @@ function buildResult({ type = 'message', input = '', riskLevel = '' }) {
     redFlags,
     explanation,
     recommendation,
+    threatCategory,
+    vectorBreakdown,
     originalContent: cleaned || 'Sample scan content placeholder',
     submittedAt: 'Just now',
   }
