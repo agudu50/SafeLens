@@ -588,6 +588,30 @@ export default function Home({ user }) {
         </div>
       </section>
 
+      {/* Daily Security Tips Banner CTA */}
+      <section className="scanner-card animate-slide-up" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '16px', marginTop: '2rem', padding: '1.5rem 1.6rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <Badge tone="good">
+              <span className="live-pulse-dot" style={{ background: 'var(--success)', marginRight: '0.35rem' }} />
+              DAILY SECURITY TIPS &amp; QUIZ
+            </Badge>
+            <h3 style={{ margin: '0.4rem 0 0.2rem 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)' }}>
+              Master MoMo &amp; Cyber Fraud Awareness
+            </h3>
+            <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--muted)' }}>
+              Read daily rotating protection tips, test your awareness with interactive quizzes, and download security checklists.
+            </p>
+          </div>
+          <Button as={Link} to="/safety-tips" variant="primary" style={{ gap: '0.4rem', whiteSpace: 'nowrap' }}>
+            <span>Explore Safety Tips</span>
+            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </Button>
+        </div>
+      </section>
+
       {/* FAQ Accordion */}
       <section className="faq-container animate-slide-up delay-5">
         <div className="section-heading">

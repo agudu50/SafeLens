@@ -38,11 +38,11 @@
 html.dark {
   --background: #0f172a;
   --surface: #1e293b;
-  --surface-strong: #334155;
-  --surface-alt: #0f172a;
+  --surface-strong: #162032;
+  --surface-alt: #0b1329;
   --text: #f8fafc;
   --muted: #94a3b8;
-  --border: #3b4f6e;
+  --border: #28374d;
   --header-bg: rgba(30, 41, 59, 0.75);
   --footer-bg: #1e293b;
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
@@ -3585,6 +3585,81 @@ html.dark .helpline-item-link:hover {
   .footer-status-pill {
     padding: 0.35rem 0.85rem;
     font-size: 0.78rem;
+  }
+}
+
+/* Safety Tips Page Mobile Responsive Enhancements */
+.safety-cat-scroll-row {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.2rem 0.2rem 0.4rem 0.2rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.safety-cat-scroll-row::-webkit-scrollbar {
+  display: none;
+}
+
+.safety-cat-btn {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.safety-cat-btn--active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+@media (max-width: 600px) {
+  .safety-featured-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  .safety-featured-next-btn {
+    width: 100%;
+    justify-content: center !important;
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.84rem !important;
+  }
+
+  .safety-grid-card {
+    padding: 1.15rem 1rem !important;
+    border-radius: 14px !important;
+  }
+
+  .safety-checklist-item {
+    padding: 0.75rem 0.85rem !important;
+    font-size: 0.84rem !important;
+    min-height: 48px;
+  }
+
+  .safety-hotline-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.6rem !important;
+    width: 100%;
+  }
+
+  .safety-hotline-pill {
+    width: 100%;
+    justify-content: center;
+    padding: 0.6rem 0.6rem !important;
+    font-size: 0.78rem !important;
+    text-align: center;
   }
 }
 

@@ -224,7 +224,7 @@ export default function History() {
 
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text)', fontWeight: 700, lineHeight: '1.4' }}>{scan.summary}</h3>
-                  <div style={{ marginTop: '0.5rem', padding: '0.6rem 0.8rem', background: 'var(--surface-alt)', borderLeft: '3px solid var(--border)', borderRadius: '6px', fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--muted)', wordBreak: 'break-word' }}>
+                  <div style={{ marginTop: '0.55rem', padding: '0.65rem 0.85rem', background: 'var(--surface-strong)', border: '1px solid var(--border)', borderRadius: '10px', fontStyle: 'italic', fontSize: '0.85rem', color: 'var(--muted)', wordBreak: 'break-word' }}>
                     &ldquo;{scan.originalContent}&rdquo;
                   </div>
                 </div>

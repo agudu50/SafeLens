@@ -14,7 +14,8 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           { to: '/history', label: 'History' },
         ]
       : []),
-    { to: '/about', label: 'About' },
+    { to: '/safety-tips', label: 'Safety Tips' },
+    { to: '/about', label: 'About Us' },
   ]
 
   const handleSignOut = () => {

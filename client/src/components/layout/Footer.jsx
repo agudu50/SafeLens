@@ -32,7 +32,8 @@ export default function Footer({ user }) {
                   <Link to="/register" className="footer-nav-link">Register</Link>
                 </>
               )}
-              <Link to="/about" className="footer-nav-link">Education Center</Link>
+              <Link to="/safety-tips" className="footer-nav-link">Safety Tips</Link>
+              <Link to="/about" className="footer-nav-link">About Us</Link>
             </div>
 
             <div className="footer-hotline-pills">

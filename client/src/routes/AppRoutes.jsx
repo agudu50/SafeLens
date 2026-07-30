@@ -4,6 +4,7 @@ import Scanner from '../pages/Scanner'
 import Results from '../pages/Results'
 import History from '../pages/History'
 import About from '../pages/About'
+import SafetyTips from '../pages/SafetyTips'
 import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Profile from '../pages/Profile'
@@ -106,6 +107,7 @@ export default function AppRoutes({ user, setUser }) {
     <Routes>
       <Route path="/" element={<Home user={user} />} />
       <Route path="/about" element={<About user={user} />} />
+      <Route path="/safety-tips" element={<SafetyTips user={user} />} />
       <Route path="/login" element={<Login setUser={setUser} />} />
       <Route path="/register" element={<Register setUser={setUser} />} />
 
