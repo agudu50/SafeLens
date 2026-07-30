@@ -3448,3 +3448,28 @@ html.dark .helpline-item-link:hover {
   }
 }
 
+/* Responsive Auth Form Grid & Mobile Card Styling */
+.auth-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+@media (max-width: 520px) {
+  .auth-form-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .scanner-card {
+    padding: 1.25rem 1.1rem !important;
+    border-radius: 16px !important;
+    margin: 0.5rem auto !important;
+  }
+
+  .auth-demo-btn {
+    padding: 0.55rem 0.8rem !important;
+    font-size: 0.82rem !important;
+  }
+}
+
