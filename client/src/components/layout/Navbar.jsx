@@ -10,7 +10,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
   // Determine if user is inside internal App Workspace pages (/scan, /history, /profile, /results)
   const isAppWorkspace = user && ['/scan', '/history', '/profile', '/results'].some(path => location.pathname.startsWith(path))
 
-  // Distinct links structure: App Workspace vs Public Site Navbar
+  // Clean navigation links (No duplicate "My Profile" in center, since Profile pill is on the right)
   const links = isAppWorkspace
     ? [
         {
@@ -42,11 +42,11 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           )
         },
         {
-          to: '/profile',
-          label: 'My Profile',
+          to: '/safety-tips',
+          label: 'Safety Tips',
           icon: (
             <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
             </svg>
           )
         }
@@ -94,9 +94,9 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
   return (
     <header className="site-header">
       <div className="nav-shell">
-        <Link to="/" className="brand" onClick={() => setOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '50%', border: '1px solid var(--border)' }} />
-          <strong className="brand__text" style={{ fontSize: '1.25rem', color: 'var(--text)', fontWeight: 800 }}>SafeLens</strong>
+        <Link to="/" className="brand" onClick={() => setOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '50%', border: '1px solid var(--border)' }} />
+          <strong className="brand__text" style={{ fontSize: '1.2rem', color: 'var(--text)', fontWeight: 800 }}>SafeLens</strong>
         </Link>
 
         <button
@@ -113,7 +113,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
         <nav className={`nav-links ${open ? 'nav-links--open' : ''}`} aria-label="Primary navigation">
           {/* User Status Bar in Mobile Drawer */}
           {open && user && (
-            <div style={{ padding: '0.8rem 1rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <div style={{ padding: '0.8rem 1rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--border)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', width: '100%' }}>
               <span style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', color: 'var(--primary)', display: 'grid', placeItems: 'center', fontSize: '0.82rem', fontWeight: 800, border: '1px solid rgba(56, 189, 248, 0.3)' }}>
                 {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
               </span>
@@ -133,12 +133,12 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
               to={link.to}
               className={({ isActive }) => (isActive ? 'nav-link nav-link--active' : 'nav-link')}
               onClick={() => setOpen(false)}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.75rem', fontSize: '0.86rem', whiteSpace: 'nowrap' }}
             >
               {link.icon}
               <span>{link.label}</span>
               {link.isBadge && (
-                <span style={{ fontSize: '0.64rem', fontWeight: 800, color: '#fff', background: 'var(--primary)', padding: '0.1rem 0.4rem', borderRadius: '999px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#fff', background: 'var(--primary)', padding: '0.1rem 0.35rem', borderRadius: '999px', textTransform: 'uppercase' }}>
                   AI
                 </span>
               )}
@@ -154,16 +154,17 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem',
-                background: 'rgba(220, 38, 38, 0.1)',
+                gap: '0.35rem',
+                background: 'rgba(220, 38, 38, 0.08)',
                 color: 'var(--danger)',
-                border: '1px solid rgba(220, 38, 38, 0.3)',
-                padding: '0.35rem 0.75rem',
+                border: '1px solid rgba(220, 38, 38, 0.25)',
+                padding: '0.35rem 0.65rem',
                 borderRadius: '999px',
-                fontSize: '0.8rem',
+                fontSize: '0.78rem',
                 fontWeight: 700,
                 transition: 'all 0.2s ease',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
               }}
               title="Official Ghana Scam Helplines"
             >
@@ -171,7 +172,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
               <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
               </svg>
-              <span>Helpline: 292 / 1917</span>
+              <span>Helpline 292</span>
             </button>
 
             {showHelpline && (
@@ -287,24 +288,24 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
             className="theme-toggle"
             aria-label="Toggle Theme"
             onClick={toggleTheme}
+            style={{ width: '32px', height: '32px', padding: 0, display: 'grid', placeItems: 'center', borderRadius: '50%', flexShrink: 0 }}
           >
             {theme === 'dark' ? (
-              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.25rem', height: '1.25rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
                 <circle cx="12" cy="12" r="5" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
               </svg>
             ) : (
-              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.25rem', height: '1.25rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
               </svg>
             )}
-            <span className="theme-toggle-label">Switch Theme</span>
           </button>
           
-          <div className="nav-actions" style={{ marginLeft: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div className="nav-actions" style={{ marginLeft: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
             {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }} className="nav-user-container">
-                {/* On Public pages (Home page, Safety tips, About us), show primary "Go to Scanner" button */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }} className="nav-user-container">
+                {/* On Public pages (Home page, Safety tips, About us), show primary "Go to Scanner" CTA button */}
                 {!isAppWorkspace && (
                   <Link
                     to="/scan"
@@ -313,50 +314,54 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     style={{
                       background: 'var(--primary)',
                       color: '#ffffff',
-                      padding: '0.4rem 0.9rem',
+                      padding: '0.35rem 0.8rem',
                       borderRadius: '999px',
                       fontWeight: 800,
-                      fontSize: '0.82rem',
+                      fontSize: '0.78rem',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '0.4rem',
+                      gap: '0.35rem',
                       boxShadow: '0 4px 14px rgba(230, 60, 28, 0.25)',
-                      textDecoration: 'none'
+                      textDecoration: 'none',
+                      whiteSpace: 'nowrap'
                     }}
                   >
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                     </svg>
-                    <span>Go to AI Scanner</span>
+                    <span>AI Scanner</span>
                   </Link>
                 )}
 
-                <Link
+                {/* Profile Pill - Highlighted active if currently on /profile */}
+                <NavLink
                   to="/profile"
-                  className="nav-user-pill"
+                  className={({ isActive }) => (isActive ? 'nav-user-pill nav-user-pill--active' : 'nav-user-pill')}
                   onClick={() => setOpen(false)}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.3rem 0.75rem',
+                    gap: '0.4rem',
+                    padding: '0.28rem 0.65rem',
                     borderRadius: '999px',
-                    background: 'var(--surface-alt)',
-                    border: '1px solid var(--border)',
+                    background: location.pathname === '/profile' ? 'rgba(56, 189, 248, 0.15)' : 'var(--surface-alt)',
+                    border: location.pathname === '/profile' ? '1px solid var(--primary)' : '1px solid var(--border)',
                     textDecoration: 'none',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
                   }}
                   title="View Profile Settings"
                 >
-                  <span style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', color: 'var(--primary)', display: 'grid', placeItems: 'center', fontSize: '0.78rem', fontWeight: 800, border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                  <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.74rem', fontWeight: 800 }}>
                     {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
                   </span>
-                  <span className="nav-user-name" style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text)' }}>
+                  <span className="nav-user-name" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text)' }}>
                     {user.name ? user.name.split(' ')[0] : 'User'}
                   </span>
-                  <span className="live-pulse-dot" style={{ width: '6px', height: '6px', background: 'var(--success)' }} />
-                </Link>
+                  <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
+                </NavLink>
 
+                {/* Sign Out Button */}
                 <button
                   type="button"
                   onClick={handleSignOut}
@@ -365,14 +370,15 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     background: 'rgba(220, 38, 38, 0.08)',
                     color: 'var(--danger)',
                     border: '1px solid rgba(220, 38, 38, 0.25)',
-                    padding: '0.38rem 0.85rem',
+                    padding: '0.32rem 0.65rem',
                     borderRadius: '999px',
                     fontWeight: 700,
-                    fontSize: '0.8rem',
+                    fontSize: '0.78rem',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.35rem'
+                    gap: '0.3rem',
+                    whiteSpace: 'nowrap'
                   }}
                   title="Sign Out of SafeLens"
                 >
@@ -383,11 +389,11 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <Link to="/login" className="nav-link" onClick={() => setOpen(false)} style={{ fontSize: '0.86rem', fontWeight: 700 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Link to="/login" className="nav-link" onClick={() => setOpen(false)} style={{ fontSize: '0.84rem', fontWeight: 700, padding: '0.4rem 0.7rem' }}>
                   Sign In
                 </Link>
-                <Link to="/register" className="nav-action" onClick={() => setOpen(false)} style={{ background: 'var(--primary)', color: '#fff', padding: '0.4rem 0.95rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.84rem' }}>
+                <Link to="/register" className="nav-action" onClick={() => setOpen(false)} style={{ background: 'var(--primary)', color: '#fff', padding: '0.38rem 0.85rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
                   Register
                 </Link>
               </div>
