@@ -353,9 +353,9 @@ export default function SafetyTips({ user }) {
         </div>
 
         {/* Daily Scam Self-Defense Guide - Educational Auto-Moving Slideshow */}
-        <section className="scanner-card" style={{ background: 'var(--surface-alt)', padding: '1.8rem 1.4rem', position: 'relative', overflow: 'hidden' }}>
+        <section className="scanner-card safety-guide-section" style={{ background: 'var(--surface-alt)', padding: '1.8rem 1.4rem', position: 'relative', overflow: 'hidden' }}>
           {/* Header Bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.2rem' }}>
+          <div className="safety-guide-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.2rem' }}>
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
                 <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--primary)' }}>
@@ -408,7 +408,7 @@ export default function SafetyTips({ user }) {
           {/* Active Educational Slide Card */}
           <div
             key={currentSlideIndex}
-            className="animate-fade-in"
+            className="animate-fade-in safety-slide-card"
             style={{
               background: 'var(--surface)',
               border: '1px solid var(--border)',
