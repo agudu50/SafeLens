@@ -333,7 +333,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   </Link>
                 )}
 
-                {/* Profile Pill - Highlighted active if currently on /profile */}
+                {/* Profile Pill - Rounded Avatar (KM) + Name (Kofi) */}
                 <NavLink
                   to="/profile"
                   className={({ isActive }) => (isActive ? 'nav-user-pill nav-user-pill--active' : 'nav-user-pill')}
@@ -341,10 +341,10 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.4rem',
-                    padding: '0.28rem 0.65rem',
+                    gap: '0.45rem',
+                    padding: '0.28rem 0.7rem',
                     borderRadius: '999px',
-                    background: location.pathname === '/profile' ? 'rgba(56, 189, 248, 0.15)' : 'var(--surface-alt)',
+                    background: location.pathname === '/profile' ? 'rgba(230, 60, 28, 0.12)' : 'var(--surface-alt)',
                     border: location.pathname === '/profile' ? '1px solid var(--primary)' : '1px solid var(--border)',
                     textDecoration: 'none',
                     transition: 'all 0.2s ease',
@@ -352,13 +352,12 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   }}
                   title="View Profile Settings"
                 >
-                  <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.74rem', fontWeight: 800 }}>
+                  <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.78rem', fontWeight: 800, flexShrink: 0, boxShadow: '0 2px 8px rgba(230, 60, 28, 0.3)' }}>
                     {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
                   </span>
-                  <span className="nav-user-name" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text)' }}>
+                  <span className="nav-user-name" style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text)' }}>
                     {user.name ? user.name.split(' ')[0] : 'User'}
                   </span>
-                  <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
                 </NavLink>
 
                 {/* Sign Out Button */}
@@ -370,14 +369,14 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     background: 'rgba(220, 38, 38, 0.08)',
                     color: 'var(--danger)',
                     border: '1px solid rgba(220, 38, 38, 0.25)',
-                    padding: '0.32rem 0.65rem',
+                    padding: '0.35rem 0.75rem',
                     borderRadius: '999px',
                     fontWeight: 700,
                     fontSize: '0.78rem',
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.3rem',
+                    gap: '0.35rem',
                     whiteSpace: 'nowrap'
                   }}
                   title="Sign Out of SafeLens"
