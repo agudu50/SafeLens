@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
@@ -78,21 +78,78 @@ const DAILY_TIPS = [
   }
 ]
 
+// Educational Self-Defense Guide Slides for all visitors
+const DEFENSE_SLIDES = [
+  {
+    id: 'pin',
+    tag: 'WALLET SECURITY',
+    title: 'Never Share Your 4-Digit MoMo PIN',
+    subtitle: 'MoMo PIN & Banking OTP Shield',
+    content: 'No official MTN, Telecel, or AT agent will EVER call or text asking for your 4-digit MoMo PIN or banking OTP on the phone. End suspicious impersonation calls immediately.',
+    rule: 'Rule: Never enter or read out your MoMo PIN for anyone calling on the phone.',
+    icon: (
+      <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--danger)' }}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+      </svg>
+    )
+  },
+  {
+    id: 'balance',
+    tag: 'USSD TRAP CHECK',
+    title: 'Always Verify Balance via *170# or *110#',
+    subtitle: 'Wrong Transfer SMS Trap Check',
+    content: 'Scammers send fake SMS formatted to look like official MoMo credit alerts, then call claiming they sent money by mistake. ALWAYS dial *170# or *110# to check actual balance before sending money back.',
+    rule: 'Rule: Never refund money based on an unverified SMS notification alone.',
+    icon: (
+      <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--warning)' }}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+      </svg>
+    )
+  },
+  {
+    id: 'otp',
+    tag: 'HIJACK DEFENSE',
+    title: 'Enable WhatsApp 2-Step Verification',
+    subtitle: 'Account Hijack & Takeover Lock',
+    content: 'Set up a 6-digit PIN in WhatsApp Settings > Account > 2-Step Verification. If you receive an SMS verification code you did not request, someone is attempting to hijack your account.',
+    rule: 'Rule: Never forward SMS verification codes to anyone requesting them.',
+    icon: (
+      <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--primary)' }}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+      </svg>
+    )
+  },
+  {
+    id: 'links',
+    tag: 'PHISHING SHIELD',
+    title: 'Scan Suspicious Links Before Opening',
+    subtitle: 'Web Phishing & Fake Promo Shield',
+    content: 'Beware of WhatsApp broadcast links promising free 10GB data or youth grants. Fake domains (`.xyz`, `.top`) steal login credentials and mobile money accounts.',
+    rule: 'Rule: Paste unverified links into SafeLens AI Scanner before opening.',
+    icon: (
+      <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--primary)' }}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+      </svg>
+    )
+  }
+]
+
 export default function SafetyTips({ user }) {
   const [activeCategory, setActiveCategory] = useState('All')
   const [currentTipIndex, setCurrentTipIndex] = useState(0)
 
-  // Checklist state
-  const [checkedItems, setCheckedItems] = useState({
-    pin: false,
-    balance: false,
-    otp: false,
-    links: false
-  })
+  // Slideshow carousel state
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(true)
 
-  const handleToggleCheck = (key) => {
-    setCheckedItems(prev => ({ ...prev, [key]: !prev[key] }))
-  }
+  // Auto slide effect
+  useEffect(() => {
+    if (!isPlaying) return
+    const timer = setInterval(() => {
+      setCurrentSlideIndex(prev => (prev + 1) % DEFENSE_SLIDES.length)
+    }, 4500)
+    return () => clearInterval(timer)
+  }, [isPlaying])
 
   const filteredTips = activeCategory === 'All'
     ? DAILY_TIPS
@@ -103,6 +160,8 @@ export default function SafetyTips({ user }) {
   const handleNextTip = () => {
     setCurrentTipIndex(prev => (prev + 1) % DAILY_TIPS.length)
   }
+
+  const activeSlide = DEFENSE_SLIDES[currentSlideIndex]
 
   return (
     <PageContainer>
@@ -239,7 +298,7 @@ export default function SafetyTips({ user }) {
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  justify: 'space-between',
+                  justifyContent: 'space-between',
                   padding: '1.4rem',
                   background: 'var(--surface)',
                   border: '1px solid var(--border)',
@@ -293,76 +352,198 @@ export default function SafetyTips({ user }) {
           </div>
         </div>
 
-        {/* Daily Scam Self-Defense Checklist */}
-        <section className="scanner-card" style={{ background: 'var(--surface-alt)' }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0 0 0.3rem 0', color: 'var(--text)' }}>
-              🛡️ Daily Scam Self-Defense Checklist
-            </h3>
-            <p style={{ color: 'var(--muted)', fontSize: '0.84rem', margin: 0 }}>
-              Build daily security habits to safeguard your phone, funds, and personal data.
-            </p>
+        {/* Daily Scam Self-Defense Guide - Educational Auto-Moving Slideshow */}
+        <section className="scanner-card" style={{ background: 'var(--surface-alt)', padding: '1.8rem 1.4rem', position: 'relative', overflow: 'hidden' }}>
+          {/* Header Bar */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.2rem' }}>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
+                <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--primary)' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                  Daily Scam Self-Defense Guide
+                </h3>
+              </div>
+              <p style={{ color: 'var(--muted)', fontSize: '0.84rem', margin: 0 }}>
+                Essential security rules to protect your mobile money wallet, phone, and accounts in Ghana.
+              </p>
+            </div>
+
+            {/* Play/Pause Button */}
+            <button
+              onClick={() => setIsPlaying(!isPlaying)}
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+                borderRadius: '999px',
+                padding: '0.35rem 0.75rem',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+            >
+              {isPlaying ? (
+                <>
+                  <svg fill="currentColor" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem', color: 'var(--primary)' }}>
+                    <path d="M15.75 5.25v13.5m-7.5-13.5v13.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                  <span>Pause Slideshow</span>
+                </>
+              ) : (
+                <>
+                  <svg fill="currentColor" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem', color: 'var(--success)' }}>
+                    <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+                  </svg>
+                  <span>Play Slideshow</span>
+                </>
+              )}
+            </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            {[
-              { id: 'pin', text: 'I never give my 4-digit MoMo PIN or banking OTP to callers on the phone.' },
-              { id: 'balance', text: 'I verify my actual account balance via *170# before believing any "wrong transfer" SMS.' },
-              { id: 'otp', text: 'I enabled WhatsApp 2-Step Verification to prevent account takeover.' },
-              { id: 'links', text: 'I check suspicious SMS links with SafeLens before clicking or sharing.' }
-            ].map(item => (
-              <label
-                key={item.id}
-                className="safety-checklist-item"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.65rem',
-                  padding: '0.65rem 0.85rem',
-                  background: checkedItems[item.id] ? 'rgba(34, 197, 94, 0.1)' : 'var(--surface)',
-                  border: '1px solid ' + (checkedItems[item.id] ? 'var(--success)' : 'var(--border)'),
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  fontSize: '0.86rem',
-                  color: 'var(--text)',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={checkedItems[item.id]}
-                  onChange={() => handleToggleCheck(item.id)}
-                  style={{ width: '1.05rem', height: '1.05rem', accentColor: 'var(--success)', cursor: 'pointer', flexShrink: 0 }}
-                />
-                <span style={{ textDecoration: checkedItems[item.id] ? 'line-through' : 'none', opacity: checkedItems[item.id] ? 0.8 : 1 }}>
-                  {item.text}
+          {/* Active Educational Slide Card */}
+          <div
+            key={currentSlideIndex}
+            className="animate-fade-in"
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '1.4rem',
+              position: 'relative',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {/* Top Slide Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.9rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.22rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                  {activeSlide.tag}
                 </span>
-              </label>
-            ))}
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)' }}>
+                  GUIDE {currentSlideIndex + 1} OF {DEFENSE_SLIDES.length}
+                </span>
+              </div>
+
+              {/* Prev / Next SVG Buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <button
+                  onClick={() => setCurrentSlideIndex(prev => (prev === 0 ? DEFENSE_SLIDES.length - 1 : prev - 1))}
+                  style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                  title="Previous Guide"
+                >
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setCurrentSlideIndex(prev => (prev + 1) % DEFENSE_SLIDES.length)}
+                  style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                  title="Next Guide"
+                >
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Slide Body */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.9rem', marginBottom: '0.8rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                {activeSlide.icon}
+              </div>
+              <div>
+                <h3 style={{ margin: '0 0 0.2rem 0', fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)' }}>
+                  {activeSlide.title}
+                </h3>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)' }}>
+                  {activeSlide.subtitle}
+                </span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.9rem', color: 'var(--text)', lineHeight: 1.6, margin: '0 0 1rem 0' }}>
+              {activeSlide.content}
+            </p>
+
+            {/* Rule Callout Box */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.55rem', background: 'var(--surface-alt)', padding: '0.7rem 0.85rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem', color: 'var(--success)', flexShrink: 0, marginTop: '2px' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.45 }}>
+                {activeSlide.rule}
+              </span>
+            </div>
+          </div>
+
+          {/* Indicator Dots */}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.45rem', marginTop: '1.1rem' }}>
+            {DEFENSE_SLIDES.map((slide, idx) => {
+              const isActive = currentSlideIndex === idx
+
+              return (
+                <button
+                  key={slide.id}
+                  onClick={() => setCurrentSlideIndex(idx)}
+                  style={{
+                    width: isActive ? '24px' : '8px',
+                    height: '8px',
+                    borderRadius: '999px',
+                    background: isActive ? 'var(--primary)' : 'var(--border)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  title={`Go to Guide ${idx + 1}`}
+                />
+              )
+            })}
           </div>
         </section>
 
         {/* Emergency Hotline Bar */}
-        <section style={{ textAlign: 'center', padding: '1.2rem', background: 'var(--surface-alt)', borderRadius: '16px', border: '1px solid var(--border)' }}>
-          <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '1rem', fontWeight: 800, color: 'var(--text)' }}>
+        <section style={{ textAlign: 'center', padding: '1.4rem 1.2rem', background: 'var(--surface-alt)', borderRadius: '16px', border: '1px solid var(--border)' }}>
+          <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)' }}>
             Facing an active scam attempt in Ghana right now?
           </h4>
-          <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: '0 0 0.8rem 0' }}>
+          <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: '0 0 0.9rem 0' }}>
             Call official Ghana cyber security and network fraud emergency helplines:
           </p>
           
           <div className="safety-hotline-grid" style={{ display: 'flex', justifyContent: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-            <a href="tel:292" className="hotline-pill safety-hotline-pill" style={{ padding: '0.5rem 0.9rem', fontSize: '0.84rem', background: 'var(--surface)' }}>
-              📞 CSA Hotline: <strong>292</strong>
+            <a href="tel:292" className="hotline-pill safety-hotline-pill" style={{ padding: '0.55rem 0.95rem', fontSize: '0.84rem', background: 'var(--surface)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+              <span>CSA Hotline: <strong>292</strong></span>
             </a>
-            <a href="tel:1917" className="hotline-pill safety-hotline-pill" style={{ padding: '0.5rem 0.9rem', fontSize: '0.84rem', background: 'var(--surface)' }}>
-              📞 MTN Fraud: <strong>1917</strong>
+
+            <a href="tel:1917" className="hotline-pill safety-hotline-pill" style={{ padding: '0.55rem 0.95rem', fontSize: '0.84rem', background: 'var(--surface)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', color: 'var(--warning)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+              <span>MTN Fraud: <strong>1917</strong></span>
             </a>
-            <a href="tel:100" className="hotline-pill safety-hotline-pill" style={{ padding: '0.5rem 0.9rem', fontSize: '0.84rem', background: 'var(--surface)' }}>
-              📞 Telecel Cash: <strong>100</strong>
+
+            <a href="tel:100" className="hotline-pill safety-hotline-pill" style={{ padding: '0.55rem 0.95rem', fontSize: '0.84rem', background: 'var(--surface)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', color: 'var(--success)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+              <span>Telecel Cash: <strong>100</strong></span>
             </a>
-            <a href="tel:100" className="hotline-pill safety-hotline-pill" style={{ padding: '0.5rem 0.9rem', fontSize: '0.84rem', background: 'var(--surface)' }}>
-              📞 AT Money: <strong>100</strong>
+
+            <a href="tel:100" className="hotline-pill safety-hotline-pill" style={{ padding: '0.55rem 0.95rem', fontSize: '0.84rem', background: 'var(--surface)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', color: 'var(--primary)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+              <span>AT Money: <strong>100</strong></span>
             </a>
           </div>
         </section>
