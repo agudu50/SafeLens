@@ -3473,3 +3473,118 @@ html.dark .helpline-item-link:hover {
   }
 }
 
+/* Mobile Responsive Footer Enhancements */
+.footer-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.footer-logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.footer-brand-title {
+  font-size: 1.25rem;
+  color: var(--text);
+  font-weight: 800;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 1.8rem 0 1.2rem 0;
+    margin-top: 2rem;
+  }
+
+  .footer-shell {
+    padding: 0 1.2rem;
+  }
+
+  .footer-main-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  .footer-brand-block {
+    max-width: 100%;
+  }
+
+  .footer-right-block {
+    align-items: stretch;
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .footer-nav-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .footer-nav-link {
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.82rem !important;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text) !important;
+    transition: all 0.2s ease;
+    display: block;
+  }
+
+  .footer-nav-link:hover {
+    border-color: var(--primary);
+    background: var(--surface);
+  }
+
+  .footer-hotline-pills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  .hotline-pill {
+    width: 100%;
+    justify-content: center;
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .hotline-pill:hover {
+    border-color: var(--primary);
+    transform: translateY(-1px);
+  }
+
+  .footer-bottom-row {
+    flex-direction: column-reverse;
+    align-items: center;
+    text-align: center;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+  }
+
+  .footer-bottom-row p {
+    font-size: 0.76rem;
+    line-height: 1.4;
+  }
+
+  .footer-status-pill {
+    padding: 0.35rem 0.85rem;
+    font-size: 0.78rem;
+  }
+}
+

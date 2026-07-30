@@ -7,9 +7,9 @@ export default function Footer({ user }) {
         <div className="footer-main-row">
           {/* Brand & Mission */}
           <div className="footer-brand-block">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
-              <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '50%', border: '1px solid var(--border)' }} />
-              <strong style={{ fontSize: '1.15rem', color: 'var(--text)', fontWeight: 800 }}>SafeLens</strong>
+            <div className="footer-logo-row">
+              <img src="/safelens-logo.png" alt="SafeLens" className="footer-logo-img" />
+              <strong className="footer-brand-title">SafeLens</strong>
             </div>
             <p className="footer-tagline">Look closer. Stay safer.</p>
             <p className="footer-desc">
@@ -20,34 +20,34 @@ export default function Footer({ user }) {
           {/* Quick Links & Hotlines */}
           <div className="footer-right-block">
             <div className="footer-nav-links">
-              <Link to="/">Home Dashboard</Link>
+              <Link to="/" className="footer-nav-link">Home Dashboard</Link>
               {user ? (
                 <>
-                  <Link to="/scan">Scan Message</Link>
-                  <Link to="/history">Scan Logs</Link>
+                  <Link to="/scan" className="footer-nav-link">Scan Message</Link>
+                  <Link to="/history" className="footer-nav-link">Scan Logs</Link>
                 </>
               ) : (
                 <>
-                  <Link to="/login">Sign In</Link>
-                  <Link to="/register">Register</Link>
+                  <Link to="/login" className="footer-nav-link">Sign In</Link>
+                  <Link to="/register" className="footer-nav-link">Register</Link>
                 </>
               )}
-              <Link to="/about">Education Center</Link>
+              <Link to="/about" className="footer-nav-link">Education Center</Link>
             </div>
 
             <div className="footer-hotline-pills">
-              <span className="hotline-pill">
-                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem', color: 'var(--primary)' }}>
+              <a href="tel:292" className="hotline-pill hotline-pill--csa" title="Call CSA Ghana Hotline 292">
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--primary)' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                 </svg>
-                CSA Hotline: <strong>292</strong>
-              </span>
-              <span className="hotline-pill">
-                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem', color: 'var(--primary)' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                <span>CSA Hotline: <strong>292</strong></span>
+              </a>
+              <a href="tel:1917" className="hotline-pill hotline-pill--mtn" title="Call MTN Fraud Hotline 1917">
+                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--warning)' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
                 </svg>
-                MTN Fraud: <strong>1917</strong>
-              </span>
+                <span>MTN Fraud: <strong>1917</strong></span>
+              </a>
             </div>
           </div>
         </div>
