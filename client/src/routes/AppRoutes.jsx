@@ -1,5 +1,6 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import Home from '../pages/Home'
+import Dashboard from '../pages/Dashboard'
 import Scanner from '../pages/Scanner'
 import Results from '../pages/Results'
 import History from '../pages/History'
@@ -111,6 +112,14 @@ export default function AppRoutes({ user, setUser }) {
       <Route path="/register" element={<Register setUser={setUser} />} />
 
       {/* Protected Features (Accessible if user has an account) */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute user={user} setUser={setUser} title="Account Required for Security Dashboard">
+            <Dashboard user={user} />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/safety-tips"
         element={

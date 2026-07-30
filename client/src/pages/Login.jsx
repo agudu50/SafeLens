@@ -31,7 +31,7 @@ export default function Login({ setUser }) {
         const loggedUser = authService.login({ email: email.trim(), password })
         setUser(loggedUser)
         setIsLoading(false)
-        navigate('/profile')
+        navigate('/dashboard')
       } catch (err) {
         setError(err.message || 'Failed to authenticate. Please check your credentials.')
         setIsLoading(false)
@@ -46,7 +46,7 @@ export default function Login({ setUser }) {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
       setIsLoading(false)
-      navigate('/profile')
+      navigate('/dashboard')
     }, 400)
   }
 

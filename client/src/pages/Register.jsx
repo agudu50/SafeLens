@@ -109,7 +109,7 @@ export default function Register({ setUser }) {
         })
         setUser(registeredUser)
         setIsLoading(false)
-        navigate('/profile')
+        navigate('/dashboard')
       } catch (err) {
         setError(err.message || 'Registration failed.')
         setIsLoading(false)
@@ -124,7 +124,7 @@ export default function Register({ setUser }) {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
       setIsLoading(false)
-      navigate('/profile')
+      navigate('/dashboard')
     }, 400)
   }
 
