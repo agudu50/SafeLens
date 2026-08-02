@@ -507,13 +507,20 @@ export default function Dashboard({ user }) {
                     onMouseLeave={() => setHoveredSlice(null)}
                     style={{ 
                       opacity: hoveredSlice !== null && hoveredSlice !== idx ? 0.5 : 1,
-                      transition: 'opacity 0.2s ease',
-                      cursor: 'pointer'
+                      transition: 'all 0.25s ease',
+                      cursor: 'pointer',
+                      background: hoveredSlice === idx ? 'var(--surface)' : 'transparent',
+                      padding: '0.4rem 0.6rem',
+                      margin: '0 -0.6rem',
+                      borderRadius: '10px'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}>
-                      <span style={{ color: 'var(--text)' }}>{vec.name}</span>
-                      <span style={{ color: 'var(--muted)' }}>{vec.percentage}% ({vec.count})</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.8rem', fontWeight: 700 }}>
+                      <span style={{ color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: vec.color }} />
+                        {vec.name}
+                      </span>
+                      <span style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{vec.percentage}% ({vec.count})</span>
                     </div>
                     <div style={{ width: '100%', height: '8px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
                       <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px', transition: 'width 0.5s ease' }} />
@@ -522,32 +529,38 @@ export default function Dashboard({ user }) {
                 ))}
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1.2rem', padding: '0.5rem 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1.4rem', padding: '0.6rem 0' }}>
                 {/* SVG Interactive Donut/Pie Chart */}
-                <div style={{ position: 'relative', width: '130px', height: '130px' }}>
-                  <svg viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
-                    {slices.map((slice, idx) => (
-                      <circle
-                        key={slice.name}
-                        cx="65"
-                        cy="65"
-                        r={radius}
-                        fill="transparent"
-                        stroke={slice.color}
-                        strokeWidth={hoveredSlice === idx ? 12 : 8}
-                        strokeDasharray={slice.strokeDasharray}
-                        strokeDashoffset={slice.strokeDashoffset}
-                        style={{
-                          transition: 'all 0.25s ease',
-                          cursor: 'pointer'
-                        }}
-                        onMouseEnter={() => setHoveredSlice(idx)}
-                        onMouseLeave={() => setHoveredSlice(null)}
-                      />
-                    ))}
+                <div style={{ position: 'relative', width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
+                    {slices.map((slice, idx) => {
+                      const isHovered = hoveredSlice === idx
+                      return (
+                        <circle
+                          key={slice.name}
+                          cx="65"
+                          cy="65"
+                          r={radius}
+                          fill="transparent"
+                          stroke={slice.color}
+                          strokeWidth={isHovered ? 13 : 9}
+                          strokeDasharray={slice.strokeDasharray}
+                          strokeDashoffset={slice.strokeDashoffset}
+                          style={{
+                            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                            cursor: 'pointer',
+                            filter: isHovered ? `drop-shadow(0 0 4px ${slice.color})` : 'none'
+                          }}
+                          onMouseEnter={() => setHoveredSlice(idx)}
+                          onMouseLeave={() => setHoveredSlice(null)}
+                        >
+                          <animate attributeName="stroke-dasharray" from={`0 ${circumference}`} to={slice.strokeDasharray} dur="0.6s" fill="freeze" />
+                        </circle>
+                      )
+                    })}
                   </svg>
                   
-                  {/* Dynamic center detail */}
+                  {/* Dynamic center detail HUD */}
                   <div style={{
                     position: 'absolute',
                     top: '50%',
@@ -555,40 +568,60 @@ export default function Dashboard({ user }) {
                     transform: 'translate(-50%, -50%)',
                     textAlign: 'center',
                     pointerEvents: 'none',
-                    width: '78px'
+                    width: '84px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}>
-                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1 }}>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1 }}>
                       {activeSliceInfo.percentage}%
-                    </div>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginTop: '1px', lineHeight: 1 }}>
-                      {activeSliceInfo.name.split(' ')[0]}
-                    </div>
+                    </span>
+                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: activeSliceInfo.color, textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '2px', lineHeight: 1.1, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      {{
+                        'MoMo Transfer & Cashout Fraud': 'MoMo Fraud',
+                        'Fake Job & Recruitment Lures': 'Fake Jobs',
+                        'Phishing Links & Spoofed Websites': 'Phishing',
+                        'Impersonation & Advance Fee Scams': 'Scams'
+                      }[activeSliceInfo.name] || 'Scams'}
+                    </span>
+                    <span style={{ fontSize: '0.58rem', fontWeight: 600, color: 'var(--muted)', marginTop: '2px', opacity: 0.85 }}>
+                      {activeSliceInfo.count.split(' ')[0]} Flags
+                    </span>
                   </div>
                 </div>
 
-                {/* Donut Legend */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1, minWidth: '150px' }}>
-                  {slices.map((slice, idx) => (
-                    <div 
-                      key={slice.name}
-                      onMouseEnter={() => setHoveredSlice(idx)}
-                      onMouseLeave={() => setHoveredSlice(null)}
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'flex-start', 
-                        gap: '0.45rem',
-                        opacity: hoveredSlice !== null && hoveredSlice !== idx ? 0.4 : 1,
-                        transition: 'opacity 0.2s ease',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: slice.color, display: 'inline-block', flexShrink: 0, marginTop: '3px' }} />
-                      <div style={{ fontSize: '0.74rem', lineHeight: 1.25 }}>
-                        <span style={{ color: 'var(--text)', fontWeight: 700, display: 'block' }}>{slice.name}</span>
-                        <span style={{ color: 'var(--muted)', fontSize: '0.7rem' }}>{slice.percentage}% ({slice.count})</span>
+                {/* Donut Legend with clean card row transitions */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1, minWidth: '160px' }}>
+                  {slices.map((slice, idx) => {
+                    const isHovered = hoveredSlice === idx
+                    return (
+                      <div 
+                        key={slice.name}
+                        onMouseEnter={() => setHoveredSlice(idx)}
+                        onMouseLeave={() => setHoveredSlice(null)}
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'flex-start', 
+                          gap: '0.5rem',
+                          padding: '0.4rem 0.6rem',
+                          background: isHovered ? 'var(--surface)' : 'transparent',
+                          border: isHovered ? '1px solid var(--border)' : '1px solid transparent',
+                          borderRadius: '10px',
+                          opacity: hoveredSlice !== null && !isHovered ? 0.4 : 1,
+                          transform: isHovered ? 'translateX(4px)' : 'none',
+                          transition: 'all 0.2s ease',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: slice.color, display: 'inline-block', flexShrink: 0, marginTop: '3px' }} />
+                        <div style={{ fontSize: '0.74rem', lineHeight: 1.25 }}>
+                          <span style={{ color: 'var(--text)', fontWeight: 700, display: 'block' }}>{slice.name}</span>
+                          <span style={{ color: 'var(--muted)', fontSize: '0.7rem' }}>{slice.percentage}% ({slice.count})</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
