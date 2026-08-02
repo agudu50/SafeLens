@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
+import { getScanHistory } from '../services/scannerService'
 
 const graphData = [
   { day: 'Mon', scans: 4, highRisk: 2 },
@@ -19,11 +20,11 @@ const threatVectors = [
   { name: 'Impersonation & Advance Fee Scams', percentage: 8, count: '21 Flagged', color: 'var(--success)' },
 ]
 
-const securityAuditItems = [
-  { id: 1, title: 'SMS Sender Verification Shield', desc: 'Flags spoofed telco sender IDs & unverified numbers', status: 'Active', color: 'var(--success)' },
-  { id: 2, title: 'MoMo Cash Out Confirmation Guard', desc: 'Monitors remote *170# cashout approval requests', status: 'Active', color: 'var(--success)' },
-  { id: 3, title: 'Phishing Web Domain Detector', desc: 'Scans links for malicious extensions (.xyz, .top)', status: 'Active', color: 'var(--success)' },
-  { id: 4, title: 'Ghana Emergency Hotline Gateway', desc: 'Direct 24/7 hotline to CSA 292 & MTN 1917', status: 'Connected', color: 'var(--primary)' },
+const defaultAuditTrail = [
+  { id: 'scan-003', type: 'link', riskLevel: 'high', riskScore: 94, threatCategory: 'Phishing Links & Spoofed Websites', originalContent: 'http://mtn-gh-promo.xyz/claim-cashout', submittedAt: '12 mins ago' },
+  { id: 'scan-001', type: 'message', riskLevel: 'high', riskScore: 89, threatCategory: 'Fake Job & Recruitment Lures', originalContent: 'Congratulations! You have been selected for a remote job offer...', submittedAt: '2 hours ago' },
+  { id: 'scan-002', type: 'screenshot', riskLevel: 'medium', riskScore: 62, threatCategory: 'Impersonation & Advance Fee Scams', originalContent: 'Your account has been flagged. Click immediately to secure profile.', submittedAt: 'Yesterday' },
+  { id: 'scan-004', type: 'email', riskLevel: 'high', riskScore: 92, threatCategory: 'MoMo Transfer & Cashout Fraud', originalContent: 'Urgent notice: MoMo wallet transaction reversal approval required.', submittedAt: '2 days ago' },
 ]
 
 const tickerReports = [
@@ -35,6 +36,15 @@ const tickerReports = [
 ]
 
 export default function Dashboard({ user }) {
+  const [scanAuditTrail, setScanAuditTrail] = useState(defaultAuditTrail)
+
+  useEffect(() => {
+    const historyData = getScanHistory()
+    if (historyData && historyData.length > 0) {
+      setScanAuditTrail(historyData.slice(0, 4))
+    }
+  }, [])
+
   const locationIcon = (
     <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', marginRight: '0.2rem', verticalAlign: 'middle', display: 'inline-block' }}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -266,43 +276,87 @@ export default function Dashboard({ user }) {
             </div>
           </div>
 
-          {/* FEATURE 2B: Security Health Audit Scorecard */}
+          {/* FEATURE 2B: Recent AI Scan Audit Trail */}
           <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                System Security Health Audit
+                Recent AI Scan Audit Trail
               </h3>
-              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
-                100% OPTIMAL
-              </span>
+              <Link to="/history" style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', textDecoration: 'none', background: 'rgba(56, 189, 248, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                VIEW ALL LOGS →
+              </Link>
             </div>
 
-            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0 0 0.9rem 0' }}>
-              Active protection protocols safeguarding your Mobile Money account &amp; messages:
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 0.9rem 0', lineHeight: 1.4 }}>
+              Latest automated threat analyses across submitted links, screenshots &amp; messages:
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-              {securityAuditItems.map((item) => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {scanAuditTrail.map((item) => (
                 <div
                   key={item.id}
                   style={{
                     background: 'var(--surface)',
                     border: '1px solid var(--border)',
-                    borderRadius: '12px',
-                    padding: '0.75rem 0.9rem',
+                    borderRadius: '14px',
+                    padding: '0.85rem 1rem',
                     display: 'flex',
-                    justify: 'space-between',
-                    alignItems: 'center',
-                    gap: '0.6rem'
+                    flexDirection: 'column',
+                    gap: '0.55rem'
                   }}
                 >
-                  <div>
-                    <strong style={{ fontSize: '0.84rem', color: 'var(--text)', display: 'block' }}>{item.title}</strong>
-                    <span style={{ fontSize: '0.74rem', color: 'var(--muted)' }}>{item.desc}</span>
+                  {/* Scanned text content - readable with multi-line clamp & word break */}
+                  <Link
+                    to="/history"
+                    style={{
+                      textDecoration: 'none',
+                      margin: 0,
+                      fontSize: '0.86rem',
+                      fontWeight: 700,
+                      color: 'var(--text)',
+                      lineHeight: 1.45,
+                      wordBreak: 'break-word',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    &ldquo;{item.originalContent}&rdquo;
+                  </Link>
+
+                  {/* Metadata row: Category, timestamp, risk badge, audit link to history */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.35rem', borderTop: '1px dashed var(--border)' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 600 }}>
+                        {item.threatCategory || 'MoMo Transfer & Cashout Fraud'}
+                      </span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>
+                      <span style={{ fontSize: '0.73rem', color: 'var(--muted)' }}>{item.submittedAt || 'Recently'}</span>
+                    </div>
+
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}>
+                      <span
+                        style={{
+                          fontSize: '0.7rem',
+                          fontWeight: 800,
+                          color: item.riskLevel === 'high' ? 'var(--danger)' : item.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)',
+                          background: item.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: '999px',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {item.riskLevel ? item.riskLevel.toUpperCase() : 'HIGH'} RISK ({item.riskScore || 85}%)
+                      </span>
+                      <Link
+                        to="/history"
+                        style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}
+                      >
+                        Audit &rarr;
+                      </Link>
+                    </div>
                   </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: item.color, background: 'rgba(16, 185, 129, 0.1)', padding: '0.18rem 0.55rem', borderRadius: '999px', whiteSpace: 'nowrap' }}>
-                    {item.status}
-                  </span>
                 </div>
               ))}
             </div>
