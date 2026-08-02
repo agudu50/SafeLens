@@ -245,9 +245,12 @@ export default function Dashboard({ user }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-2">
           {/* FEATURE 2A: Scam Type Distribution Breakdown */}
           <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.8rem 0', color: 'var(--text)' }}>
-              Top Threat Vectors in Ghana
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
+              AI Detected Scam &amp; Threat Vectors in Ghana
             </h3>
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 0.9rem 0', lineHeight: 1.4 }}>
+              AI breakdown of detected scam types from analyzed links, emails, SMS messages, and screenshot uploads:
+            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
               {threatVectors.map((vec) => (
                 <div key={vec.name}>

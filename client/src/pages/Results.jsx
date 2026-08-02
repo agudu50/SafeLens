@@ -148,7 +148,7 @@ export default function Results() {
           <div className="info-card animate-fade-in" style={{ marginTop: '1.5rem', border: '1px solid var(--border)', background: 'var(--surface-alt)', padding: '1.4rem', borderRadius: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.8rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)', fontWeight: 900 }}>
-                Matched Threat Vector Category
+                AI Detected Threat &amp; Vector Breakdown
               </h3>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
                 {result.threatCategory || 'MoMo Transfer & Cashout Fraud'}
@@ -156,7 +156,7 @@ export default function Results() {
             </div>
 
             <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: '0 0 1rem 0', lineHeight: 1.45 }}>
-              SafeLens AI mapped this scanned input against top threat vectors reported in Ghana:
+              SafeLens AI evaluated your submitted {result.type || 'content'} (link, email, SMS text, or screenshot) to show the percentage likelihood of whether it was MoMo fraud, fake job lure, phishing/spoofed website, or impersonation scam:
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>

@@ -45,6 +45,13 @@ const presets = [
     category: 'MoMo Fraud',
     riskLevel: 'high',
     riskScore: 92,
+    threatCategory: 'MoMo Transfer & Cashout Fraud',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 94, match: true, color: 'var(--danger)' },
+      { name: 'Impersonation & Advance Fee Scams', percentage: 14, match: false, color: 'var(--warning)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 6, match: false, color: 'var(--primary)' },
+      { name: 'Fake Job & Recruitment Lures', percentage: 2, match: false, color: 'var(--success)' },
+    ],
     content: 'Hello, I just sent 850 GHS to your number by mistake. Please send it back immediately to 0551234567. God bless you!',
     threatTags: ['Financial Demand', 'Urgency Pressure', 'Manual Redirect'],
     explanation: 'Tricks victims into sending money to a scammer under the guise of an accidental MoMo transfer. Telecom operators handle reversals directly—you should never send funds back manually.',
@@ -57,6 +64,13 @@ const presets = [
     category: 'Wallet Exploit',
     riskLevel: 'high',
     riskScore: 97,
+    threatCategory: 'MoMo Transfer & Cashout Fraud',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 97, match: true, color: 'var(--danger)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 28, match: false, color: 'var(--warning)' },
+      { name: 'Impersonation & Advance Fee Scams', percentage: 12, match: false, color: 'var(--primary)' },
+      { name: 'Fake Job & Recruitment Lures', percentage: 2, match: false, color: 'var(--success)' },
+    ],
     content: 'MTN Customer Care: You won 5,000 GHS in promo! Dial *170# -> option 6 -> option 5 to approve your cashout approval request immediately.',
     threatTags: ['Wallet Authorization', 'Operator Spoofing', 'PIN Prompt'],
     explanation: 'Exploits the MoMo Cash Out feature to drain your wallet. Telecom providers never require customers to approve cashout prompts to receive prize money.',
@@ -69,6 +83,13 @@ const presets = [
     category: 'Advance Fee',
     riskLevel: 'high',
     riskScore: 89,
+    threatCategory: 'Fake Job & Recruitment Lures',
+    vectorBreakdown: [
+      { name: 'Fake Job & Recruitment Lures', percentage: 89, match: true, color: 'var(--danger)' },
+      { name: 'Impersonation & Advance Fee Scams', percentage: 18, match: false, color: 'var(--warning)' },
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 8, match: false, color: 'var(--primary)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 2, match: false, color: 'var(--success)' },
+    ],
     content: 'WORK FROM HOME! Earn 500 GHS daily by liking videos. Pay only 50 GHS registration fee to join. WhatsApp us now on 0501234567.',
     threatTags: ['Upfront Registration Fee', 'Unrealistic Pay', 'Unverified Recruiter'],
     explanation: 'Classic advance-fee scam. Legitimate companies never charge job applicants registration, training, or onboarding fees.',
@@ -81,6 +102,13 @@ const presets = [
     category: 'Clean Message',
     riskLevel: 'low',
     riskScore: 12,
+    threatCategory: 'Clean Message',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 2, match: false, color: 'var(--success)' },
+      { name: 'Fake Job & Recruitment Lures', percentage: 1, match: false, color: 'var(--success)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 1, match: false, color: 'var(--success)' },
+      { name: 'Impersonation & Advance Fee Scams', percentage: 1, match: false, color: 'var(--success)' },
+    ],
     content: 'Hey Ama, are we still meeting at the Accra Mall food court by 4:00 PM today? Let me know so I can order lunch.',
     threatTags: ['Personal Context', 'Zero Financial Directives', 'No Unknown Links'],
     explanation: 'Conversational message with zero threat indicators, financial demands, or suspicious URLs.',
@@ -391,6 +419,33 @@ export default function Home({ user }) {
                 ))}
               </div>
             </div>
+
+            {/* AI Vector Likelihood Breakdown */}
+            {selectedPreset.vectorBreakdown && (
+              <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--border)', margin: '1rem 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    AI VECTOR DETECTION LIKELIHOOD
+                  </span>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--danger)' }}>
+                    {selectedPreset.threatCategory}
+                  </span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem' }}>
+                  {selectedPreset.vectorBreakdown.map((v) => (
+                    <div key={v.name} style={{ fontSize: '0.72rem', background: 'var(--surface-alt)', padding: '0.4rem 0.6rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginBottom: '0.2rem', color: v.match ? 'var(--danger)' : 'var(--muted)' }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name.split(' ')[0]} {v.name.split(' ')[1]}</span>
+                        <span>{v.percentage}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: '4px', background: 'var(--border)', borderRadius: '999px', overflow: 'hidden' }}>
+                        <div style={{ width: `${v.percentage}%`, height: '100%', background: v.match ? 'var(--danger)' : v.color || 'var(--primary)' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Analysis & Advice */}
             <div className="sandbox-analysis-box">
