@@ -37,13 +37,55 @@ const tickerReports = [
 
 export default function Dashboard({ user }) {
   const [scanAuditTrail, setScanAuditTrail] = useState(defaultAuditTrail)
+  const [chartView, setChartView] = useState('donut') // 'donut' or 'bars'
+  const [hoveredSlice, setHoveredSlice] = useState(null)
+  const [activeFilter, setActiveFilter] = useState('all') // 'all', 'link', 'screenshot', 'message', 'email'
+
+  // Interactive Security Checklist state
+  const [checklist, setChecklist] = useState([
+    { id: 'whatsapp2fa', label: 'WhatsApp 2-Step Verification', weight: 25, checked: true, desc: 'Protects chat credentials and OTPs' },
+    { id: 'pinshield', label: 'MTN & Telco PIN Shield', weight: 25, checked: true, desc: 'Blocks unauthorized USSD cashout attempts' },
+    { id: 'urlscan', label: 'Domain Extension Checker', weight: 25, checked: false, desc: 'Auto-flags unverified TLDs (.xyz, .top)' },
+    { id: 'hotline', label: 'Saved emergency contact CSA 292', weight: 25, checked: false, desc: 'Immediate direct fraud escalation line' },
+  ])
 
   useEffect(() => {
     const historyData = getScanHistory()
     if (historyData && historyData.length > 0) {
-      setScanAuditTrail(historyData.slice(0, 4))
+      setScanAuditTrail(historyData.slice(0, 8))
     }
   }, [])
+
+  // Calculate dynamic security metrics
+  const readinessScore = checklist.reduce((acc, item) => item.checked ? acc + item.weight : acc, 0)
+  const vulnerabilityScore = 100 - readinessScore
+  const scamsAvoided = checklist.filter(item => item.checked).length + 2
+
+  const handleCheckboxToggle = (id) => {
+    setChecklist(prev => prev.map(item =>
+      item.id === id ? { ...item, checked: !item.checked } : item
+    ))
+  }
+
+  // Filter scan history
+  const filteredScans = scanAuditTrail.filter(item => {
+    if (activeFilter === 'all') return true
+    return item.type.toLowerCase() === activeFilter.toLowerCase()
+  })
+
+  // SVG Pie (Donut) Chart variables
+  const radius = 55
+  const circumference = 2 * Math.PI * radius // ~345.575
+  
+  // Slices: MoMo (54%), Fake Job (24%), Phishing (14%), Impersonation (8%)
+  const slices = [
+    { name: 'MoMo Transfer & Cashout Fraud', percentage: 54, count: '142 Flagged', color: 'var(--danger)', strokeDasharray: `${(54/100) * circumference} ${circumference}`, strokeDashoffset: '0' },
+    { name: 'Fake Job & Recruitment Lures', percentage: 24, count: '63 Flagged', color: 'var(--warning)', strokeDasharray: `${(24/100) * circumference} ${circumference}`, strokeDashoffset: `-${(54/100) * circumference}` },
+    { name: 'Phishing Links & Spoofed Websites', percentage: 14, count: '38 Flagged', color: 'var(--primary)', strokeDasharray: `${(14/100) * circumference} ${circumference}`, strokeDashoffset: `-${((54+24)/100) * circumference}` },
+    { name: 'Impersonation & Advance Fee Scams', percentage: 8, count: '21 Flagged', color: 'var(--success)', strokeDasharray: `${(8/100) * circumference} ${circumference}`, strokeDashoffset: `-${((54+24+14)/100) * circumference}` }
+  ]
+
+  const activeSliceInfo = hoveredSlice !== null ? slices[hoveredSlice] : slices[0]
 
   const locationIcon = (
     <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', marginRight: '0.2rem', verticalAlign: 'middle', display: 'inline-block' }}>
@@ -92,14 +134,14 @@ export default function Dashboard({ user }) {
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
                 <span className="live-pulse-dot" style={{ width: '8px', height: '8px', background: 'var(--success)' }} />
                 <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  REAL-TIME SECURITY DASHBOARD
+                  REAL-TIME SECURITY COMMAND CENTER
                 </span>
               </div>
               <h1 style={{ fontSize: '1.75rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
                 Security Command Center
               </h1>
               <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: 0 }}>
-                Welcome back, {user?.name ? user.name.split(' ')[0] : 'Kofi'}! Monitor threat activity, analyze risk vectors, and run instant AI checks.
+                Welcome back, {user?.name ? user.name.split(' ')[0] : 'Kofi'}! Monitor threat activity, check vulnerability status, and run instant AI audits.
               </p>
             </div>
 
@@ -140,7 +182,7 @@ export default function Dashboard({ user }) {
               </div>
             </div>
             <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-              3
+              {scanAuditTrail.length}
             </h2>
             <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', marginTop: '0.2rem' }}>
               100% Analysis Accuracy
@@ -158,17 +200,17 @@ export default function Dashboard({ user }) {
               </div>
             </div>
             <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: 0, color: 'var(--danger)' }}>
-              2
+              {scamsAvoided}
             </h2>
             <span style={{ fontSize: '0.72rem', color: 'var(--danger)', fontWeight: 700, display: 'block', marginTop: '0.2rem' }}>
-              GH₵ 1,350 Saved
+              GH₵ {scamsAvoided * 450} Saved
             </span>
           </div>
 
-          {/* Card 3: Average Risk Score */}
+          {/* Card 3: Vulnerability Exposure */}
           <div className="dash-stat-card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Average Risk Score</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Vulnerability Score</span>
               <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--warning)' }}>
                 <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
@@ -176,109 +218,290 @@ export default function Dashboard({ user }) {
               </div>
             </div>
             <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: 0, color: 'var(--warning)' }}>
-              80%
+              {vulnerabilityScore}%
             </h2>
             <span style={{ fontSize: '0.72rem', color: 'var(--warning)', fontWeight: 700, display: 'block', marginTop: '0.2rem' }}>
-              High Vulnerability
+              {vulnerabilityScore >= 50 ? 'Moderate Exposure' : 'Secured Core'}
             </span>
           </div>
 
-          {/* Card 4: MoMo PIN Shield Level */}
+          {/* Card 4: Defense Readiness */}
           <div className="dash-stat-card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>MoMo PIN Shield</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Defense Readiness</span>
               <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--success)' }}>
                 <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
             </div>
             <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: 0, color: 'var(--success)' }}>
-              100%
+              {readinessScore}%
             </h2>
             <span style={{ fontSize: '0.72rem', color: 'var(--success)', fontWeight: 700, display: 'block', marginTop: '0.2rem' }}>
-              0 Account Breaches
+              {readinessScore === 100 ? 'Fully Shielded' : 'Action Required'}
             </span>
           </div>
         </div>
 
-        {/* Weekly Threat Detection & Scan Volume Graph Section */}
-        <section className="scanner-card animate-slide-up delay-1" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 900, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>
-                Weekly Threat Detection &amp; Scan Volume Graph
+        {/* FEATURE 1 GRID: Weekly Graph & Interactive Diagnostics */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-1">
+          {/* Card A: Weekly Graph */}
+          <section className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>
+                  Weekly Threat Detection &amp; Scan Volume
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: 0 }}>
+                  Visual analytics tracking scan frequency vs flagged scam attempts.
+                </p>
+              </div>
+            </div>
+
+            {/* SVG Animated Chart */}
+            <div style={{ width: '100%', height: '180px', position: 'relative' }}>
+              <svg viewBox="0 0 500 160" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                <line x1="0" y1="30" x2="500" y2="30" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+                <line x1="0" y1="75" x2="500" y2="75" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+                <line x1="0" y1="120" x2="500" y2="120" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+
+                {graphData.map((d, i) => {
+                  const x = 35 + i * 70
+                  const totalHeight = d.scans * 12
+                  const threatHeight = d.highRisk * 12
+                  const yTotal = 130 - totalHeight
+                  const yThreat = 130 - threatHeight
+
+                  return (
+                    <g key={d.day}>
+                      <rect x={x} y={yTotal} width="16" height={totalHeight} rx="4" fill="var(--primary)" opacity="0.85" />
+                      <rect x={x + 18} y={yThreat} width="16" height={threatHeight} rx="4" fill="var(--danger)" opacity="0.9" />
+                      <text x={x + 17} y="152" textAnchor="middle" fill="var(--muted)" fontSize="11" fontWeight="700">{d.day}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            </div>
+          </section>
+
+          {/* Card B: Interactive Diagnostics Checkup */}
+          <section className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                AI Defensive Diagnostics Checkup
               </h2>
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0 }}>
-                Visual analytics tracking scan frequency vs flagged scam attempts.
-              </p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '0.78rem', fontWeight: 700 }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary)' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: 'var(--primary)' }} />
-                Total Scans
-              </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--danger)' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '3px', background: 'var(--danger)' }} />
-                High Risk Threats
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: readinessScore >= 75 ? 'var(--success)' : 'var(--warning)', background: readinessScore >= 75 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
+                {readinessScore}% SHIELDED
               </span>
             </div>
-          </div>
-
-          {/* SVG Animated Chart */}
-          <div style={{ width: '100%', height: '180px', position: 'relative' }}>
-            <svg viewBox="0 0 500 160" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-              <line x1="0" y1="30" x2="500" y2="30" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-              <line x1="0" y1="75" x2="500" y2="75" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-              <line x1="0" y1="120" x2="500" y2="120" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-
-              {graphData.map((d, i) => {
-                const x = 35 + i * 70
-                const totalHeight = d.scans * 12
-                const threatHeight = d.highRisk * 12
-                const yTotal = 130 - totalHeight
-                const yThreat = 130 - threatHeight
-
-                return (
-                  <g key={d.day}>
-                    <rect x={x} y={yTotal} width="18" height={totalHeight} rx="4" fill="var(--primary)" opacity="0.85" />
-                    <rect x={x + 22} y={yThreat} width="18" height={threatHeight} rx="4" fill="var(--danger)" opacity="0.9" />
-                    <text x={x + 20} y="152" textAnchor="middle" fill="var(--muted)" fontSize="11" fontWeight="700">{d.day}</text>
-                  </g>
-                )
-              })}
-            </svg>
-          </div>
-        </section>
-
-        {/* FEATURE 2 GRID: AI Threat Vector Distribution & Security Health Audit */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-2">
-          {/* FEATURE 2A: Scam Type Distribution Breakdown */}
-          <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
-              AI Detected Scam &amp; Threat Vectors in Ghana
-            </h3>
-            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 0.9rem 0', lineHeight: 1.4 }}>
-              AI breakdown of detected scam types from analyzed links, emails, SMS messages, and screenshot uploads:
+            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0 0 1rem 0' }}>
+              Toggle security configurations to dynamically check and protect your status:
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-              {threatVectors.map((vec) => (
-                <div key={vec.name}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}>
-                    <span style={{ color: 'var(--text)' }}>{vec.name}</span>
-                    <span style={{ color: 'var(--muted)' }}>{vec.percentage}% ({vec.count})</span>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              {checklist.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => handleCheckboxToggle(item.id)}
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '12px',
+                    padding: '0.75rem 0.9rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: item.checked ? '0 0 8px rgba(16, 185, 129, 0.08)' : 'none'
+                  }}
+                >
+                  <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                    <div style={{
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '4px',
+                      border: `2px solid ${item.checked ? 'var(--success)' : 'var(--muted)'}`,
+                      background: item.checked ? 'var(--success)' : 'transparent',
+                      display: 'grid',
+                      placeItems: 'center',
+                      color: '#fff',
+                      fontSize: '0.75rem',
+                      fontWeight: 900
+                    }}>
+                      {item.checked && '✓'}
+                    </div>
+                    <div>
+                      <strong style={{ fontSize: '0.84rem', color: 'var(--text)', display: 'block' }}>{item.label}</strong>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{item.desc}</span>
+                    </div>
                   </div>
-                  <div style={{ width: '100%', height: '8px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                    <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px', transition: 'width 0.5s ease' }} />
-                  </div>
+                  <span style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    color: item.checked ? 'var(--success)' : 'var(--muted)',
+                    background: item.checked ? 'rgba(16, 185, 129, 0.1)' : 'rgba(100, 116, 139, 0.1)',
+                    padding: '0.18rem 0.5rem',
+                    borderRadius: '999px'
+                  }}>
+                    {item.checked ? 'Active' : 'Offline'}
+                  </span>
                 </div>
               ))}
             </div>
+          </section>
+        </div>
+
+        {/* FEATURE 2 GRID: Scam Type Donut / Pie Chart & Recent Audit Trail */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-2">
+          {/* Card A: Scam Type distribution with Donut Pie Chart option */}
+          <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                AI Detected Scam &amp; Threat Vectors in Ghana
+              </h3>
+              
+              {/* Toggler button group */}
+              <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '2px' }}>
+                <button 
+                  onClick={() => setChartView('bars')}
+                  style={{
+                    border: 'none',
+                    background: chartView === 'bars' ? 'var(--primary)' : 'transparent',
+                    color: chartView === 'bars' ? '#fff' : 'var(--text)',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  List
+                </button>
+                <button 
+                  onClick={() => setChartView('donut')}
+                  style={{
+                    border: 'none',
+                    background: chartView === 'donut' ? 'var(--primary)' : 'transparent',
+                    color: chartView === 'donut' ? '#fff' : 'var(--text)',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  Pie
+                </button>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 1rem 0', lineHeight: 1.4 }}>
+              Scam threat distribution analysis from submitted links, emails, and screenshots:
+            </p>
+
+            {chartView === 'bars' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                {slices.map((vec, idx) => (
+                  <div 
+                    key={vec.name}
+                    onMouseEnter={() => setHoveredSlice(idx)}
+                    onMouseLeave={() => setHoveredSlice(null)}
+                    style={{ 
+                      opacity: hoveredSlice !== null && hoveredSlice !== idx ? 0.5 : 1,
+                      transition: 'opacity 0.2s ease',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem', fontSize: '0.8rem', fontWeight: 700 }}>
+                      <span style={{ color: 'var(--text)' }}>{vec.name}</span>
+                      <span style={{ color: 'var(--muted)' }}>{vec.percentage}% ({vec.count})</span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                      <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px', transition: 'width 0.5s ease' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1.2rem', padding: '0.5rem 0' }}>
+                {/* SVG Interactive Donut/Pie Chart */}
+                <div style={{ position: 'relative', width: '130px', height: '130px' }}>
+                  <svg viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
+                    {slices.map((slice, idx) => (
+                      <circle
+                        key={slice.name}
+                        cx="65"
+                        cy="65"
+                        r={radius}
+                        fill="transparent"
+                        stroke={slice.color}
+                        strokeWidth={hoveredSlice === idx ? 12 : 8}
+                        strokeDasharray={slice.strokeDasharray}
+                        strokeDashoffset={slice.strokeDashoffset}
+                        style={{
+                          transition: 'all 0.25s ease',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={() => setHoveredSlice(idx)}
+                        onMouseLeave={() => setHoveredSlice(null)}
+                      />
+                    ))}
+                  </svg>
+                  
+                  {/* Dynamic center detail */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center',
+                    pointerEvents: 'none',
+                    width: '78px'
+                  }}>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1 }}>
+                      {activeSliceInfo.percentage}%
+                    </div>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginTop: '1px', lineHeight: 1 }}>
+                      {activeSliceInfo.name.split(' ')[0]}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Donut Legend */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1, minWidth: '150px' }}>
+                  {slices.map((slice, idx) => (
+                    <div 
+                      key={slice.name}
+                      onMouseEnter={() => setHoveredSlice(idx)}
+                      onMouseLeave={() => setHoveredSlice(null)}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        gap: '0.45rem',
+                        opacity: hoveredSlice !== null && hoveredSlice !== idx ? 0.4 : 1,
+                        transition: 'opacity 0.2s ease',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: slice.color, display: 'inline-block', flexShrink: 0, marginTop: '3px' }} />
+                      <div style={{ fontSize: '0.74rem', lineHeight: 1.25 }}>
+                        <span style={{ color: 'var(--text)', fontWeight: 700, display: 'block' }}>{slice.name}</span>
+                        <span style={{ color: 'var(--muted)', fontSize: '0.7rem' }}>{slice.percentage}% ({slice.count})</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* FEATURE 2B: Recent AI Scan Audit Trail */}
+          {/* Card B: Recent AI Scan Audit Trail with Dynamic Filter Tabs */}
           <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
                 Recent AI Scan Audit Trail
               </h3>
@@ -287,78 +510,114 @@ export default function Dashboard({ user }) {
               </Link>
             </div>
 
-            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 0.9rem 0', lineHeight: 1.4 }}>
-              Latest automated threat analyses across submitted links, screenshots &amp; messages:
+            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 0.8rem 0', lineHeight: 1.4 }}>
+              Latest automated threat analyses across submitted inputs:
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {scanAuditTrail.map((item) => (
-                <div
-                  key={item.id}
+            {/* Filter Tabs */}
+            <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', marginBottom: '0.8rem', paddingBottom: '4px' }}>
+              {['all', 'link', 'message', 'screenshot', 'email'].map(type => (
+                <button
+                  key={type}
+                  onClick={() => setActiveFilter(type)}
                   style={{
-                    background: 'var(--surface)',
+                    border: 'none',
+                    background: activeFilter === type ? 'var(--primary)' : 'var(--surface)',
+                    color: activeFilter === type ? '#fff' : 'var(--muted)',
                     border: '1px solid var(--border)',
-                    borderRadius: '14px',
-                    padding: '0.85rem 1rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.55rem'
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '0.25rem 0.6rem',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.02em',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  {/* Scanned text content - readable with multi-line clamp & word break */}
-                  <Link
-                    to="/history"
+                  {type}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {filteredScans.length > 0 ? (
+                filteredScans.map((item) => (
+                  <div
+                    key={item.id}
                     style={{
-                      textDecoration: 'none',
-                      margin: 0,
-                      fontSize: '0.86rem',
-                      fontWeight: 700,
-                      color: 'var(--text)',
-                      lineHeight: 1.45,
-                      wordBreak: 'break-word',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
+                      background: 'var(--surface)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '14px',
+                      padding: '0.85rem 1rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.55rem'
                     }}
                   >
-                    &ldquo;{item.originalContent}&rdquo;
-                  </Link>
+                    {/* Scanned text content - readable with multi-line clamp & word break */}
+                    <Link
+                      to="/history"
+                      style={{
+                        textDecoration: 'none',
+                        margin: 0,
+                        fontSize: '0.86rem',
+                        fontWeight: 700,
+                        color: 'var(--text)',
+                        lineHeight: 1.45,
+                        wordBreak: 'break-word',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      &ldquo;{item.originalContent}&rdquo;
+                    </Link>
 
-                  {/* Metadata row: Category, timestamp, risk badge, audit link to history */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.35rem', borderTop: '1px dashed var(--border)' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 600 }}>
-                        {item.threatCategory || 'MoMo Transfer & Cashout Fraud'}
-                      </span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>
-                      <span style={{ fontSize: '0.73rem', color: 'var(--muted)' }}>{item.submittedAt || 'Recently'}</span>
-                    </div>
+                    {/* Metadata row: Category, timestamp, risk badge, audit link to history */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.35rem', borderTop: '1px dashed var(--border)' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 600 }}>
+                          {item.threatCategory || 'MoMo Transfer & Cashout Fraud'}
+                        </span>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>
+                        <span style={{ fontSize: '0.73rem', color: 'var(--muted)' }}>{item.submittedAt || 'Recently'}</span>
+                      </div>
 
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}>
-                      <span
-                        style={{
-                          fontSize: '0.7rem',
-                          fontWeight: 800,
-                          color: item.riskLevel === 'high' ? 'var(--danger)' : item.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)',
-                          background: item.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)',
-                          padding: '0.2rem 0.6rem',
-                          borderRadius: '999px',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        {item.riskLevel ? item.riskLevel.toUpperCase() : 'HIGH'} RISK ({item.riskScore || 85}%)
-                      </span>
-                      <Link
-                        to="/history"
-                        style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}
-                      >
-                        Audit &rarr;
-                      </Link>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}>
+                        <span
+                          style={{
+                            fontSize: '0.7rem',
+                            fontWeight: 800,
+                            color: item.riskLevel === 'high' ? 'var(--danger)' : item.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)',
+                            background: item.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '999px',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {item.riskLevel ? item.riskLevel.toUpperCase() : 'HIGH'} RISK ({item.riskScore || 85}%)
+                        </span>
+                        <Link
+                          to="/history"
+                          style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}
+                        >
+                          Audit &rarr;
+                        </Link>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', color: 'var(--muted)' }}>
+                  <svg fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" style={{ width: '2.5rem', height: '2.5rem', margin: '0 auto 0.6rem', display: 'block', opacity: 0.5 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                  </svg>
+                  <p style={{ fontSize: '0.84rem', fontWeight: 600, margin: '0 0 0.4rem 0' }}>No {activeFilter} scans recorded</p>
+                  <Link to="/scan" style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}>Scan something now &rarr;</Link>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
