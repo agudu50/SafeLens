@@ -39,6 +39,7 @@ export default function Dashboard({ user }) {
   const [scanAuditTrail, setScanAuditTrail] = useState(defaultAuditTrail)
   const [chartView, setChartView] = useState('donut') // 'donut' or 'bars'
   const [hoveredSlice, setHoveredSlice] = useState(null)
+  const [hoveredBar, setHoveredBar] = useState(null)
   const [activeFilter, setActiveFilter] = useState('all') // 'all', 'link', 'screenshot', 'message', 'email'
 
   // Interactive Security Checklist state
@@ -247,41 +248,135 @@ export default function Dashboard({ user }) {
         {/* FEATURE 1 GRID: Weekly Graph & Interactive Diagnostics */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-1">
           {/* Card A: Weekly Graph */}
-          <section className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div>
-                <h2 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>
-                  Weekly Threat Detection &amp; Scan Volume
-                </h2>
-                <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: 0 }}>
-                  Visual analytics tracking scan frequency vs flagged scam attempts.
-                </p>
+          <section className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justify: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div>
+                  <h2 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>
+                    Weekly Threat Detection &amp; Scan Volume
+                  </h2>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: 0 }}>
+                    Visual analytics tracking scan frequency vs flagged scam attempts.
+                  </p>
+                </div>
+              </div>
+
+              {/* Dynamic Tooltip / Daily Details Bar */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', minHeight: '38px', background: 'var(--surface)', padding: '0.5rem 0.8rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                {hoveredBar !== null ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.78rem', width: '100%', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text)', fontWeight: 800 }}>
+                      📅 {{ Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }[graphData[hoveredBar].day]}
+                    </span>
+                    <span style={{ display: 'flex', gap: '0.8rem' }}>
+                      <span style={{ color: 'var(--primary)', fontWeight: 700 }}>
+                        Total Scans: {graphData[hoveredBar].scans}
+                      </span>
+                      <span style={{ color: 'var(--danger)', fontWeight: 700 }}>
+                        Flagged Scams: {graphData[hoveredBar].highRisk}
+                      </span>
+                      <span style={{ color: 'var(--muted)' }}>
+                        Ratio: {Math.round((graphData[hoveredBar].highRisk / graphData[hoveredBar].scans) * 100)}%
+                      </span>
+                    </span>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--primary)' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.083 1.083l-.04.02a.75.75 0 01-1.084-1.083zM12 21a9 9 0 100-18 9 9 0 000 18z" />
+                    </svg>
+                    <span>Hover over any chart column for dynamic daily breakdown statistics.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* SVG Animated Chart */}
+              <div style={{ width: '100%', height: '170px', position: 'relative', overflow: 'visible' }}>
+                <svg viewBox="0 0 500 160" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                  {/* Grid Lines */}
+                  <line x1="30" y1="30" x2="480" y2="30" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+                  <line x1="30" y1="75" x2="480" y2="75" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+                  <line x1="30" y1="120" x2="480" y2="120" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+
+                  {/* Y Axis Numeric Labels */}
+                  <text x="22" y="34" textAnchor="end" fill="var(--muted)" fontSize="10" fontWeight="700">10</text>
+                  <text x="22" y="79" textAnchor="end" fill="var(--muted)" fontSize="10" fontWeight="700">5</text>
+                  <text x="22" y="124" textAnchor="end" fill="var(--muted)" fontSize="10" fontWeight="700">0</text>
+
+                  {graphData.map((d, i) => {
+                    const xStart = 45 + i * 62
+                    const totalHeight = d.scans * 11
+                    const threatHeight = d.highRisk * 11
+                    const yTotal = 130 - totalHeight
+                    const yThreat = 130 - threatHeight
+
+                    const isHovered = hoveredBar === i
+
+                    return (
+                      <g 
+                        key={d.day}
+                        onMouseEnter={() => setHoveredBar(i)}
+                        onMouseLeave={() => setHoveredBar(null)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {/* Background transparent hit area for easier hover selection */}
+                        <rect x={xStart - 5} y="10" width="46" height="135" fill="transparent" />
+
+                        {/* Total Scans Bar */}
+                        <rect 
+                          x={xStart} 
+                          y={yTotal} 
+                          width="16" 
+                          height={totalHeight} 
+                          rx="4" 
+                          fill="var(--primary)" 
+                          opacity={hoveredBar === null ? 0.85 : isHovered ? 1 : 0.4} 
+                          style={{ transition: 'all 0.2s ease', transformOrigin: `${xStart + 8}px 130px` }}
+                        >
+                          <animate attributeName="height" from="0" to={totalHeight} dur="0.5s" fill="freeze" />
+                          <animate attributeName="y" from="130" to={yTotal} dur="0.5s" fill="freeze" />
+                        </rect>
+
+                        {/* High Risk Threats Bar */}
+                        <rect 
+                          x={xStart + 18} 
+                          y={yThreat} 
+                          width="16" 
+                          height={threatHeight} 
+                          rx="4" 
+                          fill="var(--danger)" 
+                          opacity={hoveredBar === null ? 0.95 : isHovered ? 1 : 0.4} 
+                          style={{ transition: 'all 0.2s ease', transformOrigin: `${xStart + 26}px 130px` }}
+                        >
+                          <animate attributeName="height" from="0" to={threatHeight} dur="0.5s" fill="freeze" />
+                          <animate attributeName="y" from="130" to={yThreat} dur="0.5s" fill="freeze" />
+                        </rect>
+
+                        {/* X Axis Label */}
+                        <text 
+                          x={xStart + 17} 
+                          y="150" 
+                          textAnchor="middle" 
+                          fill={isHovered ? 'var(--text)' : 'var(--muted)'} 
+                          fontSize="11" 
+                          fontWeight={isHovered ? '900' : '700'}
+                          style={{ transition: 'fill 0.2s ease' }}
+                        >
+                          {d.day}
+                        </text>
+                      </g>
+                    )
+                  })}
+                </svg>
               </div>
             </div>
 
-            {/* SVG Animated Chart */}
-            <div style={{ width: '100%', height: '180px', position: 'relative' }}>
-              <svg viewBox="0 0 500 160" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-                <line x1="0" y1="30" x2="500" y2="30" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-                <line x1="0" y1="75" x2="500" y2="75" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-                <line x1="0" y1="120" x2="500" y2="120" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-
-                {graphData.map((d, i) => {
-                  const x = 35 + i * 70
-                  const totalHeight = d.scans * 12
-                  const threatHeight = d.highRisk * 12
-                  const yTotal = 130 - totalHeight
-                  const yThreat = 130 - threatHeight
-
-                  return (
-                    <g key={d.day}>
-                      <rect x={x} y={yTotal} width="16" height={totalHeight} rx="4" fill="var(--primary)" opacity="0.85" />
-                      <rect x={x + 18} y={yThreat} width="16" height={threatHeight} rx="4" fill="var(--danger)" opacity="0.9" />
-                      <text x={x + 17} y="152" textAnchor="middle" fill="var(--muted)" fontSize="11" fontWeight="700">{d.day}</text>
-                    </g>
-                  )
-                })}
-              </svg>
+            {/* AI Warning Callout Banner */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(220, 38, 38, 0.08)', border: '1px solid rgba(220, 38, 38, 0.15)', padding: '0.6rem 0.85rem', borderRadius: '12px', marginTop: '0.8rem', width: '100%' }}>
+              <span style={{ fontSize: '1.1rem', color: 'var(--danger)', flexShrink: 0 }}>⚠️</span>
+              <span style={{ fontSize: '0.74rem', color: 'var(--danger)', fontWeight: 700, lineHeight: 1.35 }}>
+                AI Threat Indicator: Fraudulent cashout spikes by 80% on weekends. Remain alert on Saturdays &amp; Sundays.
+              </span>
             </div>
           </section>
 
