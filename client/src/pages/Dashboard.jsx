@@ -672,39 +672,46 @@ export default function Dashboard({ user }) {
             </p>
 
             {chartView === 'bars' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-                {slices.map((vec, idx) => (
-                  <div 
-                    key={vec.name}
-                    onMouseEnter={() => setHoveredSlice(idx)}
-                    onMouseLeave={() => setHoveredSlice(null)}
-                    style={{ 
-                      opacity: hoveredSlice !== null && hoveredSlice !== idx ? 0.5 : 1,
-                      transition: 'all 0.25s ease',
-                      cursor: 'pointer',
-                      background: hoveredSlice === idx ? 'var(--surface)' : 'transparent',
-                      padding: '0.4rem 0.6rem',
-                      margin: '0 -0.6rem',
-                      borderRadius: '10px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.8rem', fontWeight: 700 }}>
-                      <span style={{ color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: vec.color }} />
-                        {vec.name}
-                      </span>
-                      <span style={{ color: 'var(--muted)', fontSize: '0.78rem' }}>{vec.percentage}% ({vec.count})</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {slices.map((vec, idx) => {
+                  const isHovered = hoveredSlice === idx
+                  return (
+                    <div 
+                      key={vec.name}
+                      onMouseEnter={() => setHoveredSlice(idx)}
+                      onMouseLeave={() => setHoveredSlice(null)}
+                      style={{ 
+                        background: isHovered ? 'var(--surface)' : 'var(--surface-alt)',
+                        border: `1px solid ${isHovered ? vec.color : 'var(--border)'}`,
+                        padding: '0.65rem 0.85rem',
+                        borderRadius: '12px',
+                        opacity: hoveredSlice !== null && !isHovered ? 0.45 : 1,
+                        transform: isHovered ? 'translateY(-2px)' : 'none',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        cursor: 'pointer',
+                        boxShadow: isHovered ? `0 4px 14px rgba(0,0,0,0.06)` : 'none'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                        <span style={{ color: 'var(--text)', fontSize: '0.84rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: vec.color, flexShrink: 0 }} />
+                          {vec.name}
+                        </span>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 850, color: vec.color, background: 'var(--surface)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                          {vec.percentage}% ({vec.count})
+                        </span>
+                      </div>
+                      <div style={{ width: '100%', height: '8px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                        <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px', transition: 'width 0.6s ease' }} />
+                      </div>
                     </div>
-                    <div style={{ width: '100%', height: '8px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                      <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px', transition: 'width 0.5s ease' }} />
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1.4rem', padding: '0.6rem 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1.6rem', padding: '0.6rem 0' }}>
                 {/* SVG Interactive Donut/Pie Chart */}
-                <div style={{ position: 'relative', width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'relative', width: '160px', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
                     {slices.map((slice, idx) => {
                       const isHovered = hoveredSlice === idx
@@ -716,13 +723,13 @@ export default function Dashboard({ user }) {
                           r={radius}
                           fill="transparent"
                           stroke={slice.color}
-                          strokeWidth={isHovered ? 13 : 9}
+                          strokeWidth={isHovered ? 14 : 10}
                           strokeDasharray={slice.strokeDasharray}
                           strokeDashoffset={slice.strokeDashoffset}
                           style={{
                             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                             cursor: 'pointer',
-                            filter: isHovered ? `drop-shadow(0 0 4px ${slice.color})` : 'none'
+                            filter: isHovered ? `drop-shadow(0 0 6px ${slice.color})` : 'none'
                           }}
                           onMouseEnter={() => setHoveredSlice(idx)}
                           onMouseLeave={() => setHoveredSlice(null)}
@@ -733,7 +740,7 @@ export default function Dashboard({ user }) {
                     })}
                   </svg>
                   
-                  {/* Dynamic center detail HUD */}
+                  {/* Dynamic Donut Center Details HUD */}
                   <div style={{
                     position: 'absolute',
                     top: '50%',
@@ -741,16 +748,29 @@ export default function Dashboard({ user }) {
                     transform: 'translate(-50%, -50%)',
                     textAlign: 'center',
                     pointerEvents: 'none',
-                    width: '84px',
+                    width: '92px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1 }}>
+                    <span style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1 }}>
                       {activeSliceInfo.percentage}%
                     </span>
-                    <span style={{ fontSize: '0.62rem', fontWeight: 800, color: activeSliceInfo.color, textTransform: 'uppercase', letterSpacing: '0.02em', marginTop: '2px', lineHeight: 1.1, textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <span style={{
+                      fontSize: '0.64rem',
+                      fontWeight: 850,
+                      color: activeSliceInfo.color,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      marginTop: '3px',
+                      background: 'var(--surface)',
+                      padding: '0.1rem 0.4rem',
+                      borderRadius: '4px',
+                      border: `1px solid ${activeSliceInfo.color}`,
+                      lineHeight: 1.1,
+                      whiteSpace: 'nowrap'
+                    }}>
                       {{
                         'MoMo Transfer & Cashout Fraud': 'MoMo Fraud',
                         'Fake Job & Recruitment Lures': 'Fake Jobs',
@@ -758,14 +778,14 @@ export default function Dashboard({ user }) {
                         'Impersonation & Advance Fee Scams': 'Scams'
                       }[activeSliceInfo.name] || 'Scams'}
                     </span>
-                    <span style={{ fontSize: '0.58rem', fontWeight: 600, color: 'var(--muted)', marginTop: '2px', opacity: 0.85 }}>
+                    <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--muted)', marginTop: '3px' }}>
                       {activeSliceInfo.count.split(' ')[0]} Flags
                     </span>
                   </div>
                 </div>
 
-                {/* Donut Legend with clean card row transitions */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1, minWidth: '160px' }}>
+                {/* Human-Centered Donut Legend Cards */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minWidth: '200px' }}>
                   {slices.map((slice, idx) => {
                     const isHovered = hoveredSlice === idx
                     return (
@@ -775,11 +795,12 @@ export default function Dashboard({ user }) {
                         onMouseLeave={() => setHoveredSlice(null)}
                         style={{ 
                           display: 'flex', 
-                          alignItems: 'flex-start', 
-                          gap: '0.5rem',
-                          padding: '0.4rem 0.6rem',
-                          background: isHovered ? 'var(--surface)' : 'transparent',
-                          border: isHovered ? '1px solid var(--border)' : '1px solid transparent',
+                          alignItems: 'center', 
+                          justifyContent: 'space-between',
+                          gap: '0.6rem',
+                          padding: '0.5rem 0.75rem',
+                          background: isHovered ? 'var(--surface)' : 'rgba(0,0,0,0.015)',
+                          border: `1px solid ${isHovered ? slice.color : 'var(--border)'}`,
                           borderRadius: '10px',
                           opacity: hoveredSlice !== null && !isHovered ? 0.4 : 1,
                           transform: isHovered ? 'translateX(4px)' : 'none',
@@ -787,17 +808,42 @@ export default function Dashboard({ user }) {
                           cursor: 'pointer'
                         }}
                       >
-                        <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: slice.color, display: 'inline-block', flexShrink: 0, marginTop: '3px' }} />
-                        <div style={{ fontSize: '0.74rem', lineHeight: 1.25 }}>
-                          <span style={{ color: 'var(--text)', fontWeight: 700, display: 'block' }}>{slice.name}</span>
-                          <span style={{ color: 'var(--muted)', fontSize: '0.7rem' }}>{slice.percentage}% ({slice.count})</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: slice.color, display: 'inline-block', flexShrink: 0 }} />
+                          <span style={{ color: 'var(--text)', fontSize: '0.78rem', fontWeight: 750 }}>
+                            {slice.name}
+                          </span>
                         </div>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 850, color: slice.color, whiteSpace: 'nowrap', background: 'var(--surface)', padding: '0.1rem 0.45rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                          {slice.percentage}% ({slice.count.split(' ')[0]})
+                        </span>
                       </div>
                     )
                   })}
                 </div>
               </div>
             )}
+
+            {/* Human-Centered Scam Insight Callout */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(56, 189, 248, 0.08)',
+              border: '1px solid rgba(56, 189, 248, 0.2)',
+              borderRadius: '12px',
+              padding: '0.65rem 0.9rem',
+              marginTop: '1.1rem'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="12" cy="8" r="1" fill="currentColor"/>
+              </svg>
+              <span style={{ fontSize: '0.76rem', color: 'var(--text)', fontWeight: 700, lineHeight: 1.35 }}>
+                <strong style={{ color: 'var(--primary)' }}>Human Insight:</strong> MoMo &amp; Mobile Money scams constitute over 54% of all threat reports in Ghana. Never share your 4-digit PIN with anyone.
+              </span>
+            </div>
           </div>
 
           {/* Card B: Recent AI Scan Audit Trail with Dynamic Filter Tabs */}
