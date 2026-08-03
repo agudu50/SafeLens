@@ -4,6 +4,11 @@ import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 
+import heroShieldImg from '../assets/images/hero_shield.png'
+import stepSubmitImg from '../assets/images/step_submit.png'
+import stepAnalysisImg from '../assets/images/step_analysis.png'
+import stepReportImg from '../assets/images/step_report.png'
+
 const testimonials = [
   {
     id: 'emmanuel',
@@ -178,23 +183,7 @@ export default function Home({ user }) {
 
   return (
     <PageContainer>
-      {/* Floating safety pulse rings & scam awareness tip chips */}
-      <div className="cyber-floating-tips-layer" aria-hidden="true">
-        {/* Human-centered safety pulse rings */}
-        <div className="cyber-pulse-ring ring-1" />
-        <div className="cyber-pulse-ring ring-2" />
-        <div className="cyber-pulse-ring ring-3" />
-        
-        {/* Scam awareness floating safety tip chips with glassmorphic design */}
-        <div className="cyber-node node-1"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Never share OTPs</div>
-        <div className="cyber-node node-2"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> MTN won&apos;t ask for PIN</div>
-        <div className="cyber-node node-3"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Dial operator to reverse</div>
-        <div className="cyber-node node-4"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> No upfront job fees</div>
-        <div className="cyber-node node-5"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Report scams to 1917</div>
-        <div className="cyber-node node-6"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Verify sender IDs</div>
-        <div className="cyber-node node-7"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Reject cashout prompts</div>
-        <div className="cyber-node node-8"><span className="tip-pulse-dot" /><span className="tip-prefix">TIP</span> Report links to 292</div>
-      </div>
+
 
       {/* Live Scam Ticker */}
       <div className="ticker-container animate-slide-up">
@@ -298,6 +287,10 @@ export default function Home({ user }) {
         </div>
 
         <div className="hero-panel">
+          <div style={{ width: '100%', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', marginBottom: '1rem', background: 'var(--surface-alt)', boxShadow: '0 12px 32px rgba(0,0,0,0.06)', padding: '0.4rem' }}>
+            <img src={heroShieldImg} alt="SafeLens Security Engine" style={{ width: '100%', height: '210px', objectFit: 'contain', display: 'block', borderRadius: '18px' }} />
+          </div>
+
           <div className="hero-panel__card animate-fade-in" key={tickerIndex}>
             <div className="hero-panel__header">
               <span className="live-pulse-badge">
@@ -479,7 +472,11 @@ export default function Home({ user }) {
 
         <div className="steps-grid">
           {/* Step 01 */}
-          <div className="info-card step-card animate-slide-up delay-4">
+          <div className="info-card step-card animate-slide-up delay-4" style={{ overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '165px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1rem', background: 'var(--surface-alt)', padding: '0.4rem' }}>
+              <img src={stepSubmitImg} alt="Submit Content" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '16px' }} />
+            </div>
+
             <div className="step-card__header">
               <span className="step-number">01</span>
               <div className="step-icon-wrapper">
@@ -490,17 +487,21 @@ export default function Home({ user }) {
             </div>
 
             <h3 className="step-card__title">Submit Content</h3>
-            <p className="step-card__desc">Paste a suspicious SMS message, copy a promotion URL, or upload a WhatsApp conversation screenshot.</p>
+            <p className="step-card__desc">Paste a suspicious SMS message, promotion link, or WhatsApp screenshot.</p>
 
             <div className="step-features">
-              <span className="step-feature-chip">SMS & Text</span>
+              <span className="step-feature-chip">SMS &amp; Text</span>
               <span className="step-feature-chip">Web Links</span>
               <span className="step-feature-chip">Screenshots</span>
             </div>
           </div>
 
           {/* Step 02 */}
-          <div className="info-card step-card animate-slide-up delay-5">
+          <div className="info-card step-card animate-slide-up delay-5" style={{ overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '165px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1rem', background: 'var(--surface-alt)', padding: '0.4rem' }}>
+              <img src={stepAnalysisImg} alt="AI Pattern Analysis" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '16px' }} />
+            </div>
+
             <div className="step-card__header">
               <span className="step-number">02</span>
               <div className="step-icon-wrapper">
@@ -511,8 +512,6 @@ export default function Home({ user }) {
             </div>
 
             <h3 className="step-card__title">AI Pattern Analysis</h3>
-            <p className="step-card__desc">SafeLens evaluates language indicators, transaction directives, urgency pressure, and sender credentials.</p>
-
             <div className="step-features">
               <span className="step-feature-chip">MoMo Lure Check</span>
               <span className="step-feature-chip">Urgency Audit</span>
@@ -521,7 +520,11 @@ export default function Home({ user }) {
           </div>
 
           {/* Step 03 */}
-          <div className="info-card step-card animate-slide-up delay-6">
+          <div className="info-card step-card animate-slide-up delay-6" style={{ overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: '165px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1rem', background: 'var(--surface-alt)', padding: '0.4rem' }}>
+              <img src={stepReportImg} alt="Protect & Report" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '16px' }} />
+            </div>
+
             <div className="step-card__header">
               <span className="step-number">03</span>
               <div className="step-icon-wrapper">
