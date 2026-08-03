@@ -12,20 +12,6 @@ export default function BackgroundAnimation() {
         {/* Concentric Safety Shield Radar Wave */}
         <div className="light-radar-wave wave-1" />
         <div className="light-radar-wave wave-2" />
-
-        {/* Security Status Monitoring Nodes */}
-        <div className="light-security-node node-a">
-          <span className="node-dot green" />
-          <span>ENCRYPTED PROTOCOL</span>
-        </div>
-        <div className="light-security-node node-b">
-          <span className="node-dot coral" />
-          <span>THREAT MONITOR ACTIVE</span>
-        </div>
-        <div className="light-security-node node-c">
-          <span className="node-dot blue" />
-          <span>REALTIME DB SYNC</span>
-        </div>
       </div>
 
       {/* Dark Mode Exclusive Cyber Background Animation */}

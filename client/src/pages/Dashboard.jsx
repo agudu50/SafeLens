@@ -28,11 +28,14 @@ const defaultAuditTrail = [
 ]
 
 const tickerReports = [
-  { region: 'Accra', type: 'MoMo Refund Fraud', risk: 'High', time: '2 mins ago' },
-  { region: 'Kumasi', type: 'Fake Job Agent Fee', risk: 'High', time: '14 mins ago' },
-  { region: 'Takoradi', type: 'MTN Cashout Attack', risk: 'High', time: '38 mins ago' },
-  { region: 'Tema', type: 'Suspicious Loan App Link', risk: 'Medium', time: '1 hr ago' },
-  { region: 'Tamale', type: 'Wrong Transfer SMS', risk: 'High', time: '2 hrs ago' },
+  { prompt: 'Never share your MoMo 4-digit PIN with callers claiming to be MTN agents.', priority: 'CRITICAL', time: 'Just now' },
+  { prompt: 'Do not disclose 6-digit SMS OTP codes over phone calls under any circumstances.', priority: 'CRITICAL', time: '5 mins ago' },
+  { prompt: 'Verify banking website URLs carefully before entering GCB or bank passwords.', priority: 'HIGH', time: '18 mins ago' },
+  { prompt: 'Never approve unsolicited *170# USSD cashout prompt requests on your phone.', priority: 'CRITICAL', time: '35 mins ago' },
+  { prompt: 'Report suspicious SIM swap callers immediately to Cyber Security Authority (CSA 292).', priority: 'HIGH', time: '1 hr ago' },
+  { prompt: 'Ignore remote job offers requiring upfront registration fee payments before interview.', priority: 'HIGH', time: '2 hrs ago' },
+  { prompt: 'Never refund money from SMS alerts without verifying your official MoMo balance.', priority: 'HIGH', time: '3 hrs ago' },
+  { prompt: 'Telco & Bank customer service will NEVER ask for your secret password or PIN.', priority: 'CRITICAL', time: '4 hrs ago' },
 ]
 
 export default function Dashboard({ user }) {
@@ -139,103 +142,152 @@ export default function Dashboard({ user }) {
             background: 'var(--surface-alt)', 
             border: '1px solid var(--border)',
             borderRadius: '16px',
-            padding: '0.8rem 1.2rem',
+            overflow: 'hidden',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.04)'
+          }}
+        >
+          {/* ── Safety Header Bar ── */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.6rem',
+            padding: '0.6rem 1.2rem',
+            background: 'rgba(220, 38, 38, 0.04)',
+            borderBottom: '1px solid rgba(220, 38, 38, 0.1)'
+          }}>
+            {/* Left: Shield icon + label */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(220,38,38,0.08)"/>
+                <polyline points="9 12 11 14 15 10" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+                SafeLens Active Monitoring
+              </span>
+              <span style={{ width: '1px', height: '12px', background: 'rgba(220,38,38,0.2)', display: 'inline-block' }} />
+              <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 600 }}>Ghana Threat Feed</span>
+            </div>
+
+            {/* Right: Stats pills */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {/* Scans stat */}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.68rem', fontWeight: 700, color: 'var(--muted)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.2rem 0.55rem' }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                264 Scans Today
+              </span>
+              {/* Active shield stat */}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.68rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', borderRadius: '6px', padding: '0.2rem 0.55rem' }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="currentColor" strokeWidth="2" fill="rgba(16,185,129,0.1)"/>
+                </svg>
+                4 Shields Active
+              </span>
+            </div>
+          </div>
+
+          {/* ── Ticker Row ── */}
+          <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: '1rem',
             flexWrap: 'wrap',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.02)'
-          }}
-        >
-          {/* Left section: Animated Radar Sweep Graphic */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <div style={{ position: 'relative', width: '44px', height: '44px', background: 'rgba(220, 38, 38, 0.05)', borderRadius: '50%', border: '1.5px solid rgba(220, 38, 38, 0.15)', display: 'grid', placeItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
-              <svg width="44" height="44" viewBox="0 0 44 44" style={{ position: 'absolute', top: 0, left: 0 }}>
-                {/* Concentric rings */}
-                <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
-                <circle cx="22" cy="22" r="10" fill="none" stroke="rgba(220, 38, 38, 0.08)" strokeWidth="1" />
-                {/* Animated Pulsing Ring */}
-                <circle cx="22" cy="22" r="15" fill="none" stroke="rgba(220, 38, 38, 0.25)" strokeWidth="1.5" className="radar-pulse-ring" />
-                {/* Crosshairs */}
-                <line x1="22" y1="2" x2="22" y2="42" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
-                <line x1="2" y1="22" x2="42" y2="22" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
-                {/* Sweeper sweep line */}
-                <line x1="22" y1="22" x2="22" y2="3" stroke="var(--danger)" strokeWidth="1.5" strokeLinecap="round" className="radar-sweep-line" />
-                {/* Center target dot */}
-                <circle cx="22" cy="22" r="2.5" fill="var(--danger)" />
-              </svg>
-            </div>
-            
-            {/* Active Threat Detail text with mount transitions keyed by index */}
-            <div key={currentTickerIdx} className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block' }} className="live-pulse-dot" />
-                  Live Threat Intercepted
-                </span>
-                <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>
-                <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 650 }}>{tickerReports[currentTickerIdx].time}</span>
+            padding: '0.75rem 1.2rem'
+          }}>
+            {/* Left: Radar + Threat Details */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+              <div style={{ position: 'relative', width: '44px', height: '44px', background: 'rgba(220, 38, 38, 0.05)', borderRadius: '50%', border: '1.5px solid rgba(220, 38, 38, 0.15)', display: 'grid', placeItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                <svg width="44" height="44" viewBox="0 0 44 44" style={{ position: 'absolute', top: 0, left: 0 }}>
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
+                  <circle cx="22" cy="22" r="10" fill="none" stroke="rgba(220, 38, 38, 0.08)" strokeWidth="1" />
+                  <circle cx="22" cy="22" r="15" fill="none" stroke="rgba(220, 38, 38, 0.25)" strokeWidth="1.5" className="radar-pulse-ring" />
+                  <line x1="22" y1="2" x2="22" y2="42" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
+                  <line x1="2" y1="22" x2="42" y2="22" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
+                  <line x1="22" y1="22" x2="22" y2="3" stroke="var(--danger)" strokeWidth="1.5" strokeLinecap="round" className="radar-sweep-line" />
+                  <circle cx="22" cy="22" r="2.5" fill="var(--danger)" />
+                </svg>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.84rem', color: 'var(--text)', fontWeight: 800 }}>
-                  {locationIcon}
-                  {tickerReports[currentTickerIdx].region}
-                </span>
-                <span style={{ color: 'var(--muted)', fontSize: '0.84rem' }}>:</span>
-                <span style={{ fontSize: '0.84rem', color: 'var(--text)', fontWeight: 600 }}>{tickerReports[currentTickerIdx].type}</span>
+
+              <div key={currentTickerIdx} className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                {/* Top row: badge label + time */}
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block' }} className="live-pulse-dot" />
+                    IMPORTANT SECURITY PROMPT
+                  </span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 650 }}>{tickerReports[currentTickerIdx].time}</span>
+                </div>
+
+                {/* Bottom row: prompt text */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text)', fontWeight: 750, lineHeight: 1.35 }}>
+                    {tickerReports[currentTickerIdx].prompt}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Right section: Risk status & interactive navigations */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <span 
-              key={`badge-${currentTickerIdx}`}
-              className="animate-fade-in"
-              style={{
-                background: tickerReports[currentTickerIdx].risk === 'High' ? 'rgba(220, 38, 38, 0.12)' : 'rgba(245, 158, 11, 0.12)',
-                color: tickerReports[currentTickerIdx].risk === 'High' ? 'var(--danger)' : 'var(--warning)',
-                border: `1.5px solid ${tickerReports[currentTickerIdx].risk === 'High' ? 'rgba(220, 38, 38, 0.22)' : 'rgba(245, 158, 11, 0.22)'}`,
-                padding: '0.35rem 0.75rem',
-                borderRadius: '8px',
-                fontSize: '0.72rem',
-                fontWeight: 900,
-                letterSpacing: '0.04em',
-                textTransform: 'uppercase',
-                display: 'inline-block',
-                whiteSpace: 'nowrap',
-                animation: 'alertPulseGlow 2s infinite ease-in-out'
-              }}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, marginRight: '0.3rem' }}>
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(220,38,38,0.15)"/>
-                <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="12" cy="17" r="1" fill="currentColor"/>
-              </svg>
-              {tickerReports[currentTickerIdx].risk} RISK ALERT
-            </span>
+            {/* Right: High-contrast crisp priority badge + nav controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+              <span 
+                key={`badge-${currentTickerIdx}`}
+                className="animate-fade-in"
+                style={{
+                  background: tickerReports[currentTickerIdx].priority === 'CRITICAL' 
+                    ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
+                    : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '0.42rem 0.85rem',
+                  borderRadius: '8px',
+                  fontSize: '0.74rem',
+                  fontWeight: 900,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  whiteSpace: 'nowrap',
+                  boxShadow: tickerReports[currentTickerIdx].priority === 'CRITICAL' 
+                    ? '0 2px 10px rgba(239, 68, 68, 0.35)' 
+                    : '0 2px 10px rgba(245, 158, 11, 0.35)'
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(255,255,255,0.2)"/>
+                  <line x1="12" y1="9" x2="12" y2="13" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round"/>
+                  <circle cx="12" cy="17" r="1" fill="#ffffff"/>
+                </svg>
+                {tickerReports[currentTickerIdx].priority} ADVISORY
+              </span>
 
-            {/* Pagination manual switches */}
-            <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1px' }}>
-              <button 
-                onClick={() => setCurrentTickerIdx(prev => (prev - 1 + tickerReports.length) % tickerReports.length)}
-                style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '26px', height: '26px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'all 0.15s ease' }}
-                title="Previous Intercept"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <polyline points="15 18 9 12 15 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              <button 
-                onClick={() => setCurrentTickerIdx(prev => (prev + 1) % tickerReports.length)}
-                style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '26px', height: '26px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'all 0.15s ease' }}
-                title="Next Intercept"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
+              {/* Pagination nav */}
+              <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1px' }}>
+                <button 
+                  onClick={() => setCurrentTickerIdx(prev => (prev - 1 + tickerReports.length) % tickerReports.length)}
+                  style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.15s ease' }}
+                  title="Previous Intercept"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <polyline points="15 18 9 12 15 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <button 
+                  onClick={() => setCurrentTickerIdx(prev => (prev + 1) % tickerReports.length)}
+                  style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.15s ease' }}
+                  title="Next Intercept"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>

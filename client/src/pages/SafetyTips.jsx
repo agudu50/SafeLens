@@ -137,6 +137,7 @@ const DEFENSE_SLIDES = [
 export default function SafetyTips({ user }) {
   const [activeCategory, setActiveCategory] = useState('All')
   const [currentTipIndex, setCurrentTipIndex] = useState(0)
+  const [secretAlertAcknowledged, setSecretAlertAcknowledged] = useState(false)
 
   // Slideshow carousel state
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
@@ -224,6 +225,236 @@ export default function SafetyTips({ user }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
               </svg>
             </Button>
+          </div>
+        </section>
+
+        {/* Zero-Trust Secret Protection Alert Prompt Banner */}
+        <section
+          className="animate-slide-up"
+          style={{
+            background: secretAlertAcknowledged 
+              ? 'rgba(16, 185, 129, 0.05)' 
+              : 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(245, 158, 11, 0.06) 100%)',
+            border: `1.5px solid ${secretAlertAcknowledged ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+            borderRadius: '20px',
+            padding: '1.4rem 1.6rem',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.03)',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.85rem' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              background: secretAlertAcknowledged ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              border: `1px solid ${secretAlertAcknowledged ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+              display: 'grid',
+              placeItems: 'center',
+              color: secretAlertAcknowledged ? 'var(--success)' : 'var(--danger)',
+              flexShrink: 0
+            }}>
+              {secretAlertAcknowledged ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(16, 185, 129, 0.15)"/>
+                  <polyline points="9 12 11 14 15 10" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(239, 68, 68, 0.15)"/>
+                  <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+                  <circle cx="12" cy="16" r="1.2" fill="currentColor"/>
+                </svg>
+              )}
+            </div>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.15rem' }}>
+                <span style={{
+                  fontSize: '0.66rem',
+                  fontWeight: 850,
+                  color: secretAlertAcknowledged ? 'var(--success)' : 'var(--danger)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  background: secretAlertAcknowledged ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                  padding: '0.15rem 0.5rem',
+                  borderRadius: '6px'
+                }}>
+                  {secretAlertAcknowledged ? 'ZERO-TRUST ADVISORY CONFIRMED' : 'CRITICAL SECURITY PROMPT'}
+                </span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>•</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>Never Share Secret Credentials</span>
+              </div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 850, margin: 0, color: 'var(--text)' }}>
+                {secretAlertAcknowledged 
+                  ? 'Credential Safety Commitment Active' 
+                  : 'Ensure Your Secret Keys & Credentials Are NEVER Shared!'}
+              </h3>
+            </div>
+          </div>
+
+          {/* Advisory Subtitle */}
+          <p style={{ fontSize: '0.86rem', color: 'var(--muted)', margin: '0 0 1.1rem 0', lineHeight: 1.55 }}>
+            Impersonators often pose as MTN, Telecel, AT agents, bank officers, or sweepstake managers. <strong style={{ color: 'var(--text)' }}>Legitimate agents will NEVER ask for your secret authorization keys.</strong>
+          </p>
+
+          {/* 4 Interactive Secret Protection Cards Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+            gap: '0.85rem',
+            marginBottom: '1.2rem'
+          }}>
+            {/* Secret 1: MoMo PIN */}
+            <div style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '14px',
+              padding: '0.95rem',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem'
+            }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(220, 38, 38, 0.1)', color: 'var(--danger)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+              </div>
+              <div>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 800, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>MoMo 4-Digit PIN</h4>
+                <p style={{ fontSize: '0.76rem', color: 'var(--muted)', margin: 0, lineHeight: 1.4 }}>
+                  Never reveal your 4-digit PIN over the phone or approve unsolicited USSD prompts.
+                </p>
+              </div>
+            </div>
+
+            {/* Secret 2: SMS OTP Codes */}
+            <div style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '14px',
+              padding: '0.95rem',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem'
+            }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M8 9h.01M12 9h.01M16 9h.01" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 800, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>SMS OTP Verification</h4>
+                <p style={{ fontSize: '0.76rem', color: 'var(--muted)', margin: 0, lineHeight: 1.4 }}>
+                  6-digit OTP codes grant total access. Never read or forward them to caller requests.
+                </p>
+              </div>
+            </div>
+
+            {/* Secret 3: Banking Passwords */}
+            <div style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '14px',
+              padding: '0.95rem',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem'
+            }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', color: 'var(--primary)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 800, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>Banking Passwords</h4>
+                <p style={{ fontSize: '0.76rem', color: 'var(--muted)', margin: 0, lineHeight: 1.4 }}>
+                  Your mobile app passwords and online login details belong strictly to you.
+                </p>
+              </div>
+            </div>
+
+            {/* Secret 4: Card CVV & Secret Keys */}
+            <div style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '14px',
+              padding: '0.95rem',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem'
+            }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="2" y1="10" x2="22" y2="10" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+              </div>
+              <div>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 800, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>Card CVV & Expiry</h4>
+                <p style={{ fontSize: '0.76rem', color: 'var(--muted)', margin: 0, lineHeight: 1.4 }}>
+                  The 3-digit code on card backs and expiry dates should never be typed on untrusted forms.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Affirmation Bar */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.8rem',
+            flexWrap: 'wrap',
+            paddingTop: '0.85rem',
+            borderTop: '1px solid var(--border)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--success)' }}>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="2" fill="rgba(16,185,129,0.15)"/>
+                <polyline points="9 12 11 14 15 10" stroke="currentColor" strokeWidth="2"/>
+              </svg>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)' }}>
+                SafeLens Zero-Trust Protocol Active
+              </span>
+            </div>
+
+            <button
+              onClick={() => setSecretAlertAcknowledged(prev => !prev)}
+              className="button-primary"
+              style={{
+                background: secretAlertAcknowledged 
+                  ? 'var(--surface-alt)' 
+                  : 'linear-gradient(135deg, var(--danger) 0%, #dc2626 100%)',
+                color: secretAlertAcknowledged ? 'var(--success)' : '#ffffff',
+                border: secretAlertAcknowledged ? '1px solid rgba(16, 185, 129, 0.3)' : 'none',
+                padding: '0.6rem 1.25rem',
+                borderRadius: '10px',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                transition: 'all 0.2s ease',
+                boxShadow: secretAlertAcknowledged ? 'none' : '0 4px 12px rgba(220, 38, 38, 0.25)'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                {secretAlertAcknowledged ? (
+                  <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                ) : (
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                )}
+              </svg>
+              <span>
+                {secretAlertAcknowledged 
+                  ? 'Advisory Acknowledged ✓' 
+                  : 'I Understand — I Will Never Share My Secrets'}
+              </span>
+            </button>
           </div>
         </section>
 
