@@ -28,7 +28,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           label: 'AI Scanner',
           isBadge: true,
           icon: (
-            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem', color: 'var(--primary)' }}>
+            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
           )
@@ -128,12 +128,29 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
               onClick={() => setOpen(false)}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.75rem', fontSize: '0.86rem', whiteSpace: 'nowrap' }}
             >
-              {link.icon}
-              <span>{link.label}</span>
-              {link.isBadge && (
-                <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#fff', background: 'var(--primary)', padding: '0.1rem 0.35rem', borderRadius: '999px', textTransform: 'uppercase' }}>
-                  AI
-                </span>
+              {({ isActive }) => (
+                <>
+                  <span style={{ color: isActive ? '#ffffff' : 'inherit', display: 'flex', alignItems: 'center' }}>
+                    {link.icon}
+                  </span>
+                  <span>{link.label}</span>
+                  {link.isBadge && (
+                    <span
+                      style={{
+                        fontSize: '0.62rem',
+                        fontWeight: 850,
+                        color: isActive ? 'var(--primary)' : '#ffffff',
+                        background: isActive ? '#ffffff' : 'var(--primary)',
+                        padding: '0.1rem 0.4rem',
+                        borderRadius: '999px',
+                        textTransform: 'uppercase',
+                        boxShadow: isActive ? '0 2px 6px rgba(0,0,0,0.15)' : 'none'
+                      }}
+                    >
+                      AI
+                    </span>
+                  )}
+                </>
               )}
             </NavLink>
           ))}

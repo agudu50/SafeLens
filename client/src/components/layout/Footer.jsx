@@ -1,6 +1,53 @@
 import { Link } from 'react-router-dom'
 
 export default function Footer({ user }) {
+  // Ultra-minimal footer for logged-in user session
+  if (user) {
+    return (
+      <footer className="site-footer site-footer--minimal" style={{ borderTop: '1px solid var(--border)', padding: '1.2rem 0', background: 'var(--surface-alt)' }}>
+        <div className="footer-shell" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            
+            {/* Left: Compact Logo & Name */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '22px', height: '22px', borderRadius: '6px' }} />
+              <span style={{ fontSize: '0.88rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.01em' }}>
+                SafeLens
+              </span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>
+                • Look closer. Stay safer.
+              </span>
+            </div>
+
+            {/* Center: Minimal Links */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', flexWrap: 'wrap' }}>
+              <Link to="/" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--muted)', textDecoration: 'none' }}>Dashboard</Link>
+              <Link to="/scan" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--muted)', textDecoration: 'none' }}>AI Scanner</Link>
+              <Link to="/history" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--muted)', textDecoration: 'none' }}>Logs</Link>
+              <Link to="/safety-tips" style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--muted)', textDecoration: 'none' }}>Safety Tips</Link>
+              <a href="tel:292" style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--primary)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary)' }} />
+                CSA 292
+              </a>
+            </div>
+
+            {/* Right: Copyright & Live Status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '0.74rem', color: 'var(--muted)' }}>
+              <span>&copy; {new Date().getFullYear()} SafeLens</span>
+              <span style={{ opacity: 0.5 }}>|</span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', padding: '0.15rem 0.5rem', borderRadius: '999px', color: 'var(--success)', fontWeight: 700, fontSize: '0.68rem' }}>
+                <span className="live-pulse-dot" style={{ width: '6px', height: '6px', background: 'var(--success)' }} />
+                <span>Systems Normal</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </footer>
+    )
+  }
+
+  // Full landing footer for logged-out visitors
   return (
     <footer className="site-footer">
       <div className="footer-shell">
@@ -21,17 +68,8 @@ export default function Footer({ user }) {
           <div className="footer-right-block">
             <div className="footer-nav-links">
               <Link to="/" className="footer-nav-link">Home Dashboard</Link>
-              {user ? (
-                <>
-                  <Link to="/scan" className="footer-nav-link">Scan Message</Link>
-                  <Link to="/history" className="footer-nav-link">Scan Logs</Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="footer-nav-link">Sign In</Link>
-                  <Link to="/register" className="footer-nav-link">Register</Link>
-                </>
-              )}
+              <Link to="/login" className="footer-nav-link">Sign In</Link>
+              <Link to="/register" className="footer-nav-link">Register</Link>
               <Link to="/safety-tips" className="footer-nav-link">Safety Tips</Link>
               <Link to="/about" className="footer-nav-link">About Us</Link>
             </div>
