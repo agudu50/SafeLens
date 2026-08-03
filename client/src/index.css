@@ -104,8 +104,10 @@ button {
 }
 
 .page-container {
-  max-width: 1180px;
+  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
+  padding: 0 1rem;
   position: relative;
   z-index: 1;
 }
@@ -118,7 +120,7 @@ button {
   top: 1rem;
   z-index: 50;
   margin: 1rem auto;
-  max-width: 1180px;
+  max-width: 1400px;
   width: calc(100% - 2rem);
   border-radius: 999px;
   box-shadow: var(--shadow);

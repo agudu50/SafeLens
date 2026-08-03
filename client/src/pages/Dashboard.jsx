@@ -45,6 +45,8 @@ export default function Dashboard({ user }) {
   const [hoveredSlice, setHoveredSlice] = useState(null)
   const [hoveredBar, setHoveredBar] = useState(null)
   const [activeFilter, setActiveFilter] = useState('all') // 'all', 'link', 'screenshot', 'message', 'email'
+  const [auditPage, setAuditPage] = useState(1)
+  const AUDIT_ITEMS_PER_PAGE = 3
   const [currentTickerIdx, setCurrentTickerIdx] = useState(0)
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -989,7 +991,10 @@ export default function Dashboard({ user }) {
               {['all', 'link', 'message', 'screenshot', 'email'].map(type => (
                 <button
                   key={type}
-                  onClick={() => setActiveFilter(type)}
+                  onClick={() => {
+                    setActiveFilter(type)
+                    setAuditPage(1)
+                  }}
                   style={{
                     border: 'none',
                     background: activeFilter === type ? 'var(--primary)' : 'var(--surface)',
@@ -1010,9 +1015,12 @@ export default function Dashboard({ user }) {
               ))}
             </div>
 
+            {/* Audit Trail List (Max 3 items per page) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {filteredScans.length > 0 ? (
-                filteredScans.map((item) => (
+                filteredScans
+                  .slice((auditPage - 1) * AUDIT_ITEMS_PER_PAGE, auditPage * AUDIT_ITEMS_PER_PAGE)
+                  .map((item) => (
                   <div
                     key={item.id}
                     style={{
@@ -1086,6 +1094,75 @@ export default function Dashboard({ user }) {
                 </div>
               )}
             </div>
+
+            {/* Pagination Controls Footer */}
+            {filteredScans.length > AUDIT_ITEMS_PER_PAGE && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '0.8rem', borderTop: '1px dashed var(--border)', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 650 }}>
+                  Showing {(auditPage - 1) * AUDIT_ITEMS_PER_PAGE + 1}–{Math.min(auditPage * AUDIT_ITEMS_PER_PAGE, filteredScans.length)} of {filteredScans.length} logs
+                </span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <button
+                    disabled={auditPage === 1}
+                    onClick={() => setAuditPage(prev => Math.max(prev - 1, 1))}
+                    style={{
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface)',
+                      color: auditPage === 1 ? 'var(--muted)' : 'var(--text)',
+                      fontSize: '0.72rem',
+                      fontWeight: 750,
+                      padding: '0.25rem 0.55rem',
+                      borderRadius: '6px',
+                      cursor: auditPage === 1 ? 'default' : 'pointer',
+                      opacity: auditPage === 1 ? 0.5 : 1
+                    }}
+                  >
+                    &larr; Prev
+                  </button>
+
+                  {Array.from({ length: Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE) }, (_, i) => i + 1).map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setAuditPage(p)}
+                      style={{
+                        border: '1px solid var(--border)',
+                        background: auditPage === p ? 'var(--primary)' : 'var(--surface)',
+                        color: auditPage === p ? '#ffffff' : 'var(--text)',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        display: 'grid',
+                        placeItems: 'center'
+                      }}
+                    >
+                      {p}
+                    </button>
+                  ))}
+
+                  <button
+                    disabled={auditPage === Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE)}
+                    onClick={() => setAuditPage(prev => Math.min(prev + 1, Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE)))}
+                    style={{
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface)',
+                      color: auditPage === Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE) ? 'var(--muted)' : 'var(--text)',
+                      fontSize: '0.72rem',
+                      fontWeight: 750,
+                      padding: '0.25rem 0.55rem',
+                      borderRadius: '6px',
+                      cursor: auditPage === Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE) ? 'default' : 'pointer',
+                      opacity: auditPage === Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE) ? 0.5 : 1
+                    }}
+                  >
+                    Next &rarr;
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
