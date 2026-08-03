@@ -90,20 +90,63 @@ export default function Scanner() {
 
   const characterCount = useMemo(() => message.length, [message])
 
-  // Stepper simulation
+  // Stepper simulation & analysis execution
   useEffect(() => {
     if (!isAnalyzing) return
+
+    let currentPayload = ''
+    if (selectedType === 'Message') currentPayload = message
+    else if (selectedType === 'Link') currentPayload = linkUrl
+    else if (selectedType === 'Email') currentPayload = `Sender: ${emailSender}\n\n${emailContent}`
+    else if (selectedType === 'Screenshot') currentPayload = `Screenshot: ${fileName}`
+
     const timer = setInterval(() => {
       setActiveStep((prev) => {
         if (prev >= 3) {
           clearInterval(timer)
+          
+          setTimeout(() => {
+            let riskLevel = 'low'
+            const checkText = (currentPayload || '').toLowerCase()
+            
+            if (
+              checkText.includes('payment') || 
+              checkText.includes('urgent') || 
+              checkText.includes('momo') || 
+              checkText.includes('cashout') || 
+              checkText.includes('promo') ||
+              checkText.includes('pin') ||
+              checkText.includes('fee') ||
+              checkText.includes('claim') ||
+              checkText.includes('http://')
+            ) {
+              riskLevel = 'high'
+            } else if (
+              checkText.includes('update') || 
+              checkText.includes('verify') ||
+              checkText.includes('select')
+            ) {
+              riskLevel = 'medium'
+            }
+
+            const result = createMockScanResult({
+              type: selectedType.toLowerCase(),
+              input: currentPayload || 'Suspicious submission input',
+              riskLevel,
+            })
+            
+            setIsAnalyzing(false)
+            navigate(`/results/${result.id}`)
+          }, 350)
+
           return 3
         }
         return prev + 1
       })
-    }, 500)
+    }, 450)
+
     return () => clearInterval(timer)
-  }, [isAnalyzing])
+  }, [isAnalyzing, selectedType, message, linkUrl, emailSender, emailContent, fileName, navigate])
 
   const handleFileChange = (event) => {
     const file = event.target.files?.[0]
@@ -137,72 +180,40 @@ export default function Scanner() {
     processFile(file)
   }
 
-  const handleAnalyze = () => {
-    let inputPayload = ''
+  const handleAnalyze = (overridePayload) => {
+    let inputPayload = typeof overridePayload === 'string' ? overridePayload : ''
     
-    if (selectedType === 'Message') {
-      if (message.trim().length < 10) {
-        setError('Please enter a message with at least 10 characters.')
-        return
+    if (!inputPayload) {
+      if (selectedType === 'Message') {
+        if (message.trim().length < 10) {
+          setError('Please enter a message with at least 10 characters.')
+          return
+        }
+        inputPayload = message
+      } else if (selectedType === 'Screenshot') {
+        if (!previewUrl) {
+          setError('Please upload a screenshot before analyzing.')
+          return
+        }
+        inputPayload = `Screenshot: ${fileName}`
+      } else if (selectedType === 'Link') {
+        if (linkUrl.trim().length < 5) {
+          setError('Please enter a valid link (e.g. http://example.com).')
+          return
+        }
+        inputPayload = linkUrl
+      } else if (selectedType === 'Email') {
+        if (emailContent.trim().length < 15) {
+          setError('Please enter at least 15 characters of email content.')
+          return
+        }
+        inputPayload = `Sender: ${emailSender || 'Unknown'}\n\nContent:\n${emailContent}`
       }
-      inputPayload = message
-    } else if (selectedType === 'Screenshot') {
-      if (!previewUrl) {
-        setError('Please upload a screenshot before analyzing.')
-        return
-      }
-      inputPayload = `Screenshot: ${fileName}`
-    } else if (selectedType === 'Link') {
-      if (linkUrl.trim().length < 5) {
-        setError('Please enter a valid link (e.g. http://example.com).')
-        return
-      }
-      inputPayload = linkUrl
-    } else if (selectedType === 'Email') {
-      if (emailContent.trim().length < 15) {
-        setError('Please enter at least 15 characters of email content.')
-        return
-      }
-      inputPayload = `Sender: ${emailSender || 'Unknown'}\n\nContent:\n${emailContent}`
     }
 
     setError('')
-    setIsAnalyzing(true)
     setActiveStep(0)
-
-    window.setTimeout(() => {
-      let riskLevel = 'low'
-      const checkText = inputPayload.toLowerCase()
-      
-      if (
-        checkText.includes('payment') || 
-        checkText.includes('urgent') || 
-        checkText.includes('momo') || 
-        checkText.includes('cashout') || 
-        checkText.includes('promo') ||
-        checkText.includes('pin') ||
-        checkText.includes('fee') ||
-        checkText.includes('claim')
-      ) {
-        riskLevel = 'high'
-      } else if (
-        checkText.includes('http://') || 
-        checkText.includes('update') || 
-        checkText.includes('verify') ||
-        checkText.includes('select')
-      ) {
-        riskLevel = 'medium'
-      }
-
-      const result = createMockScanResult({
-        type: selectedType.toLowerCase(),
-        input: inputPayload,
-        riskLevel,
-      })
-      
-      setIsAnalyzing(false)
-      navigate(`/results/${result.id}`)
-    }, 2100)
+    setIsAnalyzing(true)
   }
 
   const stepsList = loadingMessages[selectedType.toLowerCase()] || loadingMessages.message
@@ -277,21 +288,33 @@ export default function Scanner() {
                 <button
                   type="button"
                   className="preset-sample-btn"
-                  onClick={() => setMessage('Hello, I just sent 850 GHS to your number by mistake. Please send it back immediately to 0551234567. God bless you!')}
+                  onClick={() => {
+                    const text = 'Hello, I just sent 850 GHS to your number by mistake. Please send it back immediately to 0551234567. God bless you!'
+                    setMessage(text)
+                    handleAnalyze(text)
+                  }}
                 >
                   MoMo Refund
                 </button>
                 <button
                   type="button"
                   className="preset-sample-btn"
-                  onClick={() => setMessage('MTN Customer Care: You won 5,000 GHS in promo! Dial *170# -> option 6 -> option 5 to approve your cashout approval request immediately.')}
+                  onClick={() => {
+                    const text = 'MTN Customer Care: You won 5,000 GHS in promo! Dial *170# -> option 6 -> option 5 to approve your cashout approval request immediately.'
+                    setMessage(text)
+                    handleAnalyze(text)
+                  }}
                 >
                   MTN Promo
                 </button>
                 <button
                   type="button"
                   className="preset-sample-btn"
-                  onClick={() => setMessage('WORK FROM HOME! Earn 500 GHS daily by liking videos. Pay only 50 GHS registration fee to join.')}
+                  onClick={() => {
+                    const text = 'WORK FROM HOME! Earn 500 GHS daily by liking videos. Pay only 50 GHS registration fee to join.'
+                    setMessage(text)
+                    handleAnalyze(text)
+                  }}
                 >
                   Job Fee Scam
                 </button>
@@ -380,7 +403,11 @@ export default function Scanner() {
                 <button
                   type="button"
                   className="preset-sample-btn"
-                  onClick={() => setLinkUrl('http://mtn-bonus-cashout-claim.xyz/verify-momo')}
+                  onClick={() => {
+                    const text = 'http://mtn-bonus-cashout-claim.xyz/verify-momo'
+                    setLinkUrl(text)
+                    handleAnalyze(text)
+                  }}
                 >
                   Phishing Link
                 </button>
@@ -411,8 +438,11 @@ export default function Scanner() {
                   type="button"
                   className="preset-sample-btn"
                   onClick={() => {
-                    setEmailSender('security-fidelitybank@gmail.com')
-                    setEmailContent('URGENT: Your Fidelity Bank online access has been flagged due to unverified login attempts. Click the link immediately to verify your PIN and security question.')
+                    const sender = 'security-fidelitybank@gmail.com'
+                    const body = 'URGENT: Your Fidelity Bank online access has been flagged due to unverified login attempts. Click the link immediately to verify your PIN and security question.'
+                    setEmailSender(sender)
+                    setEmailContent(body)
+                    handleAnalyze(`Sender: ${sender}\n\nContent:\n${body}`)
                   }}
                 >
                   Bank Spoof Email
@@ -453,56 +483,134 @@ export default function Scanner() {
 
         {/* Active Analysis Stepper Screen */}
         {isAnalyzing ? (
-          <div className="loading-card animate-fade-in" aria-live="polite" style={{ marginTop: '2rem' }}>
-            <div className="loading-card__header" style={{ marginBottom: '1rem' }}>
-              <h3 style={{ margin: '0 0 0.4rem' }}>SafeLens is auditing submissions...</h3>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--muted)' }}>Step {activeStep + 1} of 4: {stepsList[activeStep].detail}</p>
+          <div
+            className="scanner-card animate-fade-in"
+            aria-live="polite"
+            style={{
+              marginTop: '2rem',
+              padding: '1.8rem',
+              background: 'var(--surface-alt)',
+              border: '1px solid var(--border)',
+              borderRadius: '24px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06)'
+            }}
+          >
+            {/* Header with Radar Icon & Step Status */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.8rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(230, 60, 28, 0.12)', border: '1px solid rgba(230, 60, 28, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+                    <path d="M12 8v4l3 3" strokeWidth="2.5" strokeLinecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: 'var(--text)' }}>
+                    SafeLens is auditing submissions...
+                  </h3>
+                  <p style={{ margin: '2px 0 0', fontSize: '0.84rem', color: 'var(--muted)', fontWeight: 600 }}>
+                    Step {activeStep + 1} of 4: <span style={{ color: 'var(--primary)', fontWeight: 750 }}>{stepsList[activeStep].detail}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'var(--surface)', padding: '0.3rem 0.75rem', borderRadius: '999px', border: '1px solid var(--border)' }}>
+                <span className="live-pulse-dot" style={{ background: 'var(--primary)', width: '7px', height: '7px' }} />
+                <span style={{ fontSize: '0.78rem', fontWeight: 850, color: 'var(--text)' }}>
+                  {(activeStep + 1) * 25}%
+                </span>
+              </div>
             </div>
 
-            <div className="stepper-progress-bar-track" style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden', marginBottom: '1.8rem' }}>
-              <div style={{ width: `${(activeStep + 1) * 25}%`, height: '100%', background: 'var(--primary)', transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+            {/* Stepper Progress Bar Track */}
+            <div style={{ height: '8px', background: 'var(--surface)', borderRadius: '999px', border: '1px solid var(--border)', overflow: 'hidden', marginBottom: '1.8rem', padding: '1px' }}>
+              <div style={{ width: `${(activeStep + 1) * 25}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary), #ef4444)', borderRadius: '999px', transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)' }} />
             </div>
             
             {/* If screenshot, show image with horizontal scanning line overlay */}
             {selectedType === 'Screenshot' && previewUrl ? (
-              <div className="ocr-scanner" style={{ maxWidth: '280px', margin: '0 auto 1.5rem', position: 'relative' }}>
+              <div className="ocr-scanner" style={{ maxWidth: '280px', margin: '0 auto 1.6rem', position: 'relative', overflow: 'hidden', borderRadius: '16px', border: '2px solid var(--primary)' }}>
                 <div className="ocr-scan-line" />
-                <img src={previewUrl} alt="Scanning source" style={{ width: '100%', opacity: 0.6, borderRadius: '0.8rem' }} />
+                <img src={previewUrl} alt="Scanning source" style={{ width: '100%', opacity: 0.6, display: 'block' }} />
               </div>
             ) : null}
 
-            <div className="loading-steps" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Stepper Process Cards Grid */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {stepsList.map((step, idx) => {
-                let statusClass = 'step'
-                let bulletIcon = (
-                  <svg fill="none" stroke="var(--border)" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', flexShrink: 0, marginTop: '0.1rem' }}>
-                    <circle cx="12" cy="12" r="9" />
-                  </svg>
-                )
-                
-                if (idx < activeStep) {
-                  statusClass = 'step completed'
-                  bulletIcon = (
-                    <svg fill="none" stroke="var(--success)" strokeWidth="3" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', flexShrink: 0, marginTop: '0.1rem' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  )
-                } else if (idx === activeStep) {
-                  statusClass = 'step active'
-                  bulletIcon = (
-                    <svg fill="none" stroke="var(--primary)" strokeWidth="3" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', flexShrink: 0, marginTop: '0.1rem' }}>
-                      <circle cx="12" cy="12" r="9" />
-                      <circle cx="12" cy="12" r="3" fill="var(--primary)" />
-                    </svg>
-                  )
-                }
-                
+                const isCompleted = idx < activeStep
+                const isActive = idx === activeStep
+
                 return (
-                  <div key={idx} className={statusClass} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem' }}>
-                    {bulletIcon}
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0.85rem 1.1rem',
+                      background: isActive ? 'var(--surface)' : isCompleted ? 'rgba(16, 185, 129, 0.04)' : 'rgba(0,0,0,0.015)',
+                      border: `1px solid ${isActive ? 'var(--primary)' : isCompleted ? 'rgba(16, 185, 129, 0.3)' : 'var(--border)'}`,
+                      borderRadius: '14px',
+                      opacity: !isActive && !isCompleted ? 0.6 : 1,
+                      transition: 'all 0.3s ease',
+                      transform: isActive ? 'scale(1.01)' : 'none',
+                      boxShadow: isActive ? '0 4px 16px rgba(230, 60, 28, 0.12)' : 'none'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                      {/* Step Status Badge */}
+                      <div
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '10px',
+                          background: isCompleted ? 'rgba(16, 185, 129, 0.15)' : isActive ? 'rgba(230, 60, 28, 0.15)' : 'var(--surface)',
+                          border: `1px solid ${isCompleted ? 'rgba(16, 185, 129, 0.3)' : isActive ? 'rgba(230, 60, 28, 0.3)' : 'var(--border)'}`,
+                          display: 'grid',
+                          placeItems: 'center',
+                          flexShrink: 0
+                        }}
+                      >
+                        {isCompleted ? (
+                          <svg fill="none" stroke="var(--success)" strokeWidth="3" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
+                            <polyline points="20 6 9 17 4 12" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        ) : isActive ? (
+                          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)' }} />
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--muted)' }}>{idx + 1}</span>
+                        )}
+                      </div>
+
+                      {/* Step Details */}
+                      <div>
+                        <strong style={{ display: 'block', fontSize: '0.92rem', color: 'var(--text)', fontWeight: isActive ? 850 : 750 }}>
+                          {step.title}
+                        </strong>
+                        <span style={{ fontSize: '0.8rem', color: isActive ? 'var(--primary)' : 'var(--muted)', fontWeight: isActive ? 700 : 500 }}>
+                          {step.detail}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right Action Badge */}
                     <div>
-                      <strong style={{ display: 'block', fontSize: '0.95rem' }}>{step.title}</strong>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>{step.detail}</span>
+                      {isCompleted && (
+                        <span style={{ fontSize: '0.66rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.25)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                          DONE
+                        </span>
+                      )}
+                      {isActive && (
+                        <span style={{ fontSize: '0.66rem', fontWeight: 850, color: 'var(--primary)', background: 'rgba(230, 60, 28, 0.12)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid rgba(230, 60, 28, 0.25)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                          PROCESSING
+                        </span>
+                      )}
+                      {!isCompleted && !isActive && (
+                        <span style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                          QUEUED
+                        </span>
+                      )}
                     </div>
                   </div>
                 )

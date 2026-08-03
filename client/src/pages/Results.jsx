@@ -2,15 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
-import Badge from '../components/ui/Badge'
 import Spinner from '../components/ui/Spinner'
 import { getMockScanResult } from '../services/scannerService'
-
-const toneMap = {
-  low: 'low',
-  medium: 'medium',
-  high: 'high',
-}
 
 export default function Results() {
   const { id } = useParams()
@@ -76,98 +69,219 @@ export default function Results() {
 
   const metrics = getSubMetrics()
 
+  const isHigh = result.riskLevel === 'high'
+  const isMedium = result.riskLevel === 'medium'
+  const themeColor = isHigh ? 'var(--danger)' : isMedium ? 'var(--warning)' : 'var(--success)'
+  const themeBg = isHigh ? 'rgba(239, 68, 68, 0.1)' : isMedium ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)'
+  const themeBorder = isHigh ? 'rgba(239, 68, 68, 0.25)' : isMedium ? 'rgba(245, 158, 11, 0.25)' : 'rgba(16, 185, 129, 0.25)'
+
   return (
     <PageContainer>
-      <section className="results-card">
-        <div className="results-card__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
-          <div>
-            <Badge tone={toneMap[result.riskLevel] || 'neutral'}>{result.riskLevel.toUpperCase()} RISK</Badge>
-            <h1>{result.riskScore}% scam risk</h1>
-            <p className="hero-text" style={{ margin: '0.4rem 0 0' }}>SafeLens analyzed this content and mapped potential danger indices.</p>
-          </div>
-          <div className="score-ring" style={{ background: result.riskLevel === 'high' ? '#fee2e2' : result.riskLevel === 'medium' ? '#fef3c7' : '#dcfce7' }}>
-            <span style={{ color: result.riskLevel === 'high' ? 'var(--danger)' : result.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)', fontSize: '1.8rem' }}>
-              {result.riskScore}%
-            </span>
+      <section className="results-card" style={{ width: '100%' }}>
+        
+        {/* Hero Score & Header */}
+        <div 
+          className="scanner-card animate-fade-in"
+          style={{
+            padding: '1.8rem',
+            background: 'var(--surface-alt)',
+            border: '1px solid var(--border)',
+            borderRadius: '24px',
+            marginBottom: '1.6rem',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.04)'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.4rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
+                <span style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 900,
+                  color: themeColor,
+                  background: themeBg,
+                  border: `1px solid ${themeBorder}`,
+                  padding: '0.2rem 0.65rem',
+                  borderRadius: '999px',
+                  letterSpacing: '0.04em'
+                }}>
+                  {result.riskLevel.toUpperCase()} RISK
+                </span>
+                <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 650 }}>
+                  SafeLens AI Threat Engine
+                </span>
+              </div>
+
+              <h1 style={{ fontSize: '2.4rem', fontWeight: 900, margin: '0 0 0.3rem 0', color: 'var(--text)', lineHeight: 1.1 }}>
+                {result.riskScore}% Scam Risk
+              </h1>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--muted)', fontWeight: 500 }}>
+                SafeLens evaluated risk signals, urgency hooks, and vector patterns.
+              </p>
+            </div>
+
+            {/* Score Ring */}
+            <div style={{
+              width: '94px',
+              height: '94px',
+              borderRadius: '50%',
+              background: themeBg,
+              border: `3px solid ${themeColor}`,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 8px 24px ${themeBg}`,
+              flexShrink: 0
+            }}>
+              <span style={{ color: themeColor, fontSize: '1.85rem', fontWeight: 900, lineHeight: 1 }}>
+                {result.riskScore}%
+              </span>
+              <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', marginTop: '2px' }}>
+                Threat Index
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="results-grid">
-          <article className="info-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <h3 style={{ color: 'var(--primary)', marginBottom: '0.6rem' }}>Verdict Summary</h3>
-            <p style={{ margin: 0, fontSize: '0.95rem' }}>{result.summary}</p>
-          </article>
+        {/* 4 Core Analysis Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.2rem', marginBottom: '1.6rem' }}>
           
-          <article className="info-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <h3 style={{ color: 'var(--primary)', marginBottom: '0.6rem' }}>Red Flags</h3>
-            <ul className="bullet-list" style={{ paddingLeft: '1.2rem', margin: 0 }}>
+          {/* Card 1: Verdict Summary */}
+          <div className="dash-stat-card" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '18px', padding: '1.3rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 850, color: 'var(--text)' }}>
+                Verdict Summary
+              </h3>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.5, fontWeight: 500 }}>
+              {result.summary}
+            </p>
+          </div>
+
+          {/* Card 2: Red Flags */}
+          <div className="dash-stat-card" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '18px', padding: '1.3rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--danger)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+              </div>
+              <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 850, color: 'var(--text)' }}>
+                Red Flags
+              </h3>
+            </div>
+            <ul style={{ paddingLeft: '1rem', margin: 0, fontSize: '0.83rem', color: 'var(--muted)', lineHeight: 1.45 }}>
               {result.redFlags.map((flag) => (
-                <li key={flag} style={{ fontSize: '0.92rem', marginBottom: '0.3rem' }}>{flag}</li>
+                <li key={flag} style={{ marginBottom: '0.3rem', fontWeight: 500 }}>{flag}</li>
               ))}
             </ul>
-          </article>
+          </div>
 
-          <article className="info-card animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <h3 style={{ color: 'var(--primary)', marginBottom: '0.6rem' }}>Technical Explanation</h3>
-            <p style={{ margin: 0, fontSize: '0.95rem' }}>{result.explanation}</p>
-          </article>
+          {/* Card 3: Technical Explanation */}
+          <div className="dash-stat-card" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '18px', padding: '1.3rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--warning)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" strokeLinecap="round" />
+                  <circle cx="12" cy="8" r="1" fill="currentColor" />
+                </svg>
+              </div>
+              <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 850, color: 'var(--text)' }}>
+                Technical Explanation
+              </h3>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.5, fontWeight: 500 }}>
+              {result.explanation}
+            </p>
+          </div>
 
-          <article className="info-card animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <h3 style={{ color: 'var(--primary)', marginBottom: '0.6rem' }}>Actionable Guidance</h3>
-            <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 500 }}>{result.recommendation}</p>
-          </article>
+          {/* Card 4: Actionable Guidance */}
+          <div className="dash-stat-card" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '18px', padding: '1.3rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+              <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--success)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" />
+                </svg>
+              </div>
+              <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 850, color: 'var(--text)' }}>
+                Actionable Guidance
+              </h3>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.5, fontWeight: 700 }}>
+              {result.recommendation}
+            </p>
+          </div>
+
         </div>
 
-        {/* Detailed Threat Breakdowns */}
-        <div className="breakdown-section animate-fade-in">
-          <h3 style={{ margin: '0 0 0.8rem', fontSize: '1.1rem' }}>Threat Assessment Breakdown</h3>
-          <div className="breakdown-grid">
-            <div className="breakdown-item">
-              <div className="breakdown-label">Urgency & Coercion</div>
-              <div className="breakdown-value" style={{ color: metrics.urgency === 'High' ? 'var(--danger)' : metrics.urgency === 'Medium' ? 'var(--warning)' : 'var(--success)' }}>
+        {/* Threat Assessment Breakdown */}
+        <div style={{ padding: '1.4rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '20px', marginBottom: '1.6rem' }}>
+          <h3 style={{ margin: '0 0 0.9rem 0', fontSize: '1.05rem', fontWeight: 850, color: 'var(--text)' }}>
+            Threat Assessment Breakdown
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.9rem' }}>
+            
+            <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>
+                Urgency &amp; Coercion
+              </span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 900, color: metrics.urgency === 'High' ? 'var(--danger)' : metrics.urgency === 'Medium' ? 'var(--warning)' : 'var(--success)' }}>
                 {metrics.urgency}
-              </div>
+              </span>
             </div>
-            <div className="breakdown-item">
-              <div className="breakdown-label">Financial Demands</div>
-              <div className="breakdown-value" style={{ color: metrics.finance === 'High' ? 'var(--danger)' : metrics.finance === 'Medium' ? 'var(--warning)' : 'var(--success)' }}>
+
+            <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>
+                Financial Demands
+              </span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 900, color: metrics.finance === 'High' ? 'var(--danger)' : metrics.finance === 'Medium' ? 'var(--warning)' : 'var(--success)' }}>
                 {metrics.finance}
-              </div>
+              </span>
             </div>
-            <div className="breakdown-item">
-              <div className="breakdown-label">Sender Authenticity</div>
-              <div className="breakdown-value" style={{ color: metrics.sender === 'Unverified' ? 'var(--danger)' : metrics.sender === 'Suspicious' ? 'var(--warning)' : 'var(--success)' }}>
+
+            <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>
+                Sender Authenticity
+              </span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 900, color: metrics.sender === 'Unverified' ? 'var(--danger)' : metrics.sender === 'Suspicious' ? 'var(--warning)' : 'var(--success)' }}>
                 {metrics.sender}
-              </div>
+              </span>
             </div>
+
           </div>
         </div>
 
-        {/* Matched Ghana Threat Vector & Category Likelihood Breakdown */}
+        {/* AI Detected Threat & Vector Breakdown */}
         {result.vectorBreakdown && result.vectorBreakdown.length > 0 && (
-          <div className="info-card animate-fade-in" style={{ marginTop: '1.5rem', border: '1px solid var(--border)', background: 'var(--surface-alt)', padding: '1.4rem', borderRadius: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.8rem' }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)', fontWeight: 900 }}>
+          <div style={{ padding: '1.5rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '20px', marginBottom: '1.6rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text)', fontWeight: 900 }}>
                 AI Detected Threat &amp; Vector Breakdown
               </h3>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
                 {result.threatCategory || 'MoMo Transfer & Cashout Fraud'}
               </span>
             </div>
 
-            <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: '0 0 1rem 0', lineHeight: 1.45 }}>
-              SafeLens AI evaluated your submitted {result.type || 'content'} (link, email, SMS text, or screenshot) to show the percentage likelihood of whether it was MoMo fraud, fake job lure, phishing/spoofed website, or impersonation scam:
+            <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: '0 0 1rem 0', lineHeight: 1.45 }}>
+              SafeLens AI evaluated your submitted content to show category likelihood ratios across major fraud vectors:
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {result.vectorBreakdown.map((vec) => (
                 <div key={vec.name} style={{ background: 'var(--surface)', padding: '0.75rem 0.9rem', borderRadius: '12px', border: vec.match ? '1px solid var(--primary)' : '1px solid var(--border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.82rem', fontWeight: 700 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.82rem', fontWeight: 750 }}>
                     <span style={{ color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                       {vec.match && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--danger)' }} />}
                       {vec.name}
                     </span>
-                    <span style={{ color: vec.match ? 'var(--danger)' : 'var(--muted)', fontWeight: 800 }}>
+                    <span style={{ color: vec.match ? 'var(--danger)' : 'var(--muted)', fontWeight: 850 }}>
                       {vec.percentage}% Likelihood {vec.match ? '(Primary Match)' : ''}
                     </span>
                   </div>
@@ -180,50 +294,93 @@ export default function Results() {
           </div>
         )}
 
-        {/* WhatsApp & Family Share Builder */}
-        <div className="info-card animate-fade-in" style={{ marginTop: '2rem', border: '1px solid var(--border)', background: 'var(--surface-alt)' }}>
-          <h3 style={{ color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: 0, marginBottom: '0.5rem' }}>
-            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.15rem', height: '1.15rem', display: 'inline-block' }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+        {/* WhatsApp & Community Protection Alert Builder */}
+        <div style={{ padding: '1.5rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '20px', marginBottom: '1.6rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: '#25D366' }}>
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
             </svg>
-            Share with Family & Friends
-          </h3>
-          <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem', color: 'var(--muted)' }}>
-            Scammers often target multiple contacts. Alert your friends on WhatsApp so they do not fall victim.
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: 'var(--text)' }}>
+              Share with Family &amp; Friends
+            </h3>
+          </div>
+          <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.84rem', color: 'var(--muted)' }}>
+            Scammers often target multiple contacts in Ghana. Alert your friends on WhatsApp so they stay protected.
           </p>
-          <div style={{ background: 'var(--surface)', padding: '0.8rem', borderRadius: '0.5rem', fontSize: '0.88rem', border: '1px solid var(--border)', fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: 'var(--text)', marginBottom: '1rem' }}>
+
+          <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', fontSize: '0.84rem', border: '1px solid var(--border)', fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: 'var(--text)', marginBottom: '1rem', lineHeight: 1.45 }}>
             {shareText}
           </div>
+
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <Button
-              as="a"
+            <a
               href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`}
               target="_blank"
               rel="noopener noreferrer"
-              variant="primary"
-              style={{ background: '#25D366', borderColor: '#25D366' }}
+              style={{
+                textDecoration: 'none',
+                background: '#25D366',
+                color: '#ffffff',
+                fontWeight: 850,
+                fontSize: '0.84rem',
+                padding: '0.6rem 1.2rem',
+                borderRadius: '10px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 4px 12px rgba(37, 211, 102, 0.25)'
+              }}
             >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.301-.15-1.785-.881-2.062-.982-.276-.101-.477-.15-.678.15-.2.301-.777.982-.953 1.183-.175.201-.351.226-.652.075-1.832-.917-3.037-1.633-4.242-3.702-.321-.552.322-.513.921-1.712.1-.201.05-.376-.025-.526-.075-.15-.678-1.631-.93-2.238-.244-.588-.493-.508-.678-.517-.175-.008-.376-.01-.576-.01-.201 0-.527.075-.803.376-.276.301-1.054 1.03-1.054 2.513 0 1.483 1.079 2.912 1.229 3.113.15.201 2.124 3.243 5.144 4.551 2.551 1.106 3.072.885 3.624.835.552-.05 1.784-.728 2.035-1.432.251-.703.251-1.306.176-1.432-.075-.126-.276-.201-.577-.352z"/>
+              </svg>
               Send on WhatsApp
-            </Button>
-            <Button variant="ghost" style={{ background: 'white' }} onClick={copyShareText}>
-              {copiedAlert ? 'Copied alert text!' : 'Copy alert text'}
-            </Button>
+            </a>
+
+            <button
+              onClick={copyShareText}
+              style={{
+                border: '1px solid var(--border)',
+                background: 'var(--surface)',
+                color: 'var(--text)',
+                fontSize: '0.84rem',
+                fontWeight: 800,
+                padding: '0.6rem 1.1rem',
+                borderRadius: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              {copiedAlert ? 'Copied alert text!' : 'Copy Alert Text'}
+            </button>
           </div>
         </div>
 
-        <div className="actions-row" style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-          <Button onClick={() => navigate('/scan')}>Scan Another message</Button>
-          <Button variant="secondary" onClick={() => setIsReportModalOpen(true)}>Report This Scam</Button>
-          <Button variant="ghost" onClick={copyReport}>{copied ? 'Report Copied!' : 'Copy Full Report'}</Button>
+        {/* Action Toolbar */}
+        <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', marginBottom: '1.6rem' }}>
+          <Button onClick={() => navigate('/scan')} style={{ padding: '0.65rem 1.3rem', fontSize: '0.88rem' }}>
+            Scan Another Message
+          </Button>
+          <Button variant="secondary" onClick={() => setIsReportModalOpen(true)} style={{ padding: '0.65rem 1.3rem', fontSize: '0.88rem' }}>
+            Report This Scam (CSA 292)
+          </Button>
+          <Button variant="ghost" onClick={copyReport} style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.65rem 1.1rem', fontSize: '0.88rem' }}>
+            {copied ? 'Report Copied!' : 'Copy Full Report'}
+          </Button>
         </div>
 
-        <div className="info-card original-content-card animate-fade-in" style={{ marginTop: '2rem', background: '#f8fafc' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '0.5rem', color: 'var(--muted)' }}>Analyzed Content Source</h3>
-          <p style={{ margin: 0, fontStyle: 'italic', color: '#334155' }}>&ldquo;{result.originalContent}&rdquo;</p>
+        {/* Analyzed Source Box */}
+        <div style={{ padding: '1.2rem 1.4rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '16px' }}>
+          <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '0.82rem', color: 'var(--muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Analyzed Content Source
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text)', fontWeight: 650, fontStyle: 'italic', wordBreak: 'break-word', lineHeight: 1.45 }}>
+            &ldquo;{result.originalContent}&rdquo;
+          </p>
         </div>
+
       </section>
 
-      {/* Ghana scam reporting modal wizard */}
+      {/* Ghana Scam Reporting Modal Wizard */}
       {isReportModalOpen && (
         <div className="modal-overlay" onClick={() => setIsReportModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

@@ -86,6 +86,13 @@ const saveHistory = () => {
 
 function buildResult({ type = 'message', input = '', riskLevel = '' }) {
   const cleaned = input.trim()
+  let finalRiskLevel = riskLevel || ''
+  let riskScore = 0
+  let summary = ''
+  let redFlags = []
+  let explanation = ''
+  let recommendation = ''
+
   let threatCategory = 'MoMo Transfer & Cashout Fraud'
   let vectorBreakdown = [
     { name: 'MoMo Transfer & Cashout Fraud', percentage: 92, match: true, color: 'var(--danger)' },
