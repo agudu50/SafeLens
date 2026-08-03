@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
+import SecurityChatbot from '../components/SecurityChatbot'
 import { getScanHistory } from '../services/scannerService'
 
 const graphData = [
@@ -1110,6 +1111,7 @@ export default function Dashboard({ user }) {
           </div>
         </section>
       </div>
+      <SecurityChatbot user={user} />
     </PageContainer>
   )
 }
