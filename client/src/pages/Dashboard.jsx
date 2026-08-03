@@ -45,6 +45,7 @@ export default function Dashboard({ user }) {
   const [hoveredBar, setHoveredBar] = useState(null)
   const [activeFilter, setActiveFilter] = useState('all') // 'all', 'link', 'screenshot', 'message', 'email'
   const [currentTickerIdx, setCurrentTickerIdx] = useState(0)
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   // Interactive Security Checklist state
   const [checklist, setChecklist] = useState([
@@ -67,6 +68,33 @@ export default function Dashboard({ user }) {
     }, 4500)
     return () => clearInterval(timer)
   }, [])
+
+  useEffect(() => {
+    const clockTimer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 10000)
+    return () => clearInterval(clockTimer)
+  }, [])
+
+  // Dynamic Time-of-day greeting calculation
+  const getGreeting = () => {
+    const hour = currentTime.getHours()
+    if (hour < 12) return 'Good Morning'
+    if (hour < 17) return 'Good Afternoon'
+    return 'Good Evening'
+  }
+
+  // Format live date and time
+  const formattedDate = currentTime.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  })
+
+  const formattedTimeStr = currentTime.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 
   // Calculate dynamic security metrics
   const readinessScore = checklist.reduce((acc, item) => item.checked ? acc + item.weight : acc, 0)
@@ -109,7 +137,7 @@ export default function Dashboard({ user }) {
   return (
     <PageContainer>
       <div className="dash-container">
-        {/* Keyframe Animations Injection for Live Threat Radar */}
+        {/* Keyframe Animations Injection & Mobile Overrides */}
         <style>{`
           @keyframes radarSweep {
             0% { transform: rotate(0deg); }
@@ -132,6 +160,37 @@ export default function Dashboard({ user }) {
             transform-origin: 22px 22px;
             animation: radarPulse 2s ease-in-out infinite;
           }
+
+          @media (max-width: 640px) {
+            .dash-hero-card {
+              padding: 1.2rem 1rem !important;
+            }
+            .dash-hero-title {
+              font-size: 1.45rem !important;
+            }
+            .dash-hero-btn {
+              width: 100% !important;
+              justify-content: center !important;
+              margin-top: 0.4rem !important;
+            }
+            .ticker-top-bar {
+              padding: 0.55rem 0.85rem !important;
+            }
+            .ticker-row-responsive {
+              padding: 0.75rem 0.85rem !important;
+              flex-direction: column !important;
+              align-items: flex-start !important;
+              gap: 0.75rem !important;
+            }
+            .ticker-right-controls {
+              width: 100% !important;
+              justify-content: space-between !important;
+            }
+            .ticker-badge-text {
+              font-size: 0.68rem !important;
+              padding: 0.35rem 0.65rem !important;
+            }
+          }
         `}</style>
 
         {/* Live Threat Radar Sweep HUD Card */}
@@ -141,100 +200,48 @@ export default function Dashboard({ user }) {
             marginBottom: '1.4rem', 
             background: 'var(--surface-alt)', 
             border: '1px solid var(--border)',
-            borderRadius: '16px',
+            borderRadius: '18px',
             overflow: 'hidden',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.04)'
+            boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
           }}
         >
           {/* ── Safety Header Bar ── */}
-          <div style={{
+          <div className="ticker-top-bar" style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.6rem',
-            padding: '0.6rem 1.2rem',
+            gap: '0.5rem',
+            padding: '0.65rem 1rem',
             background: 'rgba(220, 38, 38, 0.04)',
-            borderBottom: '1px solid rgba(220, 38, 38, 0.1)'
+            borderBottom: '1px solid rgba(220, 38, 38, 0.1)',
+            flexWrap: 'wrap'
           }}>
             {/* Left: Shield icon + label */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(220,38,38,0.08)"/>
-                <polyline points="9 12 11 14 15 10" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--danger)', flexShrink: 0 }}>
+                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(220,38,38,0.08)"/>
+                <polyline points="9 12 11 14 15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 850, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                 SafeLens Active Monitoring
               </span>
-              <span style={{ width: '1px', height: '12px', background: 'rgba(220,38,38,0.2)', display: 'inline-block' }} />
-              <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 600 }}>Ghana Threat Feed</span>
             </div>
 
             {/* Right: Stats pills */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              {/* Scans stat */}
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.68rem', fontWeight: 700, color: 'var(--muted)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.2rem 0.55rem' }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--muted)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.18rem 0.5rem', whiteSpace: 'nowrap' }}>
                 264 Scans Today
               </span>
-              {/* Active shield stat */}
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.68rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', borderRadius: '6px', padding: '0.2rem 0.55rem' }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="currentColor" strokeWidth="2" fill="rgba(16,185,129,0.1)"/>
-                </svg>
+              <span style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', borderRadius: '6px', padding: '0.18rem 0.5rem', whiteSpace: 'nowrap' }}>
                 4 Shields Active
               </span>
             </div>
           </div>
 
-          {/* ── Ticker Row ── */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '1rem',
-            flexWrap: 'wrap',
-            padding: '0.75rem 1.2rem'
-          }}>
-            {/* Left: Radar + Threat Details */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-              <div style={{ position: 'relative', width: '44px', height: '44px', background: 'rgba(220, 38, 38, 0.05)', borderRadius: '50%', border: '1.5px solid rgba(220, 38, 38, 0.15)', display: 'grid', placeItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                <svg width="44" height="44" viewBox="0 0 44 44" style={{ position: 'absolute', top: 0, left: 0 }}>
-                  <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
-                  <circle cx="22" cy="22" r="10" fill="none" stroke="rgba(220, 38, 38, 0.08)" strokeWidth="1" />
-                  <circle cx="22" cy="22" r="15" fill="none" stroke="rgba(220, 38, 38, 0.25)" strokeWidth="1.5" className="radar-pulse-ring" />
-                  <line x1="22" y1="2" x2="22" y2="42" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
-                  <line x1="2" y1="22" x2="42" y2="22" stroke="rgba(220, 38, 38, 0.1)" strokeWidth="1" />
-                  <line x1="22" y1="22" x2="22" y2="3" stroke="var(--danger)" strokeWidth="1.5" strokeLinecap="round" className="radar-sweep-line" />
-                  <circle cx="22" cy="22" r="2.5" fill="var(--danger)" />
-                </svg>
-              </div>
-
-              <div key={currentTickerIdx} className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                {/* Top row: badge label + time */}
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block' }} className="live-pulse-dot" />
-                    IMPORTANT SECURITY PROMPT
-                  </span>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 650 }}>{tickerReports[currentTickerIdx].time}</span>
-                </div>
-
-                {/* Bottom row: prompt text */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.88rem', color: 'var(--text)', fontWeight: 750, lineHeight: 1.35 }}>
-                    {tickerReports[currentTickerIdx].prompt}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: High-contrast crisp priority badge + nav controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+          {/* ── Ticker Main Body ── */}
+          <div style={{ padding: '0.9rem 1rem' }}>
+            {/* Top row: Priority badge on Left | Timestamp + Nav on Right */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.75rem' }}>
               <span 
                 key={`badge-${currentTickerIdx}`}
                 className="animate-fade-in"
@@ -243,23 +250,22 @@ export default function Dashboard({ user }) {
                     ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
                     : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                   color: '#ffffff',
-                  border: 'none',
-                  padding: '0.42rem 0.85rem',
-                  borderRadius: '8px',
-                  fontSize: '0.74rem',
+                  padding: '0.28rem 0.7rem',
+                  borderRadius: '6px',
+                  fontSize: '0.68rem',
                   fontWeight: 900,
-                  letterSpacing: '0.06em',
+                  letterSpacing: '0.05em',
                   textTransform: 'uppercase',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.35rem',
+                  gap: '0.3rem',
                   whiteSpace: 'nowrap',
                   boxShadow: tickerReports[currentTickerIdx].priority === 'CRITICAL' 
-                    ? '0 2px 10px rgba(239, 68, 68, 0.35)' 
-                    : '0 2px 10px rgba(245, 158, 11, 0.35)'
+                    ? '0 2px 8px rgba(239, 68, 68, 0.3)' 
+                    : '0 2px 8px rgba(245, 158, 11, 0.3)'
                 }}
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
                   <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(255,255,255,0.2)"/>
                   <line x1="12" y1="9" x2="12" y2="13" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round"/>
                   <circle cx="12" cy="17" r="1" fill="#ffffff"/>
@@ -267,61 +273,119 @@ export default function Dashboard({ user }) {
                 {tickerReports[currentTickerIdx].priority} ADVISORY
               </span>
 
-              {/* Pagination nav */}
-              <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '1px' }}>
-                <button 
-                  onClick={() => setCurrentTickerIdx(prev => (prev - 1 + tickerReports.length) % tickerReports.length)}
-                  style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.15s ease' }}
-                  title="Previous Intercept"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <polyline points="15 18 9 12 15 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                <button 
-                  onClick={() => setCurrentTickerIdx(prev => (prev + 1) % tickerReports.length)}
-                  style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.15s ease' }}
-                  title="Next Intercept"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 650, whiteSpace: 'nowrap' }}>
+                  {tickerReports[currentTickerIdx].time}
+                </span>
+
+                {/* Prev / Next controls */}
+                <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', padding: '1px' }}>
+                  <button 
+                    onClick={() => setCurrentTickerIdx(prev => (prev - 1 + tickerReports.length) % tickerReports.length)}
+                    style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '5px', transition: 'background 0.15s ease' }}
+                    title="Previous Intercept"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <polyline points="15 18 9 12 15 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <button 
+                    onClick={() => setCurrentTickerIdx(prev => (prev + 1) % tickerReports.length)}
+                    style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '5px', transition: 'background 0.15s ease' }}
+                    title="Next Intercept"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
+
+            {/* Prompt text box - beautifully structured */}
+            <div 
+              key={currentTickerIdx} 
+              className="animate-fade-in" 
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '12px',
+                padding: '0.8rem 1rem'
+              }}
+            >
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block' }} className="live-pulse-dot" />
+                <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  IMPORTANT SECURITY PROMPT
+                </span>
+              </div>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text)', fontWeight: 750, margin: 0, lineHeight: 1.45 }}>
+                {tickerReports[currentTickerIdx].prompt}
+              </p>
           </div>
         </div>
+      </div>
 
         {/* Dashboard Header Bar */}
         <section
           className="dash-hero-card animate-fade-in"
           style={{
             background: 'var(--surface-alt)',
-            padding: '1.6rem 1.4rem',
+            padding: '1.8rem 1.6rem',
             marginBottom: '1.5rem',
             borderRadius: '20px',
-            border: '1px solid var(--border)'
+            border: '1px solid var(--border)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.2rem' }}>
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
-                <span className="live-pulse-dot" style={{ width: '8px', height: '8px', background: 'var(--success)' }} />
-                <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  REAL-TIME SECURITY COMMAND CENTER
-                </span>
+              {/* Status indicator + Live Clock badge */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '0.45rem' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <span className="live-pulse-dot" style={{ width: '8px', height: '8px', background: 'var(--success)' }} />
+                  <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    REAL-TIME SECURITY COMMAND CENTER
+                  </span>
+                </div>
+                <span style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>•</span>
+                {/* Live Clock Badge */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '6px',
+                  padding: '0.2rem 0.6rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  color: 'var(--text)'
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <polyline points="12 6 12 12 16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                  <span>{formattedDate}</span>
+                  <span style={{ color: 'var(--muted)', opacity: 0.6 }}>|</span>
+                  <span style={{ color: 'var(--primary)' }}>{formattedTimeStr}</span>
+                </div>
               </div>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
-                Security Command Center
+
+              {/* Main Heading with Time-based Greeting & User Name */}
+              <h1 className="dash-hero-title" style={{ fontSize: '1.85rem', fontWeight: 900, margin: '0 0 0.35rem 0', color: 'var(--text)', lineHeight: 1.2 }}>
+                {getGreeting()}, <span style={{ color: 'var(--primary)' }}>{user?.name ? user.name.split(' ')[0] : 'Kofi'}</span>
               </h1>
-              <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: 0 }}>
-                Welcome back, {user?.name ? user.name.split(' ')[0] : 'Kofi'}! Monitor threat activity, check vulnerability status, and run instant AI audits.
+
+              {/* Subtitle */}
+              <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: 0, lineHeight: 1.5, maxWidth: '640px' }}>
+                Welcome back to your security command center. Monitor threat activity, check vulnerability status, and run instant AI audits.
               </p>
             </div>
 
             <Link
               to="/scan"
-              className="button-primary"
+              className="button-primary dash-hero-btn"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
