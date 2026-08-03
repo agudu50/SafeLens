@@ -1024,45 +1024,42 @@ export default function Dashboard({ user }) {
                       gap: '0.55rem'
                     }}
                   >
-                    {/* Scanned text content - readable with multi-line clamp & word break */}
+                    {/* Scanned text content - fully visible with clean line-height and word break */}
                     <Link
                       to="/history"
                       style={{
                         textDecoration: 'none',
                         margin: 0,
-                        fontSize: '0.86rem',
-                        fontWeight: 700,
+                        fontSize: '0.88rem',
+                        fontWeight: 750,
                         color: 'var(--text)',
-                        lineHeight: 1.45,
-                        wordBreak: 'break-word',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden'
+                        lineHeight: 1.5,
+                        wordBreak: 'break-word'
                       }}
                     >
                       &ldquo;{item.originalContent}&rdquo;
                     </Link>
 
                     {/* Metadata row: Category, timestamp, risk badge, audit link to history */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.35rem', borderTop: '1px dashed var(--border)' }}>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border)' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.74rem', color: 'var(--text)', fontWeight: 700 }}>
                           {item.threatCategory || 'MoMo Transfer & Cashout Fraud'}
                         </span>
                         <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>
-                        <span style={{ fontSize: '0.73rem', color: 'var(--muted)' }}>{item.submittedAt || 'Recently'}</span>
+                        <span style={{ fontSize: '0.73rem', color: 'var(--muted)', fontWeight: 600 }}>{item.submittedAt || 'Recently'}</span>
                       </div>
 
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}>
                         <span
                           style={{
                             fontSize: '0.7rem',
-                            fontWeight: 800,
+                            fontWeight: 850,
                             color: item.riskLevel === 'high' ? 'var(--danger)' : item.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)',
                             background: item.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                            border: `1px solid ${item.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.25)' : item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`,
                             padding: '0.2rem 0.6rem',
-                            borderRadius: '999px',
+                            borderRadius: '8px',
                             whiteSpace: 'nowrap'
                           }}
                         >
@@ -1070,7 +1067,7 @@ export default function Dashboard({ user }) {
                         </span>
                         <Link
                           to="/history"
-                          style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}
+                          style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 850, textDecoration: 'none' }}
                         >
                           Audit &rarr;
                         </Link>
