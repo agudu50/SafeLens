@@ -749,205 +749,217 @@ export default function Dashboard({ user }) {
         {/* FEATURE 2 GRID: Scam Type Donut / Pie Chart & Recent Audit Trail */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-2">
           {/* Card A: Scam Type distribution with Donut Pie Chart option */}
-          <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                AI Detected Scam &amp; Threat Vectors in Ghana
-              </h3>
-              
-              {/* Toggler button group */}
-              <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '2px' }}>
-                <button 
-                  onClick={() => setChartView('bars')}
-                  style={{
-                    border: 'none',
-                    background: chartView === 'bars' ? 'var(--primary)' : 'transparent',
-                    color: chartView === 'bars' ? '#fff' : 'var(--text)',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  List
-                </button>
-                <button 
-                  onClick={() => setChartView('donut')}
-                  style={{
-                    border: 'none',
-                    background: chartView === 'donut' ? 'var(--primary)' : 'transparent',
-                    color: chartView === 'donut' ? '#fff' : 'var(--text)',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  Pie
-                </button>
-              </div>
-            </div>
-
-            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 1rem 0', lineHeight: 1.4 }}>
-              Scam threat distribution analysis from submitted links, emails, and screenshots:
-            </p>
-
-            {chartView === 'bars' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {slices.map((vec, idx) => {
-                  const isHovered = hoveredSlice === idx
-                  return (
-                    <div 
-                      key={vec.name}
-                      onMouseEnter={() => setHoveredSlice(idx)}
-                      onMouseLeave={() => setHoveredSlice(null)}
-                      style={{ 
-                        background: isHovered ? 'var(--surface)' : 'var(--surface-alt)',
-                        border: `1px solid ${isHovered ? vec.color : 'var(--border)'}`,
-                        padding: '0.65rem 0.85rem',
-                        borderRadius: '12px',
-                        opacity: hoveredSlice !== null && !isHovered ? 0.45 : 1,
-                        transform: isHovered ? 'translateY(-2px)' : 'none',
-                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                        cursor: 'pointer',
-                        boxShadow: isHovered ? `0 4px 14px rgba(0,0,0,0.06)` : 'none'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                        <span style={{ color: 'var(--text)', fontSize: '0.84rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: vec.color, flexShrink: 0 }} />
-                          {vec.name}
-                        </span>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 850, color: vec.color, background: 'var(--surface)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                          {vec.percentage}% ({vec.count})
-                        </span>
-                      </div>
-                      <div style={{ width: '100%', height: '8px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                        <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px', transition: 'width 0.6s ease' }} />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1.6rem', padding: '0.6rem 0' }}>
-                {/* SVG Interactive Donut/Pie Chart */}
-                <div style={{ position: 'relative', width: '160px', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
-                    {slices.map((slice, idx) => {
-                      const isHovered = hoveredSlice === idx
-                      return (
-                        <circle
-                          key={slice.name}
-                          cx="65"
-                          cy="65"
-                          r={radius}
-                          fill="transparent"
-                          stroke={slice.color}
-                          strokeWidth={isHovered ? 14 : 10}
-                          strokeDasharray={slice.strokeDasharray}
-                          strokeDashoffset={slice.strokeDashoffset}
-                          style={{
-                            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                            cursor: 'pointer',
-                            filter: isHovered ? `drop-shadow(0 0 6px ${slice.color})` : 'none'
-                          }}
-                          onMouseEnter={() => setHoveredSlice(idx)}
-                          onMouseLeave={() => setHoveredSlice(null)}
-                        >
-                          <animate attributeName="stroke-dasharray" from={`0 ${circumference}`} to={slice.strokeDasharray} dur="0.6s" fill="freeze" />
-                        </circle>
-                      )
-                    })}
-                  </svg>
-                  
-                  {/* Dynamic Donut Center Details HUD */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    textAlign: 'center',
-                    pointerEvents: 'none',
-                    width: '92px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <span style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1 }}>
-                      {activeSliceInfo.percentage}%
-                    </span>
-                    <span style={{
-                      fontSize: '0.64rem',
-                      fontWeight: 850,
-                      color: activeSliceInfo.color,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.04em',
-                      marginTop: '3px',
-                      background: 'var(--surface)',
-                      padding: '0.1rem 0.4rem',
-                      borderRadius: '4px',
-                      border: `1px solid ${activeSliceInfo.color}`,
-                      lineHeight: 1.1,
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {{
-                        'MoMo Transfer & Cashout Fraud': 'MoMo Fraud',
-                        'Fake Job & Recruitment Lures': 'Fake Jobs',
-                        'Phishing Links & Spoofed Websites': 'Phishing',
-                        'Impersonation & Advance Fee Scams': 'Scams'
-                      }[activeSliceInfo.name] || 'Scams'}
-                    </span>
-                    <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--muted)', marginTop: '3px' }}>
-                      {activeSliceInfo.count.split(' ')[0]} Flags
-                    </span>
-                  </div>
+          <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                  AI Detected Scam &amp; Threat Vectors in Ghana
+                </h3>
+                
+                {/* Toggler button group */}
+                <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '2px' }}>
+                  <button 
+                    onClick={() => setChartView('bars')}
+                    style={{
+                      border: 'none',
+                      background: chartView === 'bars' ? 'var(--primary)' : 'transparent',
+                      color: chartView === 'bars' ? '#fff' : 'var(--text)',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    List
+                  </button>
+                  <button 
+                    onClick={() => setChartView('donut')}
+                    style={{
+                      border: 'none',
+                      background: chartView === 'donut' ? 'var(--primary)' : 'transparent',
+                      color: chartView === 'donut' ? '#fff' : 'var(--text)',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Pie
+                  </button>
                 </div>
+              </div>
 
-                {/* Human-Centered Donut Legend Cards */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1, minWidth: '200px' }}>
-                  {slices.map((slice, idx) => {
+              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 0.8rem 0', lineHeight: 1.4 }}>
+                Scam threat distribution analysis from submitted links, emails, and screenshots:
+              </p>
+
+              {/* Sub-header metric readout pill */}
+              <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.1)', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                  Total Cataloged Scams: 264
+                </span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                  Top Vector: MoMo Cashout (54%)
+                </span>
+              </div>
+
+              {chartView === 'bars' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                  {slices.map((vec, idx) => {
                     const isHovered = hoveredSlice === idx
                     return (
                       <div 
-                        key={slice.name}
+                        key={vec.name}
                         onMouseEnter={() => setHoveredSlice(idx)}
                         onMouseLeave={() => setHoveredSlice(null)}
                         style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between',
-                          gap: '0.6rem',
-                          padding: '0.5rem 0.75rem',
-                          background: isHovered ? 'var(--surface)' : 'rgba(0,0,0,0.015)',
-                          border: `1px solid ${isHovered ? slice.color : 'var(--border)'}`,
-                          borderRadius: '10px',
-                          opacity: hoveredSlice !== null && !isHovered ? 0.4 : 1,
-                          transform: isHovered ? 'translateX(4px)' : 'none',
-                          transition: 'all 0.2s ease',
-                          cursor: 'pointer'
+                          background: isHovered ? 'var(--surface)' : 'var(--surface-alt)',
+                          border: `1px solid ${isHovered ? vec.color : 'var(--border)'}`,
+                          padding: '0.75rem 0.95rem',
+                          borderRadius: '14px',
+                          opacity: hoveredSlice !== null && !isHovered ? 0.45 : 1,
+                          transform: isHovered ? 'translateY(-2px)' : 'none',
+                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                          cursor: 'pointer',
+                          boxShadow: isHovered ? `0 4px 14px rgba(0,0,0,0.06)` : 'none'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: slice.color, display: 'inline-block', flexShrink: 0 }} />
-                          <span style={{ color: 'var(--text)', fontSize: '0.78rem', fontWeight: 750 }}>
-                            {slice.name}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
+                          <span style={{ color: 'var(--text)', fontSize: '0.84rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: vec.color, flexShrink: 0 }} />
+                            {vec.name}
+                          </span>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 850, color: vec.color, background: 'var(--surface)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                            {vec.percentage}% ({vec.count})
                           </span>
                         </div>
-                        <span style={{ fontSize: '0.74rem', fontWeight: 850, color: slice.color, whiteSpace: 'nowrap', background: 'var(--surface)', padding: '0.1rem 0.45rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                          {slice.percentage}% ({slice.count.split(' ')[0]})
-                        </span>
+                        <div style={{ width: '100%', height: '8px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                          <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px', transition: 'width 0.6s ease' }} />
+                        </div>
                       </div>
                     )
                   })}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1.4rem', padding: '0.4rem 0' }}>
+                  {/* SVG Interactive Donut/Pie Chart */}
+                  <div style={{ position: 'relative', width: '165px', height: '165px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
+                      {slices.map((slice, idx) => {
+                        const isHovered = hoveredSlice === idx
+                        return (
+                          <circle
+                            key={slice.name}
+                            cx="65"
+                            cy="65"
+                            r={radius}
+                            fill="transparent"
+                            stroke={slice.color}
+                            strokeWidth={isHovered ? 14 : 10}
+                            strokeDasharray={slice.strokeDasharray}
+                            strokeDashoffset={slice.strokeDashoffset}
+                            style={{
+                              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                              cursor: 'pointer',
+                              filter: isHovered ? `drop-shadow(0 0 6px ${slice.color})` : 'none'
+                            }}
+                            onMouseEnter={() => setHoveredSlice(idx)}
+                            onMouseLeave={() => setHoveredSlice(null)}
+                          >
+                            <animate attributeName="stroke-dasharray" from={`0 ${circumference}`} to={slice.strokeDasharray} dur="0.6s" fill="freeze" />
+                          </circle>
+                        )
+                      })}
+                    </svg>
+                    
+                    {/* Dynamic Donut Center Details HUD */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center',
+                      pointerEvents: 'none',
+                      width: '92px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <span style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1 }}>
+                        {activeSliceInfo.percentage}%
+                      </span>
+                      <span style={{
+                        fontSize: '0.64rem',
+                        fontWeight: 850,
+                        color: activeSliceInfo.color,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        marginTop: '3px',
+                        background: 'var(--surface)',
+                        padding: '0.1rem 0.4rem',
+                        borderRadius: '4px',
+                        border: `1px solid ${activeSliceInfo.color}`,
+                        lineHeight: 1.1,
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {{
+                          'MoMo Transfer & Cashout Fraud': 'MoMo Fraud',
+                          'Fake Job & Recruitment Lures': 'Fake Jobs',
+                          'Phishing Links & Spoofed Websites': 'Phishing',
+                          'Impersonation & Advance Fee Scams': 'Scams'
+                        }[activeSliceInfo.name] || 'Scams'}
+                      </span>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--muted)', marginTop: '3px' }}>
+                        {activeSliceInfo.count.split(' ')[0]} Flags
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Human-Centered Donut Legend Cards */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', flex: 1, minWidth: '190px' }}>
+                    {slices.map((slice, idx) => {
+                      const isHovered = hoveredSlice === idx
+                      return (
+                        <div 
+                          key={slice.name}
+                          onMouseEnter={() => setHoveredSlice(idx)}
+                          onMouseLeave={() => setHoveredSlice(null)}
+                          style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between',
+                            gap: '0.6rem',
+                            padding: '0.6rem 0.8rem',
+                            background: isHovered ? 'var(--surface)' : 'rgba(0,0,0,0.015)',
+                            border: `1px solid ${isHovered ? slice.color : 'var(--border)'}`,
+                            borderRadius: '12px',
+                            opacity: hoveredSlice !== null && !isHovered ? 0.4 : 1,
+                            transform: isHovered ? 'translateX(4px)' : 'none',
+                            transition: 'all 0.2s ease',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: slice.color, display: 'inline-block', flexShrink: 0 }} />
+                            <span style={{ color: 'var(--text)', fontSize: '0.78rem', fontWeight: 750 }}>
+                              {slice.name}
+                            </span>
+                          </div>
+                          <span style={{ fontSize: '0.74rem', fontWeight: 850, color: slice.color, whiteSpace: 'nowrap', background: 'var(--surface)', padding: '0.1rem 0.45rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                            {slice.percentage}% ({slice.count.split(' ')[0]})
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Human-Centered Scam Insight Callout */}
             <div style={{
@@ -957,8 +969,8 @@ export default function Dashboard({ user }) {
               background: 'rgba(56, 189, 248, 0.08)',
               border: '1px solid rgba(56, 189, 248, 0.2)',
               borderRadius: '12px',
-              padding: '0.65rem 0.9rem',
-              marginTop: '1.1rem'
+              padding: '0.7rem 0.95rem',
+              marginTop: '1rem'
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
