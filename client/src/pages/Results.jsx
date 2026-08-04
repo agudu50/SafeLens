@@ -4,6 +4,7 @@ import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
 import { getMockScanResult } from '../services/scannerService'
+import { anchorReport } from '../services/blockchainService'
 import BlockchainVerification from '../features/results/BlockchainVerification'
 
 export default function Results() {
@@ -13,7 +14,10 @@ export default function Results() {
   const [copiedAlert, setCopiedAlert] = useState(false)
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
   const [isSubmittedToBlacklist, setIsSubmittedToBlacklist] = useState(false)
-  
+  const [isAnchoring, setIsAnchoring] = useState(false)
+  const [anchorError, setAnchorError] = useState('')
+  const [verification, setVerification] = useState(null)
+
   const result = getMockScanResult(id)
 
   // Reset copied indicators after 2 seconds
@@ -55,6 +59,25 @@ export default function Results() {
   const copyShareText = async () => {
     await navigator.clipboard.writeText(shareText)
     setCopiedAlert(true)
+  }
+
+  const catalogScamContent = async () => {
+    setIsAnchoring(true)
+    setAnchorError('')
+    try {
+      const data = await anchorReport({
+        id: result.id,
+        content: result.originalContent,
+        riskLevel: result.riskLevel,
+        riskScore: result.riskScore,
+      })
+      setVerification(data)
+      setIsSubmittedToBlacklist(true)
+    } catch (err) {
+      setAnchorError(err.message || 'Failed to anchor this report on Base L2. Please try again.')
+    } finally {
+      setIsAnchoring(false)
+    }
   }
 
   // Determine individual metric indicators based on overall risk
@@ -379,7 +402,7 @@ export default function Results() {
           </p>
         </div>
         {/* Blockchain Verification Section */}
-        <BlockchainVerification verificationDetails={result?.verificationDetails} />
+        {verification && <BlockchainVerification verificationDetails={verification} />}
       </section>
 
       {/* Ghana Scam Reporting Modal Wizard */}
@@ -416,10 +439,18 @@ export default function Results() {
                   </p>
                 ) : (
                   <div>
-                    <p style={{ marginBottom: '0.6rem' }}>Flag this phone number / link in SafeLens system so other users in Ghana get warning matches.</p>
-                    <Button variant="primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }} onClick={() => setIsSubmittedToBlacklist(true)}>
-                      Catalog Scam Content
+                    <p style={{ marginBottom: '0.6rem' }}>Flag this phone number / link in SafeLens system so other users in Ghana get warning matches. This anchors a tamper-proof hash of this report on the Base L2 blockchain.</p>
+                    <Button
+                      variant="primary"
+                      style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                      onClick={catalogScamContent}
+                      disabled={isAnchoring}
+                    >
+                      {isAnchoring ? 'Anchoring on Base L2…' : 'Catalog Scam Content'}
                     </Button>
+                    {anchorError && (
+                      <p style={{ color: 'var(--danger)', fontSize: '0.8rem', marginTop: '0.5rem' }}>{anchorError}</p>
+                    )}
                   </div>
                 )}
               </div>

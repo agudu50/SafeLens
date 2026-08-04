@@ -3,8 +3,31 @@ import Modal from '../../components/ui/Modal'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 
+function formatTimestamp(unixSeconds) {
+  if (!unixSeconds) return 'Unknown'
+  return new Date(unixSeconds * 1000).toLocaleString()
+}
+
+function shortenAddress(address) {
+  if (!address) return 'Unknown'
+  return `${address.slice(0, 6)}...${address.slice(-4)}`
+}
+
 export default function BlockchainVerification({ verificationDetails }) {
   const [showModal, setShowModal] = useState(false)
+
+  const {
+    network = 'Base Sepolia Testnet (L2)',
+    reportHash,
+    txHash,
+    reporter,
+    timestamp,
+    explorerUrl,
+    contractAddress,
+    alreadyRegistered,
+  } = verificationDetails || {}
+
+  const txExplorerUrl = txHash ? `https://sepolia.basescan.org/tx/${txHash}` : explorerUrl
 
   return (
     <>
@@ -20,7 +43,7 @@ export default function BlockchainVerification({ verificationDetails }) {
               Base Layer 2 Verification
             </strong>
             <span style={{ fontSize: '0.74rem', color: 'var(--muted)' }}>
-              Report hash anchored on Base L2 blockchain
+              {alreadyRegistered ? 'Report hash was already anchored on Base L2' : 'Report hash anchored on Base L2 blockchain'}
             </span>
           </div>
         </div>
@@ -44,28 +67,30 @@ export default function BlockchainVerification({ verificationDetails }) {
           <div style={{ background: 'var(--surface-alt)', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.55rem', fontSize: '0.82rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--muted)' }}>Layer 2 Network:</span>
-              <strong style={{ color: 'var(--text)' }}>
-                {verificationDetails?.network || 'Base Sepolia Testnet (L2)'}
-              </strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--muted)' }}>Report ID:</span>
-              <strong style={{ color: 'var(--primary)', fontFamily: 'monospace' }}>{verificationDetails?.reportId || '0x8f1e2d3c4b5a'}</strong>
+              <strong style={{ color: 'var(--text)' }}>{network}</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column', gap: '0.2rem' }}>
-              <span style={{ color: 'var(--muted)' }}>Base Evidence Hash:</span>
+              <span style={{ color: 'var(--muted)' }}>Report Evidence Hash:</span>
               <strong style={{ color: 'var(--text)', fontFamily: 'monospace', fontSize: '0.74rem', wordBreak: 'break-all' }}>
-                {verificationDetails?.reportHash || '0x7a91b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9'}
+                {reportHash || 'Unavailable'}
               </strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'var(--muted)' }}>Anchored By:</span>
+              <strong style={{ color: 'var(--text)', fontFamily: 'monospace' }}>{shortenAddress(reporter)}</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'var(--muted)' }}>Anchored At:</span>
+              <strong style={{ color: 'var(--text)' }}>{formatTimestamp(timestamp)}</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: 'var(--muted)' }}>Verification Status:</span>
-              <span style={{ color: 'var(--success)', fontWeight: 800 }}>✓ {verificationDetails?.status || 'Base L2 Verified'}</span>
+              <span style={{ color: 'var(--success)', fontWeight: 800 }}>✓ Base L2 Verified</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
               <span style={{ color: 'var(--muted)' }}>Basescan Explorer:</span>
               <a
-                href={`https://sepolia.basescan.org/tx/${verificationDetails?.reportHash || '0x7a91b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9'}`}
+                href={txExplorerUrl || `https://sepolia.basescan.org/address/${contractAddress || ''}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}
