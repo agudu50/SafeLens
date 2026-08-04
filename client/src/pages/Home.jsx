@@ -286,36 +286,52 @@ export default function Home({ user }) {
           </div>
         </div>
 
-        <div className="hero-panel">
-          <div style={{ width: '100%', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)', marginBottom: '1rem', background: 'var(--surface-alt)', boxShadow: '0 12px 32px rgba(0,0,0,0.06)', padding: '0.4rem' }}>
-            <img src={heroShieldImg} alt="SafeLens Security Engine" style={{ width: '100%', height: '210px', objectFit: 'contain', display: 'block', borderRadius: '18px' }} />
-          </div>
-
-          <div className="hero-panel__card animate-fade-in" key={tickerIndex}>
-            <div className="hero-panel__header">
-              <span className="live-pulse-badge">
-                <span className="live-pulse-dot" />
-                LIVE THREAT MONITOR
-              </span>
-              <span className="hero-risk-chip danger">HIGH RISK</span>
+        <div className="hero-panel" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '24px', padding: '1.4rem', boxShadow: '0 12px 32px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.2rem', alignItems: 'center' }}>
+            
+            {/* 3D Shield Image Graphic */}
+            <div style={{ background: 'var(--surface-alt)', borderRadius: '18px', padding: '0.6rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: '100%', height: '170px', borderRadius: '14px', overflow: 'hidden' }}>
+                <img src={heroShieldImg} alt="SafeLens Security Engine" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+              </div>
+              <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '0.04em', textTransform: 'uppercase', background: 'var(--surface)', padding: '0.15rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                  AI SHIELD ENGINE ACTIVE
+                </span>
+              </div>
             </div>
 
-            <div className="hero-panel__body">
-              <div className="hero-location-tag">
+            {/* Live Threat Ticker Card Content */}
+            <div className="animate-fade-in" key={tickerIndex}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                <span className="live-pulse-badge">
+                  <span className="live-pulse-dot" />
+                  LIVE THREAT MONITOR
+                </span>
+                <span className="hero-risk-chip danger">HIGH RISK</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--muted)', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                 {locationIcon}
                 <span>{tickerReports[tickerIndex].region}, Ghana</span>
               </div>
-              <h3 className="hero-threat-title">{tickerReports[tickerIndex].type}</h3>
-              <p className="hero-threat-desc">Active scam incident reported in this region. Risk level is high; remain vigilant before authorizing transactions.</p>
-              
-              <div className="hero-threat-meta">
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}>
+
+              <h3 style={{ margin: '0 0 0.35rem 0', fontSize: '1.15rem', fontWeight: 900, color: 'var(--text)' }}>
+                {tickerReports[tickerIndex].type}
+              </h3>
+
+              <p style={{ margin: '0 0 0.8rem 0', fontSize: '0.82rem', color: 'var(--muted)', lineHeight: 1.45, fontWeight: 500 }}>
+                Active scam incident reported in this region. Risk level is high; remain vigilant before authorizing transactions.
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.74rem', color: 'var(--muted)', paddingTop: '0.6rem', borderTop: '1px solid var(--border)' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontWeight: 650 }}>
+                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem', color: 'var(--primary)' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   {tickerReports[tickerIndex].time}
                 </span>
-                <span>• Verified Feed</span>
+                <span style={{ fontWeight: 700, color: 'var(--success)' }}>• Verified Feed</span>
               </div>
             </div>
 
