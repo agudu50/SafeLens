@@ -1,0 +1,24 @@
+{
+  "name": "safelens-contracts",
+  "version": "1.0.0",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network baseSepolia",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network baseMainnet",
+    "node": "hardhat node"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "SafeLens on-chain scam report registry deployed to Base L2",
+  "private": "true",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.28.0"
+  }
+}

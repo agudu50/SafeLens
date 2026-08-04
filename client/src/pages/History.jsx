@@ -296,8 +296,8 @@ export default function History() {
               <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
                 No scan history records match your search or filter selections.
               </p>
-              <Link to="/scan" className="button-primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.84rem', textDecoration: 'none', borderRadius: '999px' }}>
-                Run a New Scan
+              <Link to="/dashboard" className="button-primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.84rem', textDecoration: 'none', borderRadius: '999px' }}>
+                Go to Dashboard
               </Link>
             </div>
           ) : (

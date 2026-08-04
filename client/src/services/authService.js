@@ -35,6 +35,16 @@ export const authService = {
     }
   },
 
+  setStoredUser(sessionUser) {
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser))
+      return sessionUser
+    } catch (err) {
+      console.error('Failed to store user session', err)
+      return sessionUser
+    }
+  },
+
   register({ name, email, phone, password }) {
     const users = loadUsers()
     const emailLower = email.trim().toLowerCase()

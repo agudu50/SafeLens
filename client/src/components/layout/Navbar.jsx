@@ -1,12 +1,24 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { authService } from '../../services/authService'
+
+function getUserInitials(user) {
+  if (!user?.name) return '?'
+  return user.name
+    .trim()
+    .split(/\s+/)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
 
 export default function Navbar({ user, setUser, theme, setTheme }) {
   const [open, setOpen] = useState(false)
   const [showHelpline, setShowHelpline] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Auto-close mobile drawer when window resizes to desktop width (> 700px)
   useEffect(() => {
@@ -19,8 +31,8 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Determine if user is inside internal App Workspace pages (/dashboard, /scan, /history, /profile, /results, /safety-tips)
-  const isAppWorkspace = user && ['/dashboard', '/scan', '/history', '/profile', '/results', '/safety-tips'].some(path => location.pathname.startsWith(path))
+  // Determine if user is inside internal App Workspace pages (/dashboard, /history, /profile, /results, /safety-tips)
+  const isAppWorkspace = user && ['/dashboard', '/history', '/profile', '/results', '/safety-tips'].some(path => location.pathname.startsWith(path))
 
   // Clean navigation links
   const links = isAppWorkspace
@@ -31,16 +43,6 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           icon: (
             <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
-            </svg>
-          )
-        },
-        {
-          to: '/scan',
-          label: 'AI Scanner',
-          isBadge: true,
-          icon: (
-            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
           )
         },
@@ -89,6 +91,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
     setUser(null)
     setShowProfileMenu(false)
     setOpen(false)
+    navigate('/')
   }
 
   const toggleTheme = () => {
@@ -114,41 +117,30 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           <span />
         </button>
 
-        {/* Backdrop Overlay when mobile drawer is open */}
-        {open && (
-          <div 
-            onClick={() => setOpen(false)} 
-            style={{
-              position: 'fixed',
-              top: '72px',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0, 0, 0, 0.35)',
-              zIndex: 95
-            }} 
-          />
-        )}
+        {/* Backdrop overlay for mobile drawer */}
+        {open && <div className="nav-backdrop" onClick={() => setOpen(false)} />}
 
         <nav className={`nav-links ${open ? 'nav-links--open' : ''}`} aria-label="Primary navigation">
           {/* SECTION 1: User Status Header */}
           {open && user && (
             <div className="mobile-drawer-only" style={{ padding: '0.85rem 1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '16px', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                <span style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.88rem', fontWeight: 900, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                  {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', overflow: 'hidden' }}>
+                <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: user.isWalletAuth ? 'linear-gradient(135deg, #0052FF, #38bdf8)' : 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.88rem', fontWeight: 900, boxShadow: '0 4px 10px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+                  {getUserInitials(user)}
                 </span>
-                <div>
-                  <strong style={{ fontSize: '0.88rem', color: 'var(--text)', display: 'block', fontWeight: 800 }}>{user.name}</strong>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
-                    Protection Active
+                <div style={{ overflow: 'hidden' }}>
+                  <strong style={{ fontSize: '0.88rem', color: 'var(--text)', display: 'block', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {user.name}
+                  </strong>
+                  <span style={{ fontSize: '0.7rem', color: user.isWalletAuth ? 'var(--primary)' : 'var(--success)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: user.isWalletAuth ? 'var(--primary)' : 'var(--success)' }} />
+                    {user.isWalletAuth ? 'Base L2 Wallet Active' : 'Protection Active'}
                   </span>
                 </div>
               </div>
               <button 
                 onClick={handleSignOut}
-                style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)', padding: '0.25rem 0.55rem', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)', cursor: 'pointer' }}
+                style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)', padding: '0.25rem 0.55rem', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)', cursor: 'pointer', flexShrink: 0 }}
               >
                 Sign Out
               </button>
@@ -340,10 +332,10 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
             </button>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', position: 'relative' }} className="nav-user-container">
-                {/* On Public pages (Home page, Safety tips, About us), show primary "Go to Scanner" CTA button */}
+                {/* On Public pages, show primary Dashboard CTA */}
                 {!isAppWorkspace && (
                   <Link
-                    to="/scan"
+                    to="/dashboard"
                     className="nav-action"
                     onClick={() => setOpen(false)}
                     style={{
@@ -361,10 +353,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                       whiteSpace: 'nowrap'
                     }}
                   >
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                    </svg>
-                    <span>AI Scanner</span>
+                    <span>Dashboard</span>
                   </Link>
                 )}
 
@@ -381,7 +370,9 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     height: '38px',
                     padding: 0,
                     borderRadius: '50%',
-                    background: location.pathname === '/profile' || showProfileMenu ? 'linear-gradient(135deg, var(--primary), #ef4444)' : 'var(--primary)',
+                    background: user.isWalletAuth
+                      ? 'linear-gradient(135deg, #0052FF, #38bdf8)'
+                      : location.pathname === '/profile' || showProfileMenu ? 'linear-gradient(135deg, var(--primary), #ef4444)' : 'var(--primary)',
                     border: '2px solid var(--border)',
                     color: '#ffffff',
                     display: 'grid',
@@ -395,7 +386,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   }}
                   title={`${user.name} - Profile & Account Settings`}
                 >
-                  {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
+                  {getUserInitials(user)}
                 </button>
 
                 {/* Profile Dropdown Popover */}
@@ -423,8 +414,8 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     >
                       {/* User Profile Header */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem', paddingBottom: '0.65rem', borderBottom: '1px solid var(--border)' }}>
-                        <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.92rem', fontWeight: 900, flexShrink: 0, boxShadow: '0 3px 10px rgba(230, 60, 28, 0.25)' }}>
-                          {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'KM'}
+                        <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: user.isWalletAuth ? 'linear-gradient(135deg, #0052FF, #38bdf8)' : 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.92rem', fontWeight: 900, flexShrink: 0, boxShadow: '0 3px 10px rgba(0,0,0,0.15)' }}>
+                          {getUserInitials(user)}
                         </span>
                         <div style={{ overflow: 'hidden', flex: 1 }}>
                           <strong style={{ fontSize: '0.88rem', color: 'var(--text)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 800 }}>
@@ -433,9 +424,9 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                           <span style={{ fontSize: '0.7rem', color: 'var(--muted)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.2rem' }}>
                             {user.email || 'kofi@example.com'}
                           </span>
-                          <span style={{ fontSize: '0.6rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.1rem 0.45rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <span className="live-pulse-dot" style={{ width: '4px', height: '4px', background: 'var(--success)' }} />
-                            PROTECTED ACCOUNT
+                          <span style={{ fontSize: '0.6rem', fontWeight: 850, color: user.isWalletAuth ? 'var(--primary)' : 'var(--success)', background: user.isWalletAuth ? 'rgba(56, 189, 248, 0.12)' : 'rgba(16, 185, 129, 0.12)', padding: '0.1rem 0.45rem', borderRadius: '999px', border: user.isWalletAuth ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <span className="live-pulse-dot" style={{ width: '4px', height: '4px', background: user.isWalletAuth ? 'var(--primary)' : 'var(--success)' }} />
+                            {user.isWalletAuth ? 'BASE L2 AUTHENTICATED' : 'PROTECTED ACCOUNT'}
                           </span>
                         </div>
                       </div>

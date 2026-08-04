@@ -389,7 +389,7 @@ export default function Dashboard({ user }) {
             </div>
 
             <Link
-              to="/scan"
+              to="/history"
               className="button-primary dash-hero-btn"
               style={{
                 display: 'inline-flex',
@@ -404,10 +404,7 @@ export default function Dashboard({ user }) {
                 whiteSpace: 'nowrap'
               }}
             >
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              <span>Full AI Scanner</span>
+              <span>View Scan History</span>
             </Link>
           </div>
         </section>
@@ -417,9 +414,9 @@ export default function Dashboard({ user }) {
 
         {/* Quick Actions Bar */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem', marginBottom: '1.8rem' }}>
-          <Link to="/scan" style={{ textDecoration: 'none' }}>
+          <Link to="/history" style={{ textDecoration: 'none' }}>
             <Button variant="primary" style={{ width: '100%', justifyContent: 'center' }}>
-              🔍 Scan Something
+              View Scan History
             </Button>
           </Link>
 
@@ -1122,7 +1119,7 @@ export default function Dashboard({ user }) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                   </svg>
                   <p style={{ fontSize: '0.84rem', fontWeight: 600, margin: '0 0 0.4rem 0' }}>No {activeFilter} scans recorded</p>
-                  <Link to="/scan" style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}>Scan something now &rarr;</Link>
+                  <Link to="/history" style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}>View scan history &rarr;</Link>
                 </div>
               )}
             </div>

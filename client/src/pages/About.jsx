@@ -32,11 +32,8 @@ export default function About({ user }) {
           </p>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-            <Button as={Link} to={user ? "/scan" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.65rem 1.4rem', fontSize: '0.92rem' }}>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              {user ? "Scan a Message Now" : "Sign In to Scan Messages"}
+            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.65rem 1.4rem', fontSize: '0.92rem' }}>
+              {user ? "Go to Dashboard" : "Sign In to Get Started"}
             </Button>
             <Button as={Link} to="/safety-tips" variant="secondary" style={{ gap: '0.5rem', padding: '0.65rem 1.4rem', fontSize: '0.92rem' }}>
               <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem' }}>
@@ -266,8 +263,8 @@ export default function About({ user }) {
             Join thousands of users across Ghana taking proactive steps to stay safe online and eliminate Mobile Money wallet risk.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-            <Button as={Link} to={user ? "/scan" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
-              <span>{user ? "Go to Threat Scanner" : "Sign In to Get Started"}</span>
+            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
+              <span>{user ? "Go to Dashboard" : "Sign In to Get Started"}</span>
               <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>

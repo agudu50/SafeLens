@@ -1,7 +1,6 @@
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Home from '../pages/Home'
 import Dashboard from '../pages/Dashboard'
-import Scanner from '../pages/Scanner'
 import Results from '../pages/Results'
 import History from '../pages/History'
 import About from '../pages/About'
@@ -12,18 +11,42 @@ import Profile from '../pages/Profile'
 import NotFound from '../pages/NotFound'
 import Pricing from '../pages/Pricing'
 import Billing from '../pages/Billing'
-import Wallet from '../pages/Wallet'
 import Settings from '../pages/Settings'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import { authService } from '../services/authService'
+import { walletService } from '../services/walletService'
 
 function ProtectedRoute({ user, setUser, children, title = 'Account Required for Feature Access' }) {
+  const navigate = useNavigate()
+
   if (!user) {
     const handleQuickLogin = () => {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
+      navigate('/dashboard')
+    }
+
+    const handleBaseWalletLogin = async () => {
+      try {
+        const res = await walletService.connectWallet('sepolia')
+        if (res.wallet && res.wallet.address) {
+          const shortAddr = `${res.wallet.address.slice(0, 6)}...${res.wallet.address.slice(-4)}`
+          const walletUser = {
+            name: `Base User (${shortAddr})`,
+            email: `${res.wallet.address.slice(0, 8)}@base.eth`,
+            walletAddress: res.wallet.address,
+            network: res.wallet.network,
+            isWalletAuth: true
+          }
+          authService.setStoredUser(walletUser)
+          setUser(walletUser)
+          navigate('/dashboard')
+        }
+      } catch (err) {
+        console.error('Wallet login failed', err)
+      }
     }
 
     return (
@@ -71,12 +94,27 @@ function ProtectedRoute({ user, setUser, children, title = 'Account Required for
           </div>
 
           <div className="auth-gate-actions">
-            <Link to="/login" className="button-primary auth-btn-full" style={{ textDecoration: 'none' }}>
-              Sign In to Continue
-            </Link>
+            <button
+              onClick={handleBaseWalletLogin}
+              type="button"
+              className="button-primary auth-btn-full"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                cursor: 'pointer'
+              }}
+            >
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+              </svg>
+              <span>Sign In with Base L2 Wallet</span>
+            </button>
 
-            <Link to="/register" className="auth-btn-secondary" style={{ textDecoration: 'none' }}>
-              Create Free Account
+            <Link to="/login" className="auth-btn-secondary" style={{ textDecoration: 'none' }}>
+              Sign In with Email
             </Link>
           </div>
 
@@ -135,14 +173,6 @@ export default function AppRoutes({ user, setUser }) {
         }
       />
       <Route
-        path="/scan"
-        element={
-          <ProtectedRoute user={user} setUser={setUser} title="Account Required for Message Scanning">
-            <Scanner user={user} />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/results/:id"
         element={
           <ProtectedRoute user={user} setUser={setUser} title="Account Required to View Scan Results">
@@ -163,14 +193,6 @@ export default function AppRoutes({ user, setUser }) {
         element={
           <ProtectedRoute user={user} setUser={setUser} title="Account Required for Billing">
             <Billing />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/wallet"
-        element={
-          <ProtectedRoute user={user} setUser={setUser} title="Account Required for Web3 Wallet">
-            <Wallet />
           </ProtectedRoute>
         }
       />

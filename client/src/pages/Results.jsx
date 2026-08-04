@@ -358,8 +358,8 @@ export default function Results() {
 
         {/* Action Toolbar */}
         <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', marginBottom: '1.6rem' }}>
-          <Button onClick={() => navigate('/scan')} style={{ padding: '0.65rem 1.3rem', fontSize: '0.88rem' }}>
-            Scan Another Message
+          <Button onClick={() => navigate('/dashboard')} style={{ padding: '0.65rem 1.3rem', fontSize: '0.88rem' }}>
+            Back to Dashboard
           </Button>
           <Button variant="secondary" onClick={() => setIsReportModalOpen(true)} style={{ padding: '0.65rem 1.3rem', fontSize: '0.88rem' }}>
             Report This Scam (CSA 292)

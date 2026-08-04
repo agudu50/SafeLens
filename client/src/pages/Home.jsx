@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
+import WalletCard from '../features/wallet/WalletCard'
 
 import heroShieldImg from '../assets/images/hero_shield.png'
 import stepSubmitImg from '../assets/images/step_submit.png'
@@ -259,11 +260,8 @@ export default function Home({ user }) {
           <div className="hero-actions">
             {user ? (
               <>
-                <Button as={Link} to="/scan" variant="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                  </svg>
-                  Scan a Message
+                <Button as={Link} to="/dashboard" variant="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Go to Dashboard
                 </Button>
                 <Button as={Link} to="/history" variant="secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                   <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
@@ -337,6 +335,11 @@ export default function Home({ user }) {
 
           </div>
         </div>
+      </section>
+
+      {/* Base Layer 2 Web3 Wallet Integration Panel */}
+      <section className="animate-slide-up delay-2" style={{ maxWidth: '840px', margin: '0 auto 2.5rem auto' }}>
+        <WalletCard />
       </section>
 
       {/* Interactive Sandbox Simulator */}
@@ -517,8 +520,8 @@ export default function Home({ user }) {
           </div>
 
           <div style={{ marginTop: '1.4rem', display: 'flex', justifyContent: 'flex-end' }}>
-            <Button as={Link} to={user ? "/scan" : "/login"} variant="primary" style={{ padding: '0.65rem 1.35rem', fontSize: '0.88rem' }}>
-              {user ? "Scan Your Own Message \u2192" : "Sign In to Start Scanning \u2192"}
+            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ padding: '0.65rem 1.35rem', fontSize: '0.88rem' }}>
+              {user ? "Go to Dashboard \u2192" : "Sign In to Get Started \u2192"}
             </Button>
           </div>
         </div>
