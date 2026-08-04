@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
-import WalletCard from '../features/wallet/WalletCard'
 
 import heroShieldImg from '../assets/images/hero_shield.png'
 import stepSubmitImg from '../assets/images/step_submit.png'
@@ -335,11 +334,6 @@ export default function Home({ user }) {
 
           </div>
         </div>
-      </section>
-
-      {/* Base Layer 2 Web3 Wallet Integration Panel */}
-      <section className="animate-slide-up delay-2" style={{ maxWidth: '840px', margin: '0 auto 2.5rem auto' }}>
-        <WalletCard />
       </section>
 
       {/* Interactive Sandbox Simulator */}

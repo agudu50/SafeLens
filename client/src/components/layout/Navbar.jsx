@@ -125,16 +125,16 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           {open && user && (
             <div className="mobile-drawer-only" style={{ padding: '0.85rem 1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '16px', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', overflow: 'hidden' }}>
-                <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: user.isWalletAuth ? 'linear-gradient(135deg, #0052FF, #38bdf8)' : 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.88rem', fontWeight: 900, boxShadow: '0 4px 10px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+                <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.88rem', fontWeight: 900, boxShadow: '0 4px 10px rgba(0,0,0,0.1)', flexShrink: 0 }}>
                   {getUserInitials(user)}
                 </span>
                 <div style={{ overflow: 'hidden' }}>
                   <strong style={{ fontSize: '0.88rem', color: 'var(--text)', display: 'block', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {user.name}
                   </strong>
-                  <span style={{ fontSize: '0.7rem', color: user.isWalletAuth ? 'var(--primary)' : 'var(--success)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: user.isWalletAuth ? 'var(--primary)' : 'var(--success)' }} />
-                    {user.isWalletAuth ? 'Base L2 Wallet Active' : 'Protection Active'}
+                  <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
+                    Protection Active
                   </span>
                 </div>
               </div>
@@ -370,9 +370,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     height: '38px',
                     padding: 0,
                     borderRadius: '50%',
-                    background: user.isWalletAuth
-                      ? 'linear-gradient(135deg, #0052FF, #38bdf8)'
-                      : location.pathname === '/profile' || showProfileMenu ? 'linear-gradient(135deg, var(--primary), #ef4444)' : 'var(--primary)',
+                    background: location.pathname === '/profile' || showProfileMenu ? 'linear-gradient(135deg, var(--primary), #ef4444)' : 'var(--primary)',
                     border: '2px solid var(--border)',
                     color: '#ffffff',
                     display: 'grid',
@@ -414,7 +412,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     >
                       {/* User Profile Header */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem', paddingBottom: '0.65rem', borderBottom: '1px solid var(--border)' }}>
-                        <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: user.isWalletAuth ? 'linear-gradient(135deg, #0052FF, #38bdf8)' : 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.92rem', fontWeight: 900, flexShrink: 0, boxShadow: '0 3px 10px rgba(0,0,0,0.15)' }}>
+                        <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.92rem', fontWeight: 900, flexShrink: 0, boxShadow: '0 3px 10px rgba(0,0,0,0.15)' }}>
                           {getUserInitials(user)}
                         </span>
                         <div style={{ overflow: 'hidden', flex: 1 }}>
@@ -424,9 +422,9 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                           <span style={{ fontSize: '0.7rem', color: 'var(--muted)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.2rem' }}>
                             {user.email || 'kofi@example.com'}
                           </span>
-                          <span style={{ fontSize: '0.6rem', fontWeight: 850, color: user.isWalletAuth ? 'var(--primary)' : 'var(--success)', background: user.isWalletAuth ? 'rgba(56, 189, 248, 0.12)' : 'rgba(16, 185, 129, 0.12)', padding: '0.1rem 0.45rem', borderRadius: '999px', border: user.isWalletAuth ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <span className="live-pulse-dot" style={{ width: '4px', height: '4px', background: user.isWalletAuth ? 'var(--primary)' : 'var(--success)' }} />
-                            {user.isWalletAuth ? 'BASE L2 AUTHENTICATED' : 'PROTECTED ACCOUNT'}
+                          <span style={{ fontSize: '0.6rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.1rem 0.45rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <span className="live-pulse-dot" style={{ width: '4px', height: '4px', background: 'var(--success)' }} />
+                            PROTECTED ACCOUNT
                           </span>
                         </div>
                       </div>

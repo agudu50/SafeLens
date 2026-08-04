@@ -4,7 +4,6 @@ import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
 import { authService } from '../services/authService'
-import { walletService } from '../services/walletService'
 
 export default function Login({ setUser }) {
   const navigate = useNavigate()
@@ -37,34 +36,6 @@ export default function Login({ setUser }) {
         setIsLoading(false)
       }
     }, 600)
-  }
-
-  const handleWalletLogin = async () => {
-    setError('')
-    setIsLoading(true)
-    try {
-      const res = await walletService.connectWallet('sepolia')
-      if (res.wallet?.address) {
-        const shortAddr = `${res.wallet.address.slice(0, 6)}...${res.wallet.address.slice(-4)}`
-        const walletUser = {
-          name: `Base User (${shortAddr})`,
-          email: `${res.wallet.address.slice(0, 8)}@base.eth`,
-          walletAddress: res.wallet.address,
-          network: res.wallet.network,
-          isWalletAuth: true,
-        }
-        authService.setStoredUser(walletUser)
-        setUser(walletUser)
-        setIsLoading(false)
-        navigate('/dashboard')
-      } else {
-        setError('Wallet connection was canceled.')
-        setIsLoading(false)
-      }
-    } catch (err) {
-      setError(err.message || 'Failed to connect wallet.')
-      setIsLoading(false)
-    }
   }
 
   const handleQuickDemoLogin = () => {
@@ -101,40 +72,6 @@ export default function Login({ setUser }) {
             {error}
           </Alert>
         ) : null}
-
-        <button
-          type="button"
-          onClick={handleWalletLogin}
-          disabled={isLoading}
-          style={{
-            width: '100%',
-            padding: '0.65rem 1rem',
-            borderRadius: '999px',
-            border: '1px solid var(--primary)',
-            background: 'rgba(56, 189, 248, 0.1)',
-            color: 'var(--primary)',
-            fontSize: '0.88rem',
-            fontWeight: 850,
-            cursor: isLoading ? 'wait' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.8rem',
-          }}
-        >
-          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
-          </svg>
-          <span>Sign In with WalletConnect</span>
-        </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', margin: '0.8rem 0 1.1rem 0', gap: '0.5rem', color: 'var(--muted)', fontSize: '0.74rem', fontWeight: 700 }}>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-          <span>OR USE EMAIL</span>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-        </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
           <div>
