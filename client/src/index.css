@@ -1958,7 +1958,6 @@ html.dark .hero-panel__card {
   padding: 1rem;
   margin-bottom: 1rem;
   color: var(--text);
-  border-left: 4px solid var(--primary);
 }
 
 .bubble-sender {

@@ -319,145 +319,191 @@ export default function Home({ user }) {
               </div>
             </div>
 
-            <div className="hero-panel__footer">
-              <Link to={user ? "/scan" : "/login"} className="hero-quick-scan-link">
-                {user ? "Test a similar threat message \u2192" : "Sign in to test threat messages \u2192"}
-              </Link>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Interactive Sandbox Simulator */}
       <section className="section-block animate-slide-up delay-2">
-        <div className="section-heading">
+        <div className="section-heading" style={{ textAlign: 'center', marginBottom: '1.6rem' }}>
           <Badge tone="medium">Try SafeLens Now</Badge>
-          <h2>Instant Scan Sandbox</h2>
-          <p className="hero-text" style={{ marginTop: '0.4rem' }}>Select a sample threat below to watch SafeLens detect scam signals, highlight risk triggers, and provide actionable safety steps in real-time.</p>
+          <h2 style={{ fontSize: '2.1rem', fontWeight: 900, margin: '0.4rem 0 0.3rem' }}>Instant Threat Sandbox</h2>
+          <p className="hero-text" style={{ maxWidth: '650px', margin: '0 auto' }}>Select a sample threat below to watch SafeLens evaluate scam signals in real-time.</p>
         </div>
 
-        <div className="sandbox-container">
-          {/* Presets Column */}
-          <div className="sandbox-presets">
-            {presets.map((preset) => (
+        {/* Preset Selector Pill Tabs */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '1.6rem' }}>
+          {presets.map((preset) => {
+            const isActive = selectedPreset.id === preset.id
+            const isHigh = preset.riskLevel === 'high'
+            const badgeColor = isHigh ? 'var(--danger)' : 'var(--success)'
+            return (
               <button
                 key={preset.id}
                 type="button"
-                className={`sandbox-btn ${selectedPreset.id === preset.id ? 'sandbox-btn--active' : ''}`}
                 onClick={() => setSelectedPreset(preset)}
+                style={{
+                  border: '1px solid ' + (isActive ? 'var(--primary)' : 'var(--border)'),
+                  background: isActive ? 'var(--surface-alt)' : 'var(--surface)',
+                  color: 'var(--text)',
+                  padding: '0.65rem 1.1rem',
+                  borderRadius: '999px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.55rem',
+                  boxShadow: isActive ? '0 4px 14px rgba(230, 60, 28, 0.15)' : 'none',
+                  transition: 'all 0.2s ease',
+                  transform: isActive ? 'scale(1.03)' : 'none'
+                }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="sandbox-category-badge">{preset.category}</span>
-                  <Badge tone={toneMap[preset.riskLevel]}>{preset.riskLevel.toUpperCase()}</Badge>
-                </div>
-                <span style={{ fontWeight: 800, fontSize: '0.98rem', marginTop: '0.35rem', color: 'var(--text)' }}>{preset.title}</span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.15rem' }}>{preset.description}</span>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: badgeColor }} />
+                <span>{preset.title}</span>
               </button>
-            ))}
+            )
+          })}
+        </div>
+
+        {/* Live Scanner Display HUD Card - Full Width Balanced Layout */}
+        <div className="scanner-card animate-fade-in" key={selectedPreset.id} style={{ padding: '1.8rem', background: 'var(--surface-alt)', borderRadius: '24px', border: '1px solid var(--border)', maxWidth: '1050px', margin: '0 auto', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
+          
+          {/* Header Bar spanning full width */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
+                <span className="live-pulse-badge">
+                  <span className="live-pulse-dot" />
+                  REAL-TIME AI VERDICT
+                </span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 850, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '999px', border: `1px solid ${selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}` }}>
+                  {selectedPreset.riskLevel.toUpperCase()} RISK
+                </span>
+              </div>
+              <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: 'var(--text)' }}>{selectedPreset.title}</h3>
+            </div>
+
+            {/* Score Ring Badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'var(--surface)', padding: '0.6rem 1.1rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '0.66rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', display: 'block' }}>Threat Index</span>
+                <span style={{ fontSize: '0.74rem', fontWeight: 850, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)' }}>
+                  {selectedPreset.threatCategory}
+                </span>
+              </div>
+              <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)', border: `2px solid ${selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)'}`, display: 'grid', placeItems: 'center', fontWeight: 900, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', fontSize: '1.05rem' }}>
+                {selectedPreset.riskScore}%
+              </div>
+            </div>
           </div>
 
-          {/* Live Scanner Display */}
-          <div className="sandbox-preview animate-fade-in" key={selectedPreset.id}>
-            <div className="sandbox-preview-header">
-              <div>
-                <span className="sandbox-live-status">
-                  <span className="live-pulse-dot" />
-                  AI SCAN ANALYSIS
-                </span>
-                <h3 style={{ margin: '0.2rem 0 0 0', fontSize: '1.2rem', color: 'var(--text)' }}>{selectedPreset.title}</h3>
-              </div>
-              <div className="sandbox-score-badge">
-                <span style={{ fontSize: '1.4rem', fontWeight: 900, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)' }}>
-                  {selectedPreset.riskScore}%
-                </span>
-                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Scam Score</span>
+          {/* Full-Width Grid 1: 3D Graphic Image + Submitted Text + Detected Triggers */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem', marginBottom: '1.2rem' }}>
+            
+            {/* 3D Image Banner Card */}
+            <div style={{ background: 'var(--surface)', padding: '0.6rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '100%', height: '140px', borderRadius: '12px', overflow: 'hidden', background: 'var(--surface-alt)' }}>
+                <img 
+                  src={
+                    selectedPreset.id === 'momo-refund' ? stepAnalysisImg :
+                    selectedPreset.id === 'promo-cashout' ? heroShieldImg :
+                    selectedPreset.id === 'fake-job' ? stepSubmitImg : stepReportImg
+                  } 
+                  alt="AI Threat Scanner Graphic" 
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '0.4rem', display: 'block' }} 
+                />
               </div>
             </div>
 
-            <div className="sandbox-meter-track">
-              <div
-                className="sandbox-meter-fill"
-                style={{
-                  width: `${selectedPreset.riskScore}%`,
-                  background: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : selectedPreset.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)'
-                }}
-              />
-            </div>
-
-            {/* Message Box */}
-            <div className="chat-bubble-preview">
-              <span className="bubble-sender">SUBMITTED TEXT CONTENT:</span>
-              <p style={{ margin: '0.4rem 0 0 0', fontWeight: 500, lineHeight: 1.5, fontSize: '0.92rem' }}>
+            {/* Submitted Snippet Box */}
+            <div style={{ background: 'var(--surface)', padding: '1rem 1.2rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', letterSpacing: '0.04em', textTransform: 'uppercase', display: 'block', marginBottom: '0.35rem' }}>
+                Submitted Text Snippet
+              </span>
+              <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 650, color: 'var(--text)', lineHeight: 1.45, fontStyle: 'italic' }}>
                 &ldquo;{selectedPreset.content}&rdquo;
               </p>
             </div>
 
-            {/* Detected Threat Flags */}
-            <div className="sandbox-threat-tags">
-              <span className="threat-tags-label">DETECTED RISK FLAGS:</span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.35rem' }}>
+            {/* Risk Triggers Box */}
+            <div style={{ background: 'var(--surface)', padding: '1rem 1.2rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.45rem' }}>
+                Detected Risk Triggers
+              </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                 {selectedPreset.threatTags.map((tag) => (
-                  <span key={tag} className="sandbox-threat-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                    {selectedPreset.riskLevel === 'high' ? (
-                      <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem', color: 'var(--danger)' }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                      </svg>
-                    ) : (
-                      <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem', color: 'var(--success)' }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    )}
+                  <span key={tag} style={{ fontSize: '0.76rem', fontWeight: 800, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', padding: '0.22rem 0.6rem', borderRadius: '8px', border: `1px solid ${selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
                     {tag}
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* AI Vector Likelihood Breakdown */}
-            {selectedPreset.vectorBreakdown && (
-              <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--border)', margin: '1rem 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    AI VECTOR DETECTION LIKELIHOOD
-                  </span>
-                  <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--danger)' }}>
-                    {selectedPreset.threatCategory}
-                  </span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem' }}>
-                  {selectedPreset.vectorBreakdown.map((v) => (
-                    <div key={v.name} style={{ fontSize: '0.72rem', background: 'var(--surface-alt)', padding: '0.4rem 0.6rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginBottom: '0.2rem', color: v.match ? 'var(--danger)' : 'var(--muted)' }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name.split(' ')[0]} {v.name.split(' ')[1]}</span>
-                        <span>{v.percentage}%</span>
-                      </div>
-                      <div style={{ width: '100%', height: '4px', background: 'var(--border)', borderRadius: '999px', overflow: 'hidden' }}>
-                        <div style={{ width: `${v.percentage}%`, height: '100%', background: v.match ? 'var(--danger)' : v.color || 'var(--primary)' }} />
-                      </div>
+          </div>
+
+          {/* Full-Width Grid 2: AI Fraud Vectors (Spans Full Width across all 4 bars) */}
+          {selectedPreset.vectorBreakdown && (
+            <div style={{ background: 'var(--surface)', padding: '1rem 1.2rem', borderRadius: '16px', border: '1px solid var(--border)', marginBottom: '1.2rem' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.6rem' }}>
+                AI Fraud Likelihood Vectors
+              </span>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.6rem' }}>
+                {selectedPreset.vectorBreakdown.map((v) => (
+                  <div key={v.name} style={{ background: 'var(--surface-alt)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 750, marginBottom: '0.3rem', color: v.match ? 'var(--danger)' : 'var(--muted)' }}>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
+                      <span style={{ fontWeight: 900 }}>{v.percentage}%</span>
                     </div>
-                  ))}
-                </div>
+                    <div style={{ width: '100%', height: '5px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden' }}>
+                      <div style={{ width: `${v.percentage}%`, height: '100%', background: v.match ? 'var(--danger)' : v.color || 'var(--primary)', borderRadius: '999px' }} />
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Analysis & Advice */}
-            <div className="sandbox-analysis-box">
-              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.88rem', lineHeight: '1.5' }}>
-                <strong>AI Analysis:</strong> {selectedPreset.explanation}
-              </p>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: '1.5', borderTop: '1px solid var(--border)', paddingTop: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.35rem' }}>
-                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', color: 'var(--primary)', flexShrink: 0, marginTop: '0.15rem' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                </svg>
-                <span><strong>Safety Advice:</strong> {selectedPreset.advice}</span>
+          {/* Full-Width Grid 3: AI Pattern Reason + Actionable Guidance */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.2rem' }}>
+            <div style={{ background: 'var(--surface)', padding: '1.1rem 1.25rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                <span style={{ background: 'var(--surface-alt)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--primary)' }}>
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" strokeLinecap="round" />
+                    <circle cx="12" cy="8" r="1" fill="currentColor" />
+                  </svg>
+                  <strong style={{ fontSize: '0.72rem', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>AI Pattern Reason</strong>
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.5, fontWeight: 500 }}>
+                {selectedPreset.explanation}
               </p>
             </div>
 
-            <div style={{ marginTop: '1.2rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button as={Link} to={user ? "/scan" : "/login"} variant="primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.85rem' }}>
-                {user ? "Scan Your Own Message \u2192" : "Sign In to Start Scanning \u2192"}
-              </Button>
+            <div style={{ background: 'var(--surface)', padding: '1.1rem 1.25rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                <span style={{ background: 'var(--surface-alt)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--success)' }}>
+                    <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <strong style={{ fontSize: '0.72rem', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Actionable Guidance</strong>
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text)', lineHeight: 1.5, fontWeight: 700 }}>
+                {selectedPreset.advice}
+              </p>
             </div>
+          </div>
+
+          <div style={{ marginTop: '1.4rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <Button as={Link} to={user ? "/scan" : "/login"} variant="primary" style={{ padding: '0.65rem 1.35rem', fontSize: '0.88rem' }}>
+              {user ? "Scan Your Own Message \u2192" : "Sign In to Start Scanning \u2192"}
+            </Button>
           </div>
         </div>
       </section>
