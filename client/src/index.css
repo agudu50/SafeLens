@@ -203,6 +203,11 @@ html.dark .nav-link:hover {
   color: #ffffff !important;
 }
 
+.popover-menu-item:hover {
+  background: var(--surface-alt) !important;
+  transform: translateX(3px);
+}
+
 .nav-action {
   padding: 0.5rem 1.2rem;
   border-radius: 999px;
@@ -1789,6 +1794,12 @@ html.dark .hero-panel__card {
   /* Hide long tip chips on mobile to keep the layout neat and simple */
   .cyber-node {
     display: none;
+  }
+}
+
+@media (min-width: 701px) {
+  .mobile-drawer-only {
+    display: none !important;
   }
 }
 

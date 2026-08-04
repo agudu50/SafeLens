@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { authService } from '../../services/authService'
 
@@ -7,6 +7,17 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
   const [showHelpline, setShowHelpline] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const location = useLocation()
+
+  // Auto-close mobile drawer when window resizes to desktop width (> 700px)
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 700) {
+        setOpen(false)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Determine if user is inside internal App Workspace pages (/dashboard, /scan, /history, /profile, /results, /safety-tips)
   const isAppWorkspace = user && ['/dashboard', '/scan', '/history', '/profile', '/results', '/safety-tips'].some(path => location.pathname.startsWith(path))
@@ -122,7 +133,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
         <nav className={`nav-links ${open ? 'nav-links--open' : ''}`} aria-label="Primary navigation">
           {/* SECTION 1: User Status Header */}
           {open && user && (
-            <div style={{ padding: '0.85rem 1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '16px', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <div className="mobile-drawer-only" style={{ padding: '0.85rem 1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '16px', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                 <span style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.88rem', fontWeight: 900, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
                   {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
@@ -145,7 +156,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           )}
 
           {open && !user && (
-            <div style={{ padding: '0.85rem 1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '16px', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <div className="mobile-drawer-only" style={{ padding: '0.85rem 1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '16px', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '30px', height: '30px', borderRadius: '50%' }} />
                 <div>
@@ -161,7 +172,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
 
           {/* SECTION 2: Navigation Links */}
           {open && (
-            <div style={{ fontSize: '0.65rem', fontWeight: 850, color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase', margin: '0.3rem 0 0.1rem 0.3rem' }}>
+            <div className="mobile-drawer-only" style={{ fontSize: '0.65rem', fontWeight: 850, color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase', margin: '0.3rem 0 0.1rem 0.3rem' }}>
               MAIN NAVIGATION
             </div>
           )}
@@ -218,12 +229,12 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
 
           {/* SECTION 3: Quick Controls & Helpline */}
           {open && (
-            <div style={{ fontSize: '0.65rem', fontWeight: 850, color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase', margin: '0.5rem 0 0.1rem 0.3rem' }}>
+            <div className="mobile-drawer-only" style={{ fontSize: '0.65rem', fontWeight: 850, color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase', margin: '0.5rem 0 0.1rem 0.3rem' }}>
               QUICK CONTROLS &amp; HELPLINE
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', width: '100%' }}>
+          <div className="mobile-drawer-only" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', width: '100%' }}>
             
             {/* Ghana Helpline Trigger */}
             <div className="helpline-dropdown-wrapper" style={{ position: 'relative' }}>
@@ -369,7 +380,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   </Link>
                 )}
 
-                {/* Profile Avatar Button (KM Kofi) with Dropdown Toggle */}
+                {/* Profile Avatar Button (Initials Alone e.g. KM) */}
                 <button
                   type="button"
                   onClick={() => {
@@ -378,28 +389,25 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                   }}
                   className="nav-user-pill"
                   style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                    padding: '0.28rem 0.7rem',
-                    borderRadius: '999px',
-                    background: location.pathname === '/profile' || showProfileMenu ? 'rgba(230, 60, 28, 0.12)' : 'var(--surface-alt)',
-                    border: location.pathname === '/profile' || showProfileMenu ? '1px solid var(--primary)' : '1px solid var(--border)',
+                    width: '38px',
+                    height: '38px',
+                    padding: 0,
+                    borderRadius: '50%',
+                    background: location.pathname === '/profile' || showProfileMenu ? 'linear-gradient(135deg, var(--primary), #ef4444)' : 'var(--primary)',
+                    border: '2px solid var(--border)',
+                    color: '#ffffff',
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontSize: '0.85rem',
+                    fontWeight: 900,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
+                    boxShadow: showProfileMenu ? '0 0 0 3px rgba(230, 60, 28, 0.25)' : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    flexShrink: 0
                   }}
-                  title="Click for Profile Menu & Sign Out"
+                  title={`${user.name} - Profile & Account Settings`}
                 >
-                  <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.78rem', fontWeight: 800, flexShrink: 0, boxShadow: '0 2px 8px rgba(230, 60, 28, 0.3)' }}>
-                    {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
-                  </span>
-                  <span className="nav-user-name" style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text)' }}>
-                    {user.name ? user.name.split(' ')[0] : 'User'}
-                  </span>
-                  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem', color: 'var(--muted)', transform: showProfileMenu ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                  </svg>
+                  {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
                 </button>
 
                 {/* Profile Dropdown Popover */}
@@ -415,186 +423,166 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                         position: 'absolute',
                         top: 'calc(100% + 8px)',
                         right: 0,
-                        width: '270px',
+                        width: '240px',
                         background: 'var(--surface)',
                         border: '1px solid var(--border)',
-                        borderRadius: '20px',
-                        boxShadow: '0 16px 40px rgba(0, 0, 0, 0.15)',
-                        padding: '1rem',
+                        borderRadius: '18px',
+                        boxShadow: '0 16px 36px rgba(0, 0, 0, 0.16)',
+                        padding: '0.85rem',
                         zIndex: 1000,
+                        backdropFilter: 'blur(20px)'
                       }}
                     >
-                      {/* Profile Card Header */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '0.85rem', paddingBottom: '0.85rem', borderBottom: '1px solid var(--border)' }}>
-                        <span style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '1rem', fontWeight: 900, flexShrink: 0, boxShadow: '0 4px 14px rgba(230, 60, 28, 0.25)' }}>
-                          {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'U'}
+                      {/* User Profile Header */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem', paddingBottom: '0.65rem', borderBottom: '1px solid var(--border)' }}>
+                        <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), #ef4444)', color: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '0.92rem', fontWeight: 900, flexShrink: 0, boxShadow: '0 3px 10px rgba(230, 60, 28, 0.25)' }}>
+                          {user.name ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase() : 'KM'}
                         </span>
-                        <div style={{ overflow: 'hidden' }}>
-                          <strong style={{ fontSize: '0.92rem', color: 'var(--text)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 800 }}>
-                            {user.name}
+                        <div style={{ overflow: 'hidden', flex: 1 }}>
+                          <strong style={{ fontSize: '0.88rem', color: 'var(--text)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 800 }}>
+                            {user.name || 'Kofi Mensah'}
                           </strong>
-                          <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.2rem' }}>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--muted)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.2rem' }}>
                             {user.email || 'kofi@example.com'}
                           </span>
-                          <span style={{ fontSize: '0.62rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.1)', padding: '0.1rem 0.4rem', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <span style={{ fontSize: '0.6rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.1rem 0.45rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                             <span className="live-pulse-dot" style={{ width: '4px', height: '4px', background: 'var(--success)' }} />
                             PROTECTED ACCOUNT
                           </span>
                         </div>
                       </div>
 
-                      {/* Quick Feature Navigation List */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginBottom: '0.85rem' }}>
+                      {/* Compact Feature List */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.18rem', marginBottom: '0.65rem' }}>
                         
                         <Link
                           to="/profile"
                           onClick={() => setShowProfileMenu(false)}
+                          className="popover-menu-item"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.6rem',
-                            padding: '0.5rem 0.7rem',
+                            gap: '0.55rem',
+                            padding: '0.42rem 0.55rem',
                             borderRadius: '10px',
                             color: 'var(--text)',
-                            fontSize: '0.84rem',
-                            fontWeight: 700,
+                            fontSize: '0.82rem',
+                            fontWeight: 750,
                             textDecoration: 'none',
                             background: location.pathname === '/profile' ? 'var(--surface-alt)' : 'transparent',
                             transition: 'all 0.15s ease'
                           }}
                         >
-                          <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: 'rgba(56, 189, 248, 0.1)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
+                          <span style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center' }}>
                             <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                             </svg>
-                          </div>
+                          </span>
                           <span>My Profile</span>
                         </Link>
 
                         <Link
                           to="/profile"
                           onClick={() => setShowProfileMenu(false)}
+                          className="popover-menu-item"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.6rem',
-                            padding: '0.5rem 0.7rem',
+                            gap: '0.55rem',
+                            padding: '0.42rem 0.55rem',
                             borderRadius: '10px',
                             color: 'var(--text)',
-                            fontSize: '0.84rem',
-                            fontWeight: 700,
+                            fontSize: '0.82rem',
+                            fontWeight: 750,
                             textDecoration: 'none',
                             background: 'transparent',
                             transition: 'all 0.15s ease'
                           }}
                         >
-                          <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: 'rgba(245, 158, 11, 0.1)', display: 'grid', placeItems: 'center', color: 'var(--warning)' }}>
+                          <span style={{ color: 'var(--warning)', display: 'flex', alignItems: 'center' }}>
                             <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                             </svg>
-                          </div>
+                          </span>
                           <span>Password &amp; Security</span>
                         </Link>
 
                         <Link
                           to="/profile"
                           onClick={() => setShowProfileMenu(false)}
+                          className="popover-menu-item"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.6rem',
-                            padding: '0.5rem 0.7rem',
+                            gap: '0.55rem',
+                            padding: '0.42rem 0.55rem',
                             borderRadius: '10px',
                             color: 'var(--text)',
-                            fontSize: '0.84rem',
-                            fontWeight: 700,
+                            fontSize: '0.82rem',
+                            fontWeight: 750,
                             textDecoration: 'none',
                             background: 'transparent',
                             transition: 'all 0.15s ease'
                           }}
                         >
-                          <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: 'rgba(16, 185, 129, 0.1)', display: 'grid', placeItems: 'center', color: 'var(--success)' }}>
+                          <span style={{ color: 'var(--success)', display: 'flex', alignItems: 'center' }}>
                             <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12h11.25" />
                             </svg>
-                          </div>
+                          </span>
                           <span>General Settings</span>
                         </Link>
 
                         <Link
                           to="/history"
                           onClick={() => setShowProfileMenu(false)}
+                          className="popover-menu-item"
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.6rem',
-                            padding: '0.5rem 0.7rem',
+                            gap: '0.55rem',
+                            padding: '0.42rem 0.55rem',
                             borderRadius: '10px',
                             color: 'var(--text)',
-                            fontSize: '0.84rem',
-                            fontWeight: 700,
+                            fontSize: '0.82rem',
+                            fontWeight: 750,
                             textDecoration: 'none',
                             background: location.pathname === '/history' ? 'var(--surface-alt)' : 'transparent',
                             transition: 'all 0.15s ease'
                           }}
                         >
-                          <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: 'rgba(99, 102, 241, 0.1)', display: 'grid', placeItems: 'center', color: '#6366f1' }}>
+                          <span style={{ color: '#6366f1', display: 'flex', alignItems: 'center' }}>
                             <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 000 18z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                             </svg>
-                          </div>
+                          </span>
                           <span>Scan History</span>
-                        </Link>
-
-                        <Link
-                          to="/scan"
-                          onClick={() => setShowProfileMenu(false)}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.6rem',
-                            padding: '0.5rem 0.7rem',
-                            borderRadius: '10px',
-                            color: 'var(--text)',
-                            fontSize: '0.84rem',
-                            fontWeight: 700,
-                            textDecoration: 'none',
-                            background: location.pathname === '/scan' ? 'var(--surface-alt)' : 'transparent',
-                            transition: 'all 0.15s ease'
-                          }}
-                        >
-                          <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: 'rgba(230, 60, 28, 0.1)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
-                            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                            </svg>
-                          </div>
-                          <span>AI Threat Scanner</span>
                         </Link>
                       </div>
 
-                      {/* Sign Out Button in Dropdown */}
-                      <div style={{ paddingTop: '0.65rem', borderTop: '1px solid var(--border)' }}>
+                      {/* Sign Out Button */}
+                      <div style={{ paddingTop: '0.55rem', borderTop: '1px solid var(--border)' }}>
                         <button
                           type="button"
                           onClick={handleSignOut}
                           style={{
                             width: '100%',
-                            background: 'rgba(220, 38, 38, 0.08)',
+                            background: 'rgba(239, 68, 68, 0.08)',
                             color: 'var(--danger)',
-                            border: '1px solid rgba(220, 38, 38, 0.25)',
-                            padding: '0.5rem 0.75rem',
-                            borderRadius: '12px',
+                            border: '1px solid rgba(239, 68, 68, 0.25)',
+                            padding: '0.45rem 0.75rem',
+                            borderRadius: '10px',
                             fontWeight: 800,
-                            fontSize: '0.82rem',
+                            fontSize: '0.8rem',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '0.4rem',
-                            transition: 'all 0.15s ease'
+                            transition: 'all 0.2s ease'
                           }}
                         >
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
                           </svg>
                           <span>Sign Out</span>
