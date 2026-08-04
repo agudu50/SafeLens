@@ -146,7 +146,7 @@ export default function Results() {
         {/* 4 Core Analysis Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.2rem', marginBottom: '1.6rem' }}>
           
-          {/* Card 1: Verdict Summary */}
+          {/* Card 1: Safety Check Result */}
           <div className="dash-stat-card" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '18px', padding: '1.3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
               <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
@@ -155,7 +155,7 @@ export default function Results() {
                 </svg>
               </div>
               <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 850, color: 'var(--text)' }}>
-                Verdict Summary
+                Safety Check Result
               </h3>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.5, fontWeight: 500 }}>
@@ -163,7 +163,7 @@ export default function Results() {
             </p>
           </div>
 
-          {/* Card 2: Red Flags */}
+          {/* Card 2: Warning Signs */}
           <div className="dash-stat-card" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '18px', padding: '1.3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
               <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--danger)' }}>
@@ -172,7 +172,7 @@ export default function Results() {
                 </svg>
               </div>
               <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 850, color: 'var(--text)' }}>
-                Red Flags
+                Warning Signs
               </h3>
             </div>
             <ul style={{ paddingLeft: '1rem', margin: 0, fontSize: '0.83rem', color: 'var(--muted)', lineHeight: 1.45 }}>
@@ -182,7 +182,7 @@ export default function Results() {
             </ul>
           </div>
 
-          {/* Card 3: Technical Explanation */}
+          {/* Card 3: Why This Is a Scam */}
           <div className="dash-stat-card" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '18px', padding: '1.3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
               <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--warning)' }}>
@@ -193,7 +193,7 @@ export default function Results() {
                 </svg>
               </div>
               <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 850, color: 'var(--text)' }}>
-                Technical Explanation
+                Why This Is a Scam
               </h3>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.5, fontWeight: 500 }}>
@@ -201,7 +201,7 @@ export default function Results() {
             </p>
           </div>
 
-          {/* Card 4: Actionable Guidance */}
+          {/* Card 4: What You Should Do */}
           <div className="dash-stat-card" style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '18px', padding: '1.3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
               <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--success)' }}>
@@ -210,7 +210,7 @@ export default function Results() {
                 </svg>
               </div>
               <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 850, color: 'var(--text)' }}>
-                Actionable Guidance
+                What You Should Do
               </h3>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.5, fontWeight: 700 }}>
@@ -220,16 +220,16 @@ export default function Results() {
 
         </div>
 
-        {/* Threat Assessment Breakdown */}
+        {/* Risk Indicator Breakdown */}
         <div style={{ padding: '1.4rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '20px', marginBottom: '1.6rem' }}>
           <h3 style={{ margin: '0 0 0.9rem 0', fontSize: '1.05rem', fontWeight: 850, color: 'var(--text)' }}>
-            Threat Assessment Breakdown
+            Risk Indicator Breakdown
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.9rem' }}>
             
             <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
               <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>
-                Urgency &amp; Coercion
+                Pressure Level
               </span>
               <span style={{ fontSize: '1.1rem', fontWeight: 900, color: metrics.urgency === 'High' ? 'var(--danger)' : metrics.urgency === 'Medium' ? 'var(--warning)' : 'var(--success)' }}>
                 {metrics.urgency}
@@ -238,7 +238,7 @@ export default function Results() {
 
             <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
               <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>
-                Financial Demands
+                Money Requested
               </span>
               <span style={{ fontSize: '1.1rem', fontWeight: 900, color: metrics.finance === 'High' ? 'var(--danger)' : metrics.finance === 'Medium' ? 'var(--warning)' : 'var(--success)' }}>
                 {metrics.finance}
@@ -247,7 +247,7 @@ export default function Results() {
 
             <div style={{ background: 'var(--surface)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
               <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.3rem' }}>
-                Sender Authenticity
+                Sender Check
               </span>
               <span style={{ fontSize: '1.1rem', fontWeight: 900, color: metrics.sender === 'Unverified' ? 'var(--danger)' : metrics.sender === 'Suspicious' ? 'var(--warning)' : 'var(--success)' }}>
                 {metrics.sender}
@@ -257,20 +257,20 @@ export default function Results() {
           </div>
         </div>
 
-        {/* AI Detected Threat & Vector Breakdown */}
+        {/* Scam Category Likelihood */}
         {result.vectorBreakdown && result.vectorBreakdown.length > 0 && (
           <div style={{ padding: '1.5rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '20px', marginBottom: '1.6rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text)', fontWeight: 900 }}>
-                AI Detected Threat &amp; Vector Breakdown
+                Scam Category Likelihood
               </h3>
               <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
-                {result.threatCategory || 'MoMo Transfer & Cashout Fraud'}
+                {result.threatCategory || 'Mobile Money Scam'}
               </span>
             </div>
 
             <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: '0 0 1rem 0', lineHeight: 1.45 }}>
-              SafeLens AI evaluated your submitted content to show category likelihood ratios across major fraud vectors:
+              SafeLens AI matched your message against common scam types in Ghana:
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
