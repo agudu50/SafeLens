@@ -10,6 +10,10 @@ import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Profile from '../pages/Profile'
 import NotFound from '../pages/NotFound'
+import Pricing from '../pages/Pricing'
+import Billing from '../pages/Billing'
+import Wallet from '../pages/Wallet'
+import Settings from '../pages/Settings'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
@@ -60,41 +64,42 @@ function ProtectedRoute({ user, setUser, children, title = 'Account Required for
             </div>
             <div className="auth-feature-pill">
               <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--primary)' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 3v18m-9-9h18" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
               </svg>
-              <span>Ghana CSA Hotline Direct</span>
+              <span>Live MoMo Fraud Alerts</span>
             </div>
           </div>
 
           <div className="auth-gate-actions">
-            <Button as={Link} to="/login" variant="primary" style={{ justifyContent: 'center', width: '100%', gap: '0.5rem' }}>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
-              </svg>
-              Sign In to Your Account
-            </Button>
-            <Button as={Link} to="/register" variant="secondary" style={{ justifyContent: 'center', width: '100%', gap: '0.5rem' }}>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
-              </svg>
+            <Link to="/login" className="button-primary auth-btn-full" style={{ textDecoration: 'none' }}>
+              Sign In to Continue
+            </Link>
+
+            <Link to="/register" className="auth-btn-secondary" style={{ textDecoration: 'none' }}>
               Create Free Account
-            </Button>
-            
-            <div style={{ marginTop: '0.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', width: '100%' }}>
-              <span style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'block', marginBottom: '0.4rem' }}>
-                Want to explore immediately without entering credentials?
-              </span>
-              <button
-                type="button"
-                className="auth-demo-btn"
-                onClick={handleQuickLogin}
-              >
-                <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--primary)' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
-                <span>Quick Demo Login (Kofi Mensah)</span>
-              </button>
-            </div>
+            </Link>
+          </div>
+
+          <div style={{ marginTop: '1.2rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'block', marginBottom: '0.5rem' }}>
+              Want to test the platform instantly?
+            </span>
+            <button
+              onClick={handleQuickLogin}
+              type="button"
+              style={{
+                background: 'rgba(56, 189, 248, 0.1)',
+                color: 'var(--primary)',
+                border: '1px solid rgba(56, 189, 248, 0.25)',
+                padding: '0.45rem 1rem',
+                borderRadius: '999px',
+                fontSize: '0.8rem',
+                fontWeight: 800,
+                cursor: 'pointer'
+              }}
+            >
+              ⚡ Instant Demo Account Access (Kofi Mensah)
+            </button>
           </div>
         </section>
       </PageContainer>
@@ -108,6 +113,7 @@ export default function AppRoutes({ user, setUser }) {
     <Routes>
       <Route path="/" element={<Home user={user} />} />
       <Route path="/about" element={<About user={user} />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route path="/login" element={<Login setUser={setUser} />} />
       <Route path="/register" element={<Register setUser={setUser} />} />
 
@@ -149,6 +155,30 @@ export default function AppRoutes({ user, setUser }) {
         element={
           <ProtectedRoute user={user} setUser={setUser} title="Account Required for Scan Logs">
             <History user={user} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/billing"
+        element={
+          <ProtectedRoute user={user} setUser={setUser} title="Account Required for Billing">
+            <Billing />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/wallet"
+        element={
+          <ProtectedRoute user={user} setUser={setUser} title="Account Required for Web3 Wallet">
+            <Wallet />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute user={user} setUser={setUser} title="Account Required for Settings">
+            <Settings />
           </ProtectedRoute>
         }
       />

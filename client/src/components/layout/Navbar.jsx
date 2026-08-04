@@ -227,15 +227,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
             </NavLink>
           ))}
 
-          {/* SECTION 3: Quick Controls & Helpline */}
-          {open && (
-            <div className="mobile-drawer-only" style={{ fontSize: '0.65rem', fontWeight: 850, color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase', margin: '0.5rem 0 0.1rem 0.3rem' }}>
-              QUICK CONTROLS &amp; HELPLINE
-            </div>
-          )}
-
-          <div className="mobile-drawer-only" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', width: '100%' }}>
-            
+          <div className="nav-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
             {/* Ghana Helpline Trigger */}
             <div className="helpline-dropdown-wrapper" style={{ position: 'relative' }}>
               <button
@@ -276,8 +268,8 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     className="helpline-modal-popover animate-fade-in"
                     style={{
                       position: 'absolute',
-                      bottom: 'calc(100% + 8px)',
-                      left: 0,
+                      top: 'calc(100% + 8px)',
+                      right: 0,
                       width: '280px',
                       maxHeight: '380px',
                       overflowY: 'auto',
@@ -346,10 +338,6 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                 </svg>
               )}
             </button>
-
-          </div>
-          
-          <div className="nav-actions" style={{ marginLeft: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', position: 'relative' }} className="nav-user-container">
                 {/* On Public pages (Home page, Safety tips, About us), show primary "Go to Scanner" CTA button */}

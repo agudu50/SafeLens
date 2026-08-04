@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import SecurityChatbot from '../components/SecurityChatbot'
 import { getScanHistory } from '../services/scannerService'
+import ProtectionPlan from '../features/protection/ProtectionPlan'
+import Button from '../components/ui/Button'
 
 const graphData = [
   { day: 'Mon', scans: 4, highRisk: 2 },
@@ -409,6 +411,24 @@ export default function Dashboard({ user }) {
             </Link>
           </div>
         </section>
+
+        {/* Protection Plan Quota Overview */}
+        <ProtectionPlan />
+
+        {/* Quick Actions Bar */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem', marginBottom: '1.8rem' }}>
+          <Link to="/scan" style={{ textDecoration: 'none' }}>
+            <Button variant="primary" style={{ width: '100%', justifyContent: 'center' }}>
+              🔍 Scan Something
+            </Button>
+          </Link>
+
+          <Link to="/safety-tips" style={{ textDecoration: 'none' }}>
+            <Button variant="secondary" style={{ width: '100%', justifyContent: 'center' }}>
+              🛡️ View Safety Tips
+            </Button>
+          </Link>
+        </div>
 
         {/* 4 Core Overview Metrics Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.2rem', marginBottom: '1.8rem' }} className="animate-slide-up">

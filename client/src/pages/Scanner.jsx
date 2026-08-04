@@ -5,6 +5,7 @@ import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
 import Badge from '../components/ui/Badge'
 import { createMockScanResult } from '../services/scannerService'
+import AnalysisLoader from '../features/scanner/AnalysisLoader'
 
 const messageIcon = (
   <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', marginRight: '0.35rem', verticalAlign: 'middle', display: 'inline-block' }}>

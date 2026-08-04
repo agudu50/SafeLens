@@ -4,6 +4,7 @@ import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
 import { getMockScanResult } from '../services/scannerService'
+import BlockchainVerification from '../features/results/BlockchainVerification'
 
 export default function Results() {
   const { id } = useParams()
@@ -377,7 +378,8 @@ export default function Results() {
             &ldquo;{result.originalContent}&rdquo;
           </p>
         </div>
-
+        {/* Blockchain Verification Section */}
+        <BlockchainVerification verificationDetails={result?.verificationDetails} />
       </section>
 
       {/* Ghana Scam Reporting Modal Wizard */}

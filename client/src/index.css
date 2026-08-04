@@ -1311,26 +1311,31 @@ html.dark .hero-panel__card {
 .chip {
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--surface);
-  padding: 0.6rem 0.95rem;
-  color: var(--muted);
+  background: var(--surface-alt);
+  padding: 0.6rem 1.1rem;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.2s ease;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 750;
+  font-size: 0.88rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .chip:hover {
   border-color: var(--primary);
-  background: var(--surface-strong);
   color: var(--primary);
 }
 
 .chip--active {
-  background: var(--surface-strong);
-  color: var(--primary);
-  border-color: var(--primary);
-  font-weight: 600;
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  font-weight: 850 !important;
+  box-shadow: 0 4px 14px rgba(230, 60, 28, 0.35) !important;
+}
+
+.chip--active svg {
+  color: #ffffff !important;
 }
 
 .scanner-panel {

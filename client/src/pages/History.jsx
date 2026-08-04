@@ -345,9 +345,14 @@ export default function History() {
                         </span>
                       </div>
 
-                      <span style={{ fontSize: '0.76rem', fontWeight: 800, color: badgeColor, background: badgeBg, padding: '0.2rem 0.65rem', borderRadius: '999px', border: `1px solid ${badgeBorder}` }}>
-                        {scan.riskScore}% {scan.riskLevel.toUpperCase()} RISK
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.1)', padding: '0.18rem 0.5rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                          🛡️ Blockchain Verified
+                        </span>
+                        <span style={{ fontSize: '0.76rem', fontWeight: 800, color: badgeColor, background: badgeBg, padding: '0.2rem 0.65rem', borderRadius: '999px', border: `1px solid ${badgeBorder}` }}>
+                          {scan.riskScore}% {scan.riskLevel.toUpperCase()} RISK
+                        </span>
+                      </div>
                     </div>
 
                     {/* Scanned Input Text */}
