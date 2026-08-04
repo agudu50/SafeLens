@@ -573,7 +573,9 @@ export default function Home({ user }) {
               </div>
             </div>
 
-            <h3 className="step-card__title">AI Pattern Analysis</h3>
+            <h3 className="step-card__title">Smart Scam Detection</h3>
+            <p className="step-card__desc">SafeLens checks for suspicious words, fake money requests, and unverified sender details in real-time.</p>
+
             <div className="step-features">
               <span className="step-feature-chip">MoMo Lure Check</span>
               <span className="step-feature-chip">Urgency Audit</span>
