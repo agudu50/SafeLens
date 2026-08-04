@@ -535,7 +535,7 @@ export default function Home({ user }) {
         <div className="steps-grid">
           {/* Step 01 */}
           <div className="info-card step-card animate-slide-up delay-4" style={{ overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '165px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1rem', background: 'var(--surface-alt)', padding: '0.4rem' }}>
+            <div style={{ width: '100%', height: '240px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1.2rem', background: 'var(--surface-alt)', padding: '0.2rem' }}>
               <img src={stepSubmitImg} alt="Submit Content" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '16px' }} />
             </div>
 
@@ -560,7 +560,7 @@ export default function Home({ user }) {
 
           {/* Step 02 */}
           <div className="info-card step-card animate-slide-up delay-5" style={{ overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '165px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1rem', background: 'var(--surface-alt)', padding: '0.4rem' }}>
+            <div style={{ width: '100%', height: '240px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1.2rem', background: 'var(--surface-alt)', padding: '0.2rem' }}>
               <img src={stepAnalysisImg} alt="AI Pattern Analysis" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '16px' }} />
             </div>
 
@@ -585,7 +585,7 @@ export default function Home({ user }) {
 
           {/* Step 03 */}
           <div className="info-card step-card animate-slide-up delay-6" style={{ overflow: 'hidden' }}>
-            <div style={{ width: '100%', height: '165px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1rem', background: 'var(--surface-alt)', padding: '0.4rem' }}>
+            <div style={{ width: '100%', height: '240px', borderRadius: '20px', overflow: 'hidden', marginBottom: '1.2rem', background: 'var(--surface-alt)', padding: '0.2rem' }}>
               <img src={stepReportImg} alt="Protect & Report" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: '16px' }} />
             </div>
 
