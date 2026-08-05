@@ -48,13 +48,13 @@ export default function Results() {
 
   const copyReport = async () => {
     await navigator.clipboard.writeText(
-      `[SafeLens Scan Report]\nRisk Level: ${result.riskLevel.toUpperCase()} (${result.riskScore}% Risk)\n\nSummary: ${result.summary}\n\nOriginal Text: "${result.originalContent}"`
+      `SAFE LENS SCAN REPORT\nRisk Level: ${result.riskLevel.toUpperCase()} (${result.riskScore}% Risk)\n\nSummary: ${result.summary}\n\nOriginal Text: "${result.originalContent}"`
     )
     setCopied(true)
   }
 
   // Pre-compiled share text optimized for Ghanaian users sharing on WhatsApp
-  const shareText = `[Scam Alert] I checked this suspicious message on SafeLens and it has a ${result.riskScore}% scam risk:\n\n"${result.originalContent.length > 80 ? result.originalContent.slice(0, 80) + '...' : result.originalContent}"\n\nBe careful! Do not send money or click links. Check suspicious texts with SafeLens.`
+  const shareText = `SAFE LENS SECURITY ALERT: I checked this suspicious message on SafeLens and it has a ${result.riskScore}% scam risk:\n\n"${result.originalContent.length > 80 ? result.originalContent.slice(0, 80) + '...' : result.originalContent}"\n\nBe careful! Do not send money or click links. Check suspicious texts with SafeLens.`
 
   const copyShareText = async () => {
     await navigator.clipboard.writeText(shareText)

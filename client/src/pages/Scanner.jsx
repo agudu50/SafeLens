@@ -414,14 +414,23 @@ export default function Scanner() {
 
           {/* Trust Footnote */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.2rem', marginTop: '1.4rem', fontSize: '0.76rem', color: 'var(--muted)', flexWrap: 'wrap' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-              <span style={{ color: 'var(--success)', fontWeight: 900 }}>✓</span> 100% Private Analysis
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--success)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+              100% Private Analysis
             </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-              <span style={{ color: 'var(--success)', fontWeight: 900 }}>✓</span> Ghana MoMo Vector Check
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--success)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+              Ghana MoMo Vector Check
             </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-              <span style={{ color: 'var(--success)', fontWeight: 900 }}>✓</span> Instant Risk Score Report
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--success)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+              Instant Risk Score Report
             </span>
           </div>
         </section>
