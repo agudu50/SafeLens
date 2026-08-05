@@ -2,17 +2,23 @@ import React from 'react'
 
 export default function PageContainer({ children, className = '', style = {} }) {
   return (
-    <main
+    <div
       className={`page-container ${className}`}
       style={{
         maxWidth: '1200px',
+        width: '100%',
         margin: '0 auto',
-        padding: '2rem 1.25rem 4rem 1.25rem',
-        minHeight: 'calc(100vh - 80px)',
+        padding: '1.5rem 1.25rem 3.5rem 1.25rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
         ...style
       }}
     >
-      {children}
-    </main>
+      <div style={{ width: '100%', maxWidth: '1200px' }}>
+        {children}
+      </div>
+    </div>
   )
 }

@@ -101,7 +101,7 @@ export default function Results() {
 
   return (
     <PageContainer>
-      <section className="results-card" style={{ width: '100%' }}>
+      <section className="results-card" style={{ width: '100%', maxWidth: '960px', margin: '0 auto' }}>
         
         {/* Hero Score & Header */}
         <div 
