@@ -3830,3 +3830,18 @@ html.dark .helpline-item-link:hover {
   }
 }
 
+/* Results Page Balanced Desktop 2-Column Grid Layout */
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.6rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .results-grid {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+}
+
+

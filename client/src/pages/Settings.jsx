@@ -33,7 +33,7 @@ export default function Settings() {
 
         {saved && (
           <Alert type="success" style={{ marginBottom: '1.2rem' }}>
-            ✓ Preferences saved successfully!
+             Preferences saved successfully!
           </Alert>
         )}
 
