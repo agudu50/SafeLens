@@ -98,7 +98,7 @@ export default function Results() {
 
   return (
     <PageContainer>
-      <section className="results-card" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+      <section className="results-card" style={{ width: '100%', margin: '0 auto' }}>
         
         {/* Top Full-Width Hero Score Card */}
         <div 
