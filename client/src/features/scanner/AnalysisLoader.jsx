@@ -24,27 +24,26 @@ export default function AnalysisLoader({ isOpen }) {
   if (!isOpen) return null
 
   return (
-    <>
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.75)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 2000
-        }}
-      />
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'grid',
+        placeItems: 'center',
+        background: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(8px)',
+        zIndex: 2500,
+        padding: '1rem',
+        boxSizing: 'border-box'
+      }}
+    >
       <div
         className="animate-fade-in"
         style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
+          width: '100%',
           maxWidth: '440px',
           maxHeight: '85vh',
           overflowY: 'auto',
@@ -54,7 +53,6 @@ export default function AnalysisLoader({ isOpen }) {
           boxShadow: '0 24px 60px rgba(0, 0, 0, 0.3)',
           padding: '1.8rem',
           textAlign: 'center',
-          zIndex: 2100,
           boxSizing: 'border-box'
         }}
       >
@@ -109,6 +107,6 @@ export default function AnalysisLoader({ isOpen }) {
           })}
         </div>
       </div>
-    </>
+    </div>
   )
 }
