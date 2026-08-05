@@ -1,6 +1,7 @@
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Home from '../pages/Home'
 import Dashboard from '../pages/Dashboard'
+import Scanner from '../pages/Scanner'
 import Results from '../pages/Results'
 import History from '../pages/History'
 import About from '../pages/About'
@@ -120,6 +121,14 @@ export default function AppRoutes({ user, setUser }) {
         element={
           <ProtectedRoute user={user} setUser={setUser} title="Account Required for Security Dashboard">
             <Dashboard user={user} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/scan"
+        element={
+          <ProtectedRoute user={user} setUser={setUser} title="Account Required for Message Scanning">
+            <Scanner user={user} />
           </ProtectedRoute>
         }
       />

@@ -414,8 +414,14 @@ export default function Dashboard({ user }) {
 
         {/* Quick Actions Bar */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem', marginBottom: '1.8rem' }}>
-          <Link to="/history" style={{ textDecoration: 'none' }}>
+          <Link to="/scan" style={{ textDecoration: 'none' }}>
             <Button variant="primary" style={{ width: '100%', justifyContent: 'center' }}>
+              🔍 New AI Scan
+            </Button>
+          </Link>
+
+          <Link to="/history" style={{ textDecoration: 'none' }}>
+            <Button variant="secondary" style={{ width: '100%', justifyContent: 'center' }}>
               View Scan History
             </Button>
           </Link>

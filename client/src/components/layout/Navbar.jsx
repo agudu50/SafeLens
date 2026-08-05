@@ -31,8 +31,8 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Determine if user is inside internal App Workspace pages (/dashboard, /history, /profile, /results, /safety-tips)
-  const isAppWorkspace = user && ['/dashboard', '/history', '/profile', '/results', '/safety-tips'].some(path => location.pathname.startsWith(path))
+  // Determine if user is inside internal App Workspace pages (/dashboard, /scan, /history, /profile, /results, /safety-tips)
+  const isAppWorkspace = user && ['/dashboard', '/scan', '/history', '/profile', '/results', '/safety-tips'].some(path => location.pathname.startsWith(path))
 
   // Clean navigation links
   const links = isAppWorkspace
@@ -43,6 +43,16 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           icon: (
             <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+            </svg>
+          )
+        },
+        {
+          to: '/scan',
+          label: 'AI Scanner',
+          isBadge: true,
+          icon: (
+            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
             </svg>
           )
         },
@@ -332,10 +342,10 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
             </button>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', position: 'relative' }} className="nav-user-container">
-                {/* On Public pages, show primary Dashboard CTA */}
+                {/* On Public pages (Home page, Safety tips, About us), show primary "Go to Scanner" CTA button */}
                 {!isAppWorkspace && (
                   <Link
-                    to="/dashboard"
+                    to="/scan"
                     className="nav-action"
                     onClick={() => setOpen(false)}
                     style={{
@@ -353,7 +363,10 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                       whiteSpace: 'nowrap'
                     }}
                   >
-                    <span>Dashboard</span>
+                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    <span>AI Scanner</span>
                   </Link>
                 )}
 

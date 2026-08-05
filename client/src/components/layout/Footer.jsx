@@ -27,6 +27,7 @@ export default function Footer() {
           <strong style={{ color: 'var(--text)', display: 'block', marginBottom: '0.8rem', fontWeight: 800 }}>Product</strong>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
             <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>Dashboard</Link>
+            <Link to="/scan" style={{ color: 'inherit', textDecoration: 'none' }}>AI Scanner</Link>
             <Link to="/history" style={{ color: 'inherit', textDecoration: 'none' }}>Scan History</Link>
             <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>Protection Plans</Link>
           </div>
