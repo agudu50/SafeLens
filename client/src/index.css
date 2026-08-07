@@ -110,6 +110,16 @@ button {
   background: transparent;
 }
 
+/* Mobile Responsive Layout Padding Adjustments */
+@media (max-width: 640px) {
+  .main-content {
+    padding: 0.8rem 0.35rem 2rem !important;
+  }
+  .page-container {
+    padding: 0 0.35rem !important;
+  }
+}
+
 .main-content {
   flex: 1;
   padding: 2rem 1rem 3rem;

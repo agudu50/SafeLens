@@ -176,17 +176,37 @@ export default function Dashboard({ user }) {
             animation: radarPulse 2s ease-in-out infinite;
           }
 
-          @media (max-width: 640px) {
+          /* Enhanced Mobile Responsive Overrides for Smartphones & Tablets */
+          @media (max-width: 768px) {
             .dash-hero-card {
               padding: 1.2rem 1rem !important;
             }
             .dash-hero-title {
-              font-size: 1.45rem !important;
+              font-size: 1.35rem !important;
             }
             .dash-hero-btn {
               width: 100% !important;
               justify-content: center !important;
               margin-top: 0.4rem !important;
+            }
+            .scanner-card {
+              padding: 1.1rem 0.95rem !important;
+              border-radius: 18px !important;
+            }
+            .weekly-chart-wrapper {
+              height: 205px !important;
+            }
+            .overview-stats-grid {
+              grid-template-columns: repeat(2, 1fr) !important;
+              gap: 0.75rem !important;
+            }
+            .helpline-grid-responsive {
+              grid-template-columns: 1fr !important;
+            }
+            .audit-metadata-row {
+              flex-direction: column !important;
+              align-items: flex-start !important;
+              gap: 0.55rem !important;
             }
             .ticker-top-bar {
               padding: 0.55rem 0.85rem !important;
@@ -204,6 +224,15 @@ export default function Dashboard({ user }) {
             .ticker-badge-text {
               font-size: 0.68rem !important;
               padding: 0.35rem 0.65rem !important;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .overview-stats-grid {
+              grid-template-columns: 1fr !important;
+            }
+            .dash-stat-card {
+              padding: 1rem 0.9rem !important;
             }
           }
         `}</style>
@@ -443,7 +472,7 @@ export default function Dashboard({ user }) {
         </section>
 
         {/* 4 Core Overview Metrics Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.2rem', marginBottom: '1.8rem' }} className="animate-slide-up">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.2rem', marginBottom: '1.8rem' }} className="animate-slide-up overview-stats-grid">
           
           {/* Card 1: Total Scans */}
           <div className="dash-stat-card">
@@ -617,8 +646,8 @@ export default function Dashboard({ user }) {
                 )}
               </div>
 
-              {/* Enlarged SVG Animated Chart (Height increased to 280px) */}
-              <div style={{ width: '100%', height: '280px', position: 'relative', overflow: 'visible' }}>
+              {/* Enlarged SVG Animated Chart (Height increased to 280px, 205px on mobile) */}
+              <div className="weekly-chart-wrapper" style={{ width: '100%', height: '280px', position: 'relative', overflow: 'visible' }}>
                 <svg viewBox="0 0 600 230" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
                   {/* Horizontal Grid Lines */}
                   <line x1="40" y1="30" x2="580" y2="30" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
@@ -1031,7 +1060,7 @@ export default function Dashboard({ user }) {
                     </Link>
 
                     {/* Metadata row: Category, timestamp, risk badge, audit link to history */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border)' }}>
+                    <div className="audit-metadata-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border)' }}>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
                         <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>
                           {item.threatCategory || 'MoMo Transfer & Cashout Fraud'}
@@ -1177,7 +1206,7 @@ export default function Dashboard({ user }) {
           </div>
 
           {/* Interactive Direct-Dial Action Cards Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+          <div className="helpline-grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
             {/* Card 1: Cyber Security Authority (CSA) 292 */}
             <a 
               href="tel:292" 
