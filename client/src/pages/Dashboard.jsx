@@ -1147,24 +1147,140 @@ export default function Dashboard({ user }) {
           </div>
         </div>
 
-        {/* Ghana Emergency Helplines Direct Dial Bar */}
-        <section className="scanner-card" style={{ padding: '1.4rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: '0 0 0.4rem 0', color: 'var(--text)' }}>
-            Ghana Emergency Anti-Scam Helplines
-          </h3>
-          <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: '0 0 1rem 0' }}>
-            If you suspect an active wallet compromise or fraud attempt, dial support immediately:
-          </p>
+        {/* Enhanced Ghana Emergency Anti-Scam Helplines Direct-Dial Action Cards Section */}
+        <section 
+          className="scanner-card animate-slide-up" 
+          style={{ 
+            padding: '1.8rem 2rem', 
+            background: 'linear-gradient(135deg, rgba(230, 60, 28, 0.03), var(--surface-alt))', 
+            borderRadius: '24px', 
+            border: '1px solid var(--border)', 
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.03)',
+            marginBottom: '1rem'
+          }}
+        >
+          {/* Header Title & Subtitle */}
+          <div style={{ textAlign: 'center', marginBottom: '1.4rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(230, 60, 28, 0.1)', color: 'var(--primary)', display: 'grid', placeItems: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                </svg>
+              </div>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                Ghana Emergency Anti-Scam Helplines
+              </h3>
+            </div>
+            <p style={{ fontSize: '0.88rem', color: 'var(--muted)', margin: 0 }}>
+              If you suspect an active wallet compromise or fraud attempt, tap support below to dial immediately:
+            </p>
+          </div>
 
-          <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="tel:292" style={{ textDecoration: 'none', background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.5rem 1rem', borderRadius: '999px', color: 'var(--text)', fontSize: '0.84rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span style={{ color: 'var(--primary)' }}>CSA Hotline:</span> 292
+          {/* Interactive Direct-Dial Action Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+            {/* Card 1: Cyber Security Authority (CSA) 292 */}
+            <a 
+              href="tel:292" 
+              style={{ 
+                textDecoration: 'none', 
+                background: 'var(--surface)', 
+                border: '1px solid var(--border)', 
+                borderRadius: '16px', 
+                padding: '1.1rem 1.2rem', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justify: 'space-between',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.02)'
+              }}
+              className="helpline-card-hover"
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--primary)', background: 'rgba(230,60,28,0.1)', padding: '0.2rem 0.65rem', borderRadius: '999px' }}>
+                  CSA Hotline
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--primary)' }}>
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                </svg>
+              </div>
+              <div>
+                <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', display: 'block', lineHeight: 1.2, marginBottom: '0.2rem' }}>
+                  292
+                </strong>
+                <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 650 }}>
+                  Toll-Free National Incident Line
+                </span>
+              </div>
             </a>
-            <a href="tel:1917" style={{ textDecoration: 'none', background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.5rem 1rem', borderRadius: '999px', color: 'var(--text)', fontSize: '0.84rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span style={{ color: 'var(--danger)' }}>MTN Fraud:</span> 1917
+
+            {/* Card 2: MTN Mobile Money Fraud 1917 */}
+            <a 
+              href="tel:1917" 
+              style={{ 
+                textDecoration: 'none', 
+                background: 'var(--surface)', 
+                border: '1px solid var(--border)', 
+                borderRadius: '16px', 
+                padding: '1.1rem 1.2rem', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justify: 'space-between',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.02)'
+              }}
+              className="helpline-card-hover"
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--warning)', background: 'rgba(245,158,11,0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px' }}>
+                  MTN Fraud
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--warning)' }}>
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                </svg>
+              </div>
+              <div>
+                <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', display: 'block', lineHeight: 1.2, marginBottom: '0.2rem' }}>
+                  1917
+                </strong>
+                <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 650 }}>
+                  Free SMS &amp; Voice Fraud Report
+                </span>
+              </div>
             </a>
-            <a href="tel:100" style={{ textDecoration: 'none', background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.5rem 1rem', borderRadius: '999px', color: 'var(--text)', fontSize: '0.84rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span style={{ color: 'var(--success)' }}>Telecel / AT:</span> 100
+
+            {/* Card 3: Telecel / AT Support 100 */}
+            <a 
+              href="tel:100" 
+              style={{ 
+                textDecoration: 'none', 
+                background: 'var(--surface)', 
+                border: '1px solid var(--border)', 
+                borderRadius: '16px', 
+                padding: '1.1rem 1.2rem', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justify: 'space-between',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.02)'
+              }}
+              className="helpline-card-hover"
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16,185,129,0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px' }}>
+                  Telecel / AT
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--success)' }}>
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                </svg>
+              </div>
+              <div>
+                <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', display: 'block', lineHeight: 1.2, marginBottom: '0.2rem' }}>
+                  100
+                </strong>
+                <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 650 }}>
+                  Network Operator Customer Care
+                </span>
+              </div>
             </a>
           </div>
         </section>
