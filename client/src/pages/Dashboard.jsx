@@ -208,55 +208,58 @@ export default function Dashboard({ user }) {
           }
         `}</style>
 
-        {/* Live Threat Radar Sweep HUD Card */}
+        {/* Enhanced Live Threat Advisory HUD Card with clean neutral borders */}
         <div 
           className="animate-slide-up" 
           style={{ 
             marginBottom: '1.4rem', 
             background: 'var(--surface-alt)', 
             border: '1px solid var(--border)',
-            borderRadius: '18px',
+            borderRadius: '20px',
             overflow: 'hidden',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
           }}
         >
-          {/* ── Safety Header Bar ── */}
+          {/* Active Monitoring Top Header Bar */}
           <div className="ticker-top-bar" style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: '0.5rem',
-            padding: '0.65rem 1rem',
-            background: 'rgba(220, 38, 38, 0.04)',
-            borderBottom: '1px solid rgba(220, 38, 38, 0.1)',
+            padding: '0.75rem 1.1rem',
+            background: 'var(--surface)',
+            borderBottom: '1px solid var(--border)',
             flexWrap: 'wrap'
           }}>
-            {/* Left: Shield icon + label */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--danger)', flexShrink: 0 }}>
-                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(220,38,38,0.08)"/>
-                <polyline points="9 12 11 14 15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span style={{ fontSize: '0.72rem', fontWeight: 850, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+            {/* Left: Shield icon + Active Monitoring label */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'rgba(230, 60, 28, 0.1)', display: 'grid', placeItems: 'center' }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
+                  <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(230,60,28,0.08)"/>
+                  <polyline points="9 12 11 14 15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <span style={{ fontSize: '0.76rem', fontWeight: 900, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                 SafeLens Active Monitoring
               </span>
             </div>
 
-            {/* Right: Stats pills */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--muted)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', padding: '0.18rem 0.5rem', whiteSpace: 'nowrap' }}>
+            {/* Right: Monitoring stats pills */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text)', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '999px', padding: '0.2rem 0.65rem', whiteSpace: 'nowrap' }}>
                 264 Scans Today
               </span>
-              <span style={{ fontSize: '0.66rem', fontWeight: 700, color: 'var(--success)', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', borderRadius: '6px', padding: '0.18rem 0.5rem', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--success)', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '999px', padding: '0.2rem 0.65rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
                 4 Shields Active
               </span>
             </div>
           </div>
 
-          {/* ── Ticker Main Body ── */}
-          <div style={{ padding: '0.9rem 1rem' }}>
-            {/* Top row: Priority badge on Left | Timestamp + Nav on Right */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.75rem' }}>
+          {/* Ticker Main Content Body */}
+          <div style={{ padding: '1rem 1.1rem' }}>
+            {/* Advisory header row: Priority badge on Left | Prev/Next navigation controls on Right (No time display) */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.8rem' }}>
               <span 
                 key={`badge-${currentTickerIdx}`}
                 className="animate-fade-in"
@@ -265,22 +268,22 @@ export default function Dashboard({ user }) {
                     ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
                     : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                   color: '#ffffff',
-                  padding: '0.28rem 0.7rem',
-                  borderRadius: '6px',
-                  fontSize: '0.68rem',
+                  padding: '0.3rem 0.75rem',
+                  borderRadius: '8px',
+                  fontSize: '0.7rem',
                   fontWeight: 900,
-                  letterSpacing: '0.05em',
+                  letterSpacing: '0.06em',
                   textTransform: 'uppercase',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.3rem',
+                  gap: '0.35rem',
                   whiteSpace: 'nowrap',
                   boxShadow: tickerReports[currentTickerIdx].priority === 'CRITICAL' 
-                    ? '0 2px 8px rgba(239, 68, 68, 0.3)' 
-                    : '0 2px 8px rgba(245, 158, 11, 0.3)'
+                    ? '0 3px 10px rgba(239, 68, 68, 0.25)' 
+                    : '0 3px 10px rgba(245, 158, 11, 0.25)'
                 }}
               >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                   <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(255,255,255,0.2)"/>
                   <line x1="12" y1="9" x2="12" y2="13" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round"/>
                   <circle cx="12" cy="17" r="1" fill="#ffffff"/>
@@ -288,36 +291,30 @@ export default function Dashboard({ user }) {
                 {tickerReports[currentTickerIdx].priority} ADVISORY
               </span>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 650, whiteSpace: 'nowrap' }}>
-                  {tickerReports[currentTickerIdx].time}
-                </span>
-
-                {/* Prev / Next controls */}
-                <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', padding: '1px' }}>
-                  <button 
-                    onClick={() => setCurrentTickerIdx(prev => (prev - 1 + tickerReports.length) % tickerReports.length)}
-                    style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '5px', transition: 'background 0.15s ease' }}
-                    title="Previous Intercept"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <polyline points="15 18 9 12 15 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                  <button 
-                    onClick={() => setCurrentTickerIdx(prev => (prev + 1) % tickerReports.length)}
-                    style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '5px', transition: 'background 0.15s ease' }}
-                    title="Next Intercept"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
+              {/* Advisory navigation control buttons */}
+              <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '2px' }}>
+                <button 
+                  onClick={() => setCurrentTickerIdx(prev => (prev - 1 + tickerReports.length) % tickerReports.length)}
+                  style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.15s ease' }}
+                  title="Previous Advisory"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <polyline points="15 18 9 12 15 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+                <button 
+                  onClick={() => setCurrentTickerIdx(prev => (prev + 1) % tickerReports.length)}
+                  style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.15s ease' }}
+                  title="Next Advisory"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
               </div>
             </div>
 
-            {/* Prompt text box - beautifully structured */}
+            {/* Security Prompt Box without harsh side border */}
             <div 
               key={currentTickerIdx} 
               className="animate-fade-in" 
@@ -325,21 +322,21 @@ export default function Dashboard({ user }) {
                 background: 'var(--surface)',
                 border: '1px solid var(--border)',
                 borderRadius: '12px',
-                padding: '0.8rem 1rem'
+                padding: '0.85rem 1.1rem'
               }}
             >
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.35rem' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block' }} className="live-pulse-dot" />
-                <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block' }} className="live-pulse-dot" />
+                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
                   IMPORTANT SECURITY PROMPT
                 </span>
               </div>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text)', fontWeight: 750, margin: 0, lineHeight: 1.45 }}>
+              <p style={{ fontSize: '0.92rem', color: 'var(--text)', fontWeight: 800, margin: 0, lineHeight: 1.5 }}>
                 {tickerReports[currentTickerIdx].prompt}
               </p>
+            </div>
           </div>
         </div>
-      </div>
 
         {/* Unified Executive Command Center Banner: Combines User Greeting, CTAs, and Protection Plan Quota widget */}
         <section
@@ -363,35 +360,13 @@ export default function Dashboard({ user }) {
           >
             {/* Left Side: Greeting, Live Date/Time & Command Center CTAs */}
             <div>
-              {/* Security Command Center Status & Live Clock Pill Badges */}
+              {/* Security Command Center Status Badge (No time display per user instruction) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(16, 185, 129, 0.08)', padding: '0.2rem 0.55rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                   <span className="live-pulse-dot" style={{ width: '7px', height: '7px', background: 'var(--success)' }} />
                   <span style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     REAL-TIME COMMAND CENTER
                   </span>
-                </div>
-
-                {/* Live Date & Clock Pill */}
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  background: 'var(--surface-alt)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '999px',
-                  padding: '0.2rem 0.65rem',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  color: 'var(--text)'
-                }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                    <polyline points="12 6 12 12 16 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                  <span>{formattedDate}</span>
-                  <span style={{ color: 'var(--muted)', opacity: 0.6 }}>|</span>
-                  <span style={{ color: 'var(--primary)' }}>{formattedTimeStr}</span>
                 </div>
               </div>
 
@@ -578,88 +553,92 @@ export default function Dashboard({ user }) {
 
         </div>
 
-        {/* FEATURE 1 GRID: Weekly Graph & Interactive Diagnostics */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-1">
-          {/* Card A: Weekly Graph */}
-          <section className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justify: 'space-between' }}>
+        {/* FEATURE 1: Enhanced Large Weekly Threat Detection & Scan Volume Visual Analytics */}
+        <div style={{ marginBottom: '2rem' }} className="animate-slide-up delay-1">
+          {/* Card A: Enlarged & Enhanced Weekly Graph Card */}
+          <section className="scanner-card" style={{ padding: '1.8rem 2rem', background: 'var(--surface-alt)', borderRadius: '24px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 8px 30px rgba(0, 0, 0, 0.03)' }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem', flexWrap: 'wrap', gap: '0.6rem' }}>
+              {/* Header Title & Legend */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
-                  <h2 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.2rem 0', color: 'var(--text)' }}>
+                  <h2 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
                     Weekly Threat Detection &amp; Scan Volume
                   </h2>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: 0 }}>
-                    Visual analytics tracking scan frequency vs flagged scam attempts.
+                  <p style={{ fontSize: '0.88rem', color: 'var(--muted)', margin: 0 }}>
+                    Visual analytics tracking scan frequency vs flagged scam attempts across Ghana.
                   </p>
                 </div>
 
                 {/* Chart Legend Pills */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.72rem', fontWeight: 800 }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text)' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)', display: 'inline-block' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.84rem', fontWeight: 800 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text)' }}>
+                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)', display: 'inline-block', boxShadow: '0 0 8px rgba(230,60,28,0.4)' }} />
                     Total Scans
                   </span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text)' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block' }} />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text)' }}>
+                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block', boxShadow: '0 0 8px rgba(239,68,68,0.4)' }} />
                     Flagged Scams
                   </span>
                 </div>
               </div>
 
-              {/* Dynamic Tooltip / Daily Details Bar */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', minHeight: '38px', background: 'var(--surface)', padding: '0.55rem 0.85rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+              {/* Dynamic Interactive Tooltip / Daily Details Bar */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.4rem', minHeight: '46px', background: 'var(--surface)', padding: '0.7rem 1.1rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
                 {hoveredBar !== null ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.78rem', width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                    <span style={{ color: 'var(--text)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '0.86rem', width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                    <span style={{ color: 'var(--text)', fontWeight: 900, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
                         <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
                         <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                         <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                         <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
                       </svg>
-                      {{ Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }[graphData[hoveredBar].day]}
+                      {{ Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }[graphData[hoveredBar].day]} Statistics:
                     </span>
-                    <span style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
-                      <span style={{ color: 'var(--primary)', fontWeight: 800 }}>
+                    <span style={{ display: 'flex', gap: '1.2rem', flexWrap: 'wrap' }}>
+                      <span style={{ color: 'var(--primary)', fontWeight: 850 }}>
                         Total Scans: {graphData[hoveredBar].scans}
                       </span>
-                      <span style={{ color: 'var(--danger)', fontWeight: 800 }}>
+                      <span style={{ color: 'var(--danger)', fontWeight: 850 }}>
                         Flagged Scams: {graphData[hoveredBar].highRisk}
                       </span>
-                      <span style={{ color: 'var(--muted)', fontWeight: 700 }}>
+                      <span style={{ color: 'var(--muted)', fontWeight: 750 }}>
                         Threat Ratio: {Math.round((graphData[hoveredBar].highRisk / graphData[hoveredBar].scans) * 100)}%
                       </span>
                     </span>
                   </div>
                 ) : (
-                  <div style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--primary)', flexShrink: 0 }}>
+                  <div style={{ fontSize: '0.84rem', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 650 }}>
+                    <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--primary)', flexShrink: 0 }}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.083 1.083l-.04.02a.75.75 0 01-1.084-1.083zM12 21a9 9 0 100-18 9 9 0 000 18z" />
                     </svg>
-                    <span>Hover over any chart column for dynamic daily breakdown statistics.</span>
+                    <span>Hover over any chart column below to inspect detailed daily analytics.</span>
                   </div>
                 )}
               </div>
 
-              {/* SVG Animated Chart */}
-              <div style={{ width: '100%', height: '170px', position: 'relative', overflow: 'visible' }}>
-                <svg viewBox="0 0 500 160" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-                  {/* Grid Lines */}
-                  <line x1="30" y1="30" x2="480" y2="30" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-                  <line x1="30" y1="75" x2="480" y2="75" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-                  <line x1="30" y1="120" x2="480" y2="120" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+              {/* Enlarged SVG Animated Chart (Height increased to 280px) */}
+              <div style={{ width: '100%', height: '280px', position: 'relative', overflow: 'visible' }}>
+                <svg viewBox="0 0 600 230" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                  {/* Horizontal Grid Lines */}
+                  <line x1="40" y1="30" x2="580" y2="30" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+                  <line x1="40" y1="85" x2="580" y2="85" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+                  <line x1="40" y1="140" x2="580" y2="140" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
+                  <line x1="40" y1="195" x2="580" y2="195" stroke="var(--border)" strokeWidth="1.5" />
 
-                  {/* Y Axis Numeric Labels */}
-                  <text x="22" y="34" textAnchor="end" fill="var(--muted)" fontSize="10" fontWeight="700">10</text>
-                  <text x="22" y="79" textAnchor="end" fill="var(--muted)" fontSize="10" fontWeight="700">5</text>
-                  <text x="22" y="124" textAnchor="end" fill="var(--muted)" fontSize="10" fontWeight="700">0</text>
+                  {/* Y Axis Numeric Scale Labels */}
+                  <text x="30" y="34" textAnchor="end" fill="var(--muted)" fontSize="12" fontWeight="800">15</text>
+                  <text x="30" y="89" textAnchor="end" fill="var(--muted)" fontSize="12" fontWeight="800">10</text>
+                  <text x="30" y="144" textAnchor="end" fill="var(--muted)" fontSize="12" fontWeight="800">5</text>
+                  <text x="30" y="199" textAnchor="end" fill="var(--muted)" fontSize="12" fontWeight="800">0</text>
 
+                  {/* Daily Bar Columns */}
                   {graphData.map((d, i) => {
-                    const xStart = 45 + i * 62
-                    const totalHeight = d.scans * 11
-                    const threatHeight = d.highRisk * 11
-                    const yTotal = 130 - totalHeight
-                    const yThreat = 130 - threatHeight
+                    const xStart = 60 + i * 74
+                    const totalHeight = d.scans * 15
+                    const threatHeight = d.highRisk * 15
+                    const yTotal = 195 - totalHeight
+                    const yThreat = 195 - threatHeight
 
                     const isHovered = hoveredBar === i
 
@@ -670,47 +649,47 @@ export default function Dashboard({ user }) {
                         onMouseLeave={() => setHoveredBar(null)}
                         style={{ cursor: 'pointer' }}
                       >
-                        {/* Background transparent hit area for easier hover selection */}
-                        <rect x={xStart - 5} y="10" width="46" height="135" fill="transparent" />
+                        {/* Background transparent hit area for hover selection */}
+                        <rect x={xStart - 8} y="15" width="58" height="190" fill="transparent" />
 
                         {/* Total Scans Bar */}
                         <rect 
                           x={xStart} 
                           y={yTotal} 
-                          width="16" 
+                          width="22" 
                           height={totalHeight} 
-                          rx="4" 
+                          rx="6" 
                           fill="var(--primary)" 
-                          opacity={hoveredBar === null ? 0.85 : isHovered ? 1 : 0.4} 
-                          style={{ transition: 'all 0.2s ease', transformOrigin: `${xStart + 8}px 130px` }}
+                          opacity={hoveredBar === null ? 0.88 : isHovered ? 1 : 0.35} 
+                          style={{ transition: 'all 0.25s ease', transformOrigin: `${xStart + 11}px 195px` }}
                         >
                           <animate attributeName="height" from="0" to={totalHeight} dur="0.5s" fill="freeze" />
-                          <animate attributeName="y" from="130" to={yTotal} dur="0.5s" fill="freeze" />
+                          <animate attributeName="y" from="195" to={yTotal} dur="0.5s" fill="freeze" />
                         </rect>
 
                         {/* High Risk Threats Bar */}
                         <rect 
-                          x={xStart + 18} 
+                          x={xStart + 26} 
                           y={yThreat} 
-                          width="16" 
+                          width="22" 
                           height={threatHeight} 
-                          rx="4" 
+                          rx="6" 
                           fill="var(--danger)" 
-                          opacity={hoveredBar === null ? 0.95 : isHovered ? 1 : 0.4} 
-                          style={{ transition: 'all 0.2s ease', transformOrigin: `${xStart + 26}px 130px` }}
+                          opacity={hoveredBar === null ? 0.95 : isHovered ? 1 : 0.35} 
+                          style={{ transition: 'all 0.25s ease', transformOrigin: `${xStart + 37}px 195px` }}
                         >
                           <animate attributeName="height" from="0" to={threatHeight} dur="0.5s" fill="freeze" />
-                          <animate attributeName="y" from="130" to={yThreat} dur="0.5s" fill="freeze" />
+                          <animate attributeName="y" from="195" to={yThreat} dur="0.5s" fill="freeze" />
                         </rect>
 
-                        {/* X Axis Label */}
+                        {/* X Axis Day Label */}
                         <text 
-                          x={xStart + 17} 
-                          y="150" 
+                          x={xStart + 24} 
+                          y="218" 
                           textAnchor="middle" 
-                          fill={isHovered ? 'var(--text)' : 'var(--muted)'} 
-                          fontSize="11" 
-                          fontWeight={isHovered ? '900' : '700'}
+                          fill={isHovered ? 'var(--primary)' : 'var(--text)'} 
+                          fontSize="13" 
+                          fontWeight={isHovered ? '900' : '800'}
                           style={{ transition: 'fill 0.2s ease' }}
                         >
                           {d.day}
@@ -722,83 +701,16 @@ export default function Dashboard({ user }) {
               </div>
             </div>
 
-            {/* AI Warning Callout Banner (No Emojis, pure SVG) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', background: 'rgba(220, 38, 38, 0.08)', border: '1px solid rgba(220, 38, 38, 0.18)', padding: '0.65rem 0.9rem', borderRadius: '12px', marginTop: '0.9rem', width: '100%' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--danger)', flexShrink: 0 }}>
+            {/* AI Warning Callout Banner */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: 'rgba(220, 38, 38, 0.08)', border: '1px solid rgba(220, 38, 38, 0.18)', padding: '0.8rem 1.1rem', borderRadius: '14px', marginTop: '1.2rem', width: '100%' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--danger)', flexShrink: 0 }}>
                 <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(220,38,38,0.15)"/>
                 <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
                 <circle cx="12" cy="17" r="1" fill="currentColor"/>
               </svg>
-              <span style={{ fontSize: '0.76rem', color: 'var(--danger)', fontWeight: 700, lineHeight: 1.4 }}>
+              <span style={{ fontSize: '0.84rem', color: 'var(--danger)', fontWeight: 750, lineHeight: 1.45 }}>
                 <strong>AI Threat Indicator:</strong> Fraudulent cashout spikes by 80% on weekends. Remain alert on Saturdays &amp; Sundays.
               </span>
-            </div>
-          </section>
-
-          {/* Card B: Interactive Diagnostics Checkup */}
-          <section className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                AI Defensive Diagnostics Checkup
-              </h2>
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: readinessScore >= 75 ? 'var(--success)' : 'var(--warning)', background: readinessScore >= 75 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                {readinessScore}% SHIELDED
-              </span>
-            </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0 0 1rem 0' }}>
-              Toggle security configurations to dynamically check and protect your status:
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-              {checklist.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => handleCheckboxToggle(item.id)}
-                  style={{
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '12px',
-                    padding: '0.75rem 0.9rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: item.checked ? '0 0 8px rgba(16, 185, 129, 0.08)' : 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
-                    <div style={{
-                      width: '18px',
-                      height: '18px',
-                      borderRadius: '4px',
-                      border: `2px solid ${item.checked ? 'var(--success)' : 'var(--muted)'}`,
-                      background: item.checked ? 'var(--success)' : 'transparent',
-                      display: 'grid',
-                      placeItems: 'center',
-                      color: '#fff',
-                      fontSize: '0.75rem',
-                      fontWeight: 900
-                    }}>
-                      {item.checked && '✓'}
-                    </div>
-                    <div>
-                      <strong style={{ fontSize: '0.84rem', color: 'var(--text)', display: 'block' }}>{item.label}</strong>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{item.desc}</span>
-                    </div>
-                  </div>
-                  <span style={{
-                    fontSize: '0.68rem',
-                    fontWeight: 800,
-                    color: item.checked ? 'var(--success)' : 'var(--muted)',
-                    background: item.checked ? 'rgba(16, 185, 129, 0.1)' : 'rgba(100, 116, 139, 0.1)',
-                    padding: '0.18rem 0.5rem',
-                    borderRadius: '999px'
-                  }}>
-                    {item.checked ? 'Active' : 'Offline'}
-                  </span>
-                </div>
-              ))}
             </div>
           </section>
         </div>
