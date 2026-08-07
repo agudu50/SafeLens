@@ -1014,15 +1014,15 @@ export default function Dashboard({ user }) {
                       gap: '0.55rem'
                     }}
                   >
-                    {/* Scanned text content - fully visible with clean line-height and word break */}
+                    {/* Scanned text content - soft muted text color to prevent glare in dark mode */}
                     <Link
                       to="/history"
                       style={{
                         textDecoration: 'none',
                         margin: 0,
                         fontSize: '0.88rem',
-                        fontWeight: 750,
-                        color: 'var(--text)',
+                        fontWeight: 500,
+                        color: 'var(--muted)',
                         lineHeight: 1.5,
                         wordBreak: 'break-word'
                       }}
@@ -1033,7 +1033,7 @@ export default function Dashboard({ user }) {
                     {/* Metadata row: Category, timestamp, risk badge, audit link to history */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border)' }}>
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '0.74rem', color: 'var(--text)', fontWeight: 700 }}>
+                        <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>
                           {item.threatCategory || 'MoMo Transfer & Cashout Fraud'}
                         </span>
                         <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>

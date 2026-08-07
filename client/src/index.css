@@ -35,19 +35,20 @@
   --chip-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
 }
 
+/* Enhanced Dark Mode Design System - Deep Obsidian Ambient Security Glow */
 html.dark {
-  --background: #0f172a;
-  --surface: #1e293b;
-  --surface-strong: #162032;
-  --surface-alt: #0b1329;
+  --background: #080c14;
+  --surface: #121a2a;
+  --surface-strong: #182338;
+  --surface-alt: #0c1322;
   --text: #f8fafc;
   --muted: #94a3b8;
-  --border: #28374d;
-  --header-bg: rgba(30, 41, 59, 0.75);
-  --footer-bg: #1e293b;
-  --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+  --border: rgba(255, 255, 255, 0.09);
+  --header-bg: rgba(18, 26, 42, 0.82);
+  --footer-bg: #0c1322;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
   --pulse-color: rgba(230, 60, 28, 0.2);
-  --scan-glow-color: rgba(230, 60, 28, 0.08);
+  --scan-glow-color: rgba(230, 60, 28, 0.1);
   --mesh-orb-1: rgba(230, 60, 28, 0.38);
   --mesh-orb-2: rgba(59, 130, 246, 0.32);
   --mesh-orb-3: rgba(168, 85, 247, 0.30);
@@ -63,11 +64,22 @@ html.dark {
   box-sizing: border-box;
 }
 
+/* Global Body Styling with rich dark mode ambient security mesh background */
 body {
   margin: 0;
   min-height: 100vh;
   background: var(--background);
   color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Enhanced Rich Ambient Multi-Radial Mesh Background for Dark Mode */
+html.dark body {
+  background: radial-gradient(circle at 15% 15%, rgba(230, 60, 28, 0.08) 0%, transparent 42%),
+              radial-gradient(circle at 85% 20%, rgba(14, 165, 233, 0.07) 0%, transparent 45%),
+              radial-gradient(circle at 50% 75%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+              #080c14;
+  background-attachment: fixed;
 }
 
 #root {
