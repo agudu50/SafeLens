@@ -286,10 +286,10 @@ export default function Home({ user }) {
         <div className="hero-panel" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '24px', padding: '1.4rem', boxShadow: '0 12px 32px rgba(0,0,0,0.04)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.2rem', alignItems: 'center' }}>
             
-            {/* 3D Shield Image Graphic */}
+            {/* 3D Shield Image Graphic (Generated high-resolution 3D security shield image) */}
             <div style={{ background: 'var(--surface-alt)', borderRadius: '18px', padding: '0.6rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ width: '100%', height: '170px', borderRadius: '14px', overflow: 'hidden' }}>
-                <img src={heroShieldImg} alt="SafeLens Security Engine" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                <img src="/images/promo_cashout_shield.png" alt="SafeLens Security Engine" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
               </div>
               <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
                 <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '0.04em', textTransform: 'uppercase', background: 'var(--surface)', padding: '0.15rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
@@ -379,74 +379,79 @@ export default function Home({ user }) {
           })}
         </div>
 
-        {/* Live Scanner Display HUD Card - Full Width Balanced Layout */}
-        <div className="scanner-card animate-fade-in" key={selectedPreset.id} style={{ padding: '1.8rem', background: 'var(--surface-alt)', borderRadius: '24px', border: '1px solid var(--border)', maxWidth: '1050px', margin: '0 auto', boxShadow: '0 8px 32px rgba(0,0,0,0.04)' }}>
+        {/* Interactive Sandbox Simulator Card - Enhanced High-Impact HUD Layout */}
+        <div className="scanner-card animate-fade-in" key={selectedPreset.id} style={{ padding: '2rem', background: 'var(--surface-alt)', borderRadius: '24px', border: '1px solid var(--border)', maxWidth: '1080px', margin: '0 auto', boxShadow: '0 12px 36px rgba(0,0,0,0.05)' }}>
           
-          {/* Header Bar spanning full width */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
+          {/* Header Bar: Verdict Badge, Title & Threat Index Ring */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.4rem', paddingBottom: '1.1rem', borderBottom: '1px solid var(--border)' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                 <span className="live-pulse-badge">
                   <span className="live-pulse-dot" />
                   REAL-TIME AI VERDICT
                 </span>
-                <span style={{ fontSize: '0.72rem', fontWeight: 850, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '999px', border: `1px solid ${selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}` }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 850, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)', padding: '0.18rem 0.55rem', borderRadius: '999px', border: `1px solid ${selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}` }}>
                   {selectedPreset.riskLevel.toUpperCase()} RISK
                 </span>
               </div>
-              <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: 'var(--text)' }}>{selectedPreset.title}</h3>
+              <h3 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 900, color: 'var(--text)' }}>{selectedPreset.title}</h3>
             </div>
 
             {/* Score Ring Badge */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'var(--surface)', padding: '0.6rem 1.1rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', background: 'var(--surface)', padding: '0.65rem 1.15rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 4px 14px rgba(0,0,0,0.02)' }}>
               <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '0.66rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', display: 'block' }}>Threat Index</span>
-                <span style={{ fontSize: '0.74rem', fontWeight: 850, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)' }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', display: 'block', letterSpacing: '0.04em' }}>Threat Index</span>
+                <span style={{ fontSize: '0.76rem', fontWeight: 850, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)' }}>
                   {selectedPreset.threatCategory}
                 </span>
               </div>
-              <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)', border: `2px solid ${selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)'}`, display: 'grid', placeItems: 'center', fontWeight: 900, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', fontSize: '1.05rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)', border: `2px solid ${selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)'}`, display: 'grid', placeItems: 'center', fontWeight: 900, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', fontSize: '1.1rem' }}>
                 {selectedPreset.riskScore}%
               </div>
             </div>
           </div>
 
-          {/* Full-Width Grid 1: 3D Graphic Image + Submitted Text + Detected Triggers */}
+          {/* Full-Width Grid 1: 3D Scanner Graphic + Submitted Text + Detected Triggers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem', marginBottom: '1.2rem' }}>
             
-            {/* 3D Image Banner Card */}
-            <div style={{ background: 'var(--surface)', padding: '0.6rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: '100%', height: '140px', borderRadius: '12px', overflow: 'hidden', background: 'var(--surface-alt)' }}>
+            {/* 3D Threat Scanner Graphic Card with Generated High-Tech 3D Image Lookup */}
+            <div style={{ background: 'var(--surface)', padding: '0.8rem', borderRadius: '18px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '100%', height: '145px', borderRadius: '12px', overflow: 'hidden', background: 'var(--surface-alt)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img 
                   src={
-                    selectedPreset.id === 'momo-refund' ? stepAnalysisImg :
-                    selectedPreset.id === 'promo-cashout' ? heroShieldImg :
-                    selectedPreset.id === 'fake-job' ? stepSubmitImg : stepReportImg
+                    selectedPreset.id === 'momo' ? '/images/momo_fraud_analysis.png' :
+                    selectedPreset.id === 'promo' ? '/images/promo_cashout_shield.png' :
+                    selectedPreset.id === 'job' ? '/images/job_scam_verification.png' : '/images/momo_fraud_analysis.png'
                   } 
                   alt="AI Threat Scanner Graphic" 
                   style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '0.4rem', display: 'block' }} 
                 />
               </div>
+              <div style={{ marginTop: '0.4rem', textAlign: 'center' }}>
+                <span style={{ fontSize: '0.66rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '0.04em', textTransform: 'uppercase', background: 'var(--surface-alt)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                  AI THREAT SCANNER GRAPHIC
+                </span>
+              </div>
             </div>
 
             {/* Submitted Snippet Box */}
-            <div style={{ background: 'var(--surface)', padding: '1rem 1.2rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', letterSpacing: '0.04em', textTransform: 'uppercase', display: 'block', marginBottom: '0.35rem' }}>
+            <div style={{ background: 'var(--surface)', padding: '1.1rem 1.25rem', borderRadius: '18px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', letterSpacing: '0.04em', textTransform: 'uppercase', display: 'block', marginBottom: '0.4rem' }}>
                 Submitted Text Snippet
               </span>
-              <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 650, color: 'var(--text)', lineHeight: 1.45, fontStyle: 'italic' }}>
+              <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 650, color: 'var(--text)', lineHeight: 1.5, fontStyle: 'italic' }}>
                 &ldquo;{selectedPreset.content}&rdquo;
               </p>
             </div>
 
             {/* Risk Triggers Box */}
-            <div style={{ background: 'var(--surface)', padding: '1rem 1.2rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.45rem' }}>
+            <div style={{ background: 'var(--surface)', padding: '1.1rem 1.25rem', borderRadius: '18px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.5rem' }}>
                 Detected Risk Triggers
               </span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
                 {selectedPreset.threatTags.map((tag) => (
-                  <span key={tag} style={{ fontSize: '0.76rem', fontWeight: 800, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', padding: '0.22rem 0.6rem', borderRadius: '8px', border: `1px solid ${selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span key={tag} style={{ fontSize: '0.76rem', fontWeight: 800, color: selectedPreset.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)', background: selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)', padding: '0.25rem 0.65rem', borderRadius: '8px', border: `1px solid ${selectedPreset.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                     </svg>
@@ -458,20 +463,20 @@ export default function Home({ user }) {
 
           </div>
 
-          {/* Full-Width Grid 2: AI Fraud Vectors (Spans Full Width across all 4 bars) */}
+          {/* Full-Width Grid 2: AI Fraud Likelihood Vectors Breakdown */}
           {selectedPreset.vectorBreakdown && (
-            <div style={{ background: 'var(--surface)', padding: '1rem 1.2rem', borderRadius: '16px', border: '1px solid var(--border)', marginBottom: '1.2rem' }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.6rem' }}>
+            <div style={{ background: 'var(--surface)', padding: '1.1rem 1.25rem', borderRadius: '18px', border: '1px solid var(--border)', marginBottom: '1.2rem' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.65rem' }}>
                 AI Fraud Likelihood Vectors
               </span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.6rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '0.65rem' }}>
                 {selectedPreset.vectorBreakdown.map((v) => (
-                  <div key={v.name} style={{ background: 'var(--surface-alt)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 750, marginBottom: '0.3rem', color: v.match ? 'var(--danger)' : 'var(--muted)' }}>
+                  <div key={v.name} style={{ background: 'var(--surface-alt)', padding: '0.6rem 0.8rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 750, marginBottom: '0.35rem', color: v.match ? 'var(--danger)' : 'var(--muted)' }}>
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.name}</span>
                       <span style={{ fontWeight: 900 }}>{v.percentage}%</span>
                     </div>
-                    <div style={{ width: '100%', height: '5px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: '100%', height: '6px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden' }}>
                       <div style={{ width: `${v.percentage}%`, height: '100%', background: v.match ? 'var(--danger)' : v.color || 'var(--primary)', borderRadius: '999px' }} />
                     </div>
                   </div>
@@ -482,9 +487,9 @@ export default function Home({ user }) {
 
           {/* Full-Width Grid 3: AI Pattern Reason + Actionable Guidance */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.2rem' }}>
-            <div style={{ background: 'var(--surface)', padding: '1.1rem 1.25rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                <span style={{ background: 'var(--surface-alt)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            <div style={{ background: 'var(--surface)', padding: '1.15rem 1.3rem', borderRadius: '18px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.55rem' }}>
+                <span style={{ background: 'var(--surface-alt)', padding: '0.22rem 0.6rem', borderRadius: '8px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--primary)' }}>
                     <circle cx="12" cy="12" r="10" />
                     <line x1="12" y1="16" x2="12" y2="12" strokeLinecap="round" />
@@ -493,28 +498,29 @@ export default function Home({ user }) {
                   <strong style={{ fontSize: '0.72rem', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>AI Pattern Reason</strong>
                 </span>
               </div>
-              <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.5, fontWeight: 500 }}>
+              <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55, fontWeight: 500 }}>
                 {selectedPreset.explanation}
               </p>
             </div>
 
-            <div style={{ background: 'var(--surface)', padding: '1.1rem 1.25rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                <span style={{ background: 'var(--surface-alt)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            <div style={{ background: 'var(--surface)', padding: '1.15rem 1.3rem', borderRadius: '18px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.55rem' }}>
+                <span style={{ background: 'var(--surface-alt)', padding: '0.22rem 0.6rem', borderRadius: '8px', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--success)' }}>
                     <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <strong style={{ fontSize: '0.72rem', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Actionable Guidance</strong>
                 </span>
               </div>
-              <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text)', lineHeight: 1.5, fontWeight: 700 }}>
+              <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text)', lineHeight: 1.55, fontWeight: 700 }}>
                 {selectedPreset.advice}
               </p>
             </div>
           </div>
 
-          <div style={{ marginTop: '1.4rem', display: 'flex', justifyContent: 'flex-end' }}>
-            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ padding: '0.65rem 1.35rem', fontSize: '0.88rem' }}>
+          {/* CTA Footer */}
+          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ padding: '0.7rem 1.4rem', fontSize: '0.9rem' }}>
               {user ? "Go to Dashboard \u2192" : "Sign In to Get Started \u2192"}
             </Button>
           </div>
