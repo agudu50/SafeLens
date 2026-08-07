@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Alert from '../components/ui/Alert'
 import { authService } from '../services/authService'
 import { getScanHistory } from '../services/scannerService'
+// Import protection plan feature component to display user plan quota on profile page
+import ProtectionPlan from '../features/protection/ProtectionPlan'
 
 export default function Profile({ user, setUser }) {
   const navigate = useNavigate()
@@ -110,10 +112,17 @@ export default function Profile({ user, setUser }) {
             </div>
           </div>
 
+          {/* Action buttons for editing profile, managing billing plan, and signing out */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', width: '100%', marginTop: '1.5rem' }}>
             <Button variant={isEditing ? 'ghost' : 'primary'} onClick={() => { if (!isEditing) { setName(user?.name || ''); setPhone(user?.phone || ''); } setIsEditing(!isEditing); setError(''); setSuccess(''); }}>
               {isEditing ? 'Cancel Edit' : 'Edit Profile'}
             </Button>
+            {/* Direct navigation button allowing logged-in user to access their Billing & Protection Plan page */}
+            <Link to="/billing" style={{ textDecoration: 'none', width: '100%' }}>
+              <Button variant="outline" style={{ width: '100%' }}>
+                💳 Billing &amp; Protection Plan
+              </Button>
+            </Link>
             <Button variant="secondary" onClick={handleSignOut} style={{ background: '#fee2e2', color: '#dc2626' }}>
               Sign Out
             </Button>

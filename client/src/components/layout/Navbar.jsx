@@ -31,10 +31,10 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Determine if user is inside internal App Workspace pages (/dashboard, /scan, /history, /profile, /results, /safety-tips)
-  const isAppWorkspace = user && ['/dashboard', '/scan', '/history', '/profile', '/results', '/safety-tips'].some(path => location.pathname.startsWith(path))
+  // Determine if user is inside internal App Workspace pages (/dashboard, /scan, /history, /profile, /results, /safety-tips, /billing, /settings)
+  const isAppWorkspace = user && ['/dashboard', '/scan', '/history', '/profile', '/results', '/safety-tips', '/billing', '/settings'].some(path => location.pathname.startsWith(path))
 
-  // Clean navigation links
+  // Navigation links for authenticated workspace and public visitors
   const links = isAppWorkspace
     ? [
         {
@@ -497,8 +497,9 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                           <span>Password &amp; Security</span>
                         </Link>
 
+                        {/* Profile popover dropdown link navigating directly to Billing & Subscription page */}
                         <Link
-                          to="/profile"
+                          to="/billing"
                           onClick={() => setShowProfileMenu(false)}
                           className="popover-menu-item"
                           style={{
@@ -511,7 +512,33 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                             fontSize: '0.82rem',
                             fontWeight: 750,
                             textDecoration: 'none',
-                            background: 'transparent',
+                            background: location.pathname === '/billing' ? 'var(--surface-alt)' : 'transparent',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center' }}>
+                            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                            </svg>
+                          </span>
+                          <span>Billing &amp; Subscription</span>
+                        </Link>
+
+                        <Link
+                          to="/settings"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="popover-menu-item"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.55rem',
+                            padding: '0.42rem 0.55rem',
+                            borderRadius: '10px',
+                            color: 'var(--text)',
+                            fontSize: '0.82rem',
+                            fontWeight: 750,
+                            textDecoration: 'none',
+                            background: location.pathname === '/settings' ? 'var(--surface-alt)' : 'transparent',
                             transition: 'all 0.15s ease'
                           }}
                         >

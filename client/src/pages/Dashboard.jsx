@@ -5,6 +5,8 @@ import SecurityChatbot from '../components/SecurityChatbot'
 import { getScanHistory } from '../services/scannerService'
 import ProtectionPlan from '../features/protection/ProtectionPlan'
 import Button from '../components/ui/Button'
+// Import subscription service to fetch protection plan quota and billing data
+import { subscriptionService } from '../services/subscriptionService'
 
 const graphData = [
   { day: 'Mon', scans: 4, highRisk: 2 },
@@ -59,6 +61,14 @@ export default function Dashboard({ user }) {
     { id: 'urlscan', label: 'Domain Extension Checker', weight: 25, checked: false, desc: 'Auto-flags unverified TLDs (.xyz, .top)' },
     { id: 'hotline', label: 'Saved emergency contact CSA 292', weight: 25, checked: false, desc: 'Immediate direct fraud escalation line' },
   ])
+
+  // State storing the logged in user's active billing and protection plan subscription details
+  const [sub, setSub] = useState(null)
+
+  // Fetch the active user's subscription quota and details on component mount
+  useEffect(() => {
+    subscriptionService.getUserSubscription().then(setSub)
+  }, [])
 
   useEffect(() => {
     const historyData = getScanHistory()
@@ -331,38 +341,46 @@ export default function Dashboard({ user }) {
         </div>
       </div>
 
-        {/* Dashboard Header Bar */}
+        {/* Unified Executive Command Center Banner: Combines User Greeting, CTAs, and Protection Plan Quota widget */}
         <section
           className="dash-hero-card animate-fade-in"
           style={{
-            background: 'var(--surface-alt)',
-            padding: '1.8rem 1.6rem',
-            marginBottom: '1.5rem',
-            borderRadius: '20px',
+            background: 'linear-gradient(135deg, var(--surface-alt), var(--surface))',
+            padding: '1.6rem 1.6rem',
+            marginBottom: '1.8rem',
+            borderRadius: '24px',
             border: '1px solid var(--border)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+            boxShadow: '0 8px 30px rgba(0,0,0,0.03)'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.2rem' }}>
+          <div 
+            style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+              gap: '1.6rem', 
+              alignItems: 'center' 
+            }}
+          >
+            {/* Left Side: Greeting, Live Date/Time & Command Center CTAs */}
             <div>
-              {/* Status indicator + Live Clock badge */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '0.45rem' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <span className="live-pulse-dot" style={{ width: '8px', height: '8px', background: 'var(--success)' }} />
-                  <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    REAL-TIME SECURITY COMMAND CENTER
+              {/* Security Command Center Status & Live Clock Pill Badges */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(16, 185, 129, 0.08)', padding: '0.2rem 0.55rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                  <span className="live-pulse-dot" style={{ width: '7px', height: '7px', background: 'var(--success)' }} />
+                  <span style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    REAL-TIME COMMAND CENTER
                   </span>
                 </div>
-                <span style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>•</span>
-                {/* Live Clock Badge */}
+
+                {/* Live Date & Clock Pill */}
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.35rem',
-                  background: 'var(--surface)',
+                  background: 'var(--surface-alt)',
                   border: '1px solid var(--border)',
-                  borderRadius: '6px',
-                  padding: '0.2rem 0.6rem',
+                  borderRadius: '999px',
+                  padding: '0.2rem 0.65rem',
                   fontSize: '0.72rem',
                   fontWeight: 800,
                   color: 'var(--text)'
@@ -377,61 +395,77 @@ export default function Dashboard({ user }) {
                 </div>
               </div>
 
-              {/* Main Heading with Time-based Greeting & User Name */}
-              <h1 className="dash-hero-title" style={{ fontSize: '1.85rem', fontWeight: 900, margin: '0 0 0.35rem 0', color: 'var(--text)', lineHeight: 1.2 }}>
+              {/* Main Heading with Time-based Greeting & User Name without emojis */}
+              <h1 className="dash-hero-title" style={{ fontSize: '1.8rem', fontWeight: 900, margin: '0 0 0.4rem 0', color: 'var(--text)', lineHeight: 1.25 }}>
                 {getGreeting()}, <span style={{ color: 'var(--primary)' }}>{user?.name ? user.name.split(' ')[0] : 'Kofi'}</span>
               </h1>
 
-              {/* Subtitle */}
-              <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: 0, lineHeight: 1.5, maxWidth: '640px' }}>
+              {/* Subtitle Description */}
+              <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: '0 0 1.2rem 0', lineHeight: 1.5, maxWidth: '580px' }}>
                 Welcome back to your security command center. Monitor threat activity, check vulnerability status, and run instant AI audits.
               </p>
+
+              {/* Quick Action Navigation CTAs with vector SVG icons instead of emojis */}
+              <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+                <Link
+                  to="/scan"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    padding: '0.6rem 1.2rem',
+                    borderRadius: '999px',
+                    fontWeight: 800,
+                    fontSize: '0.84rem',
+                    textDecoration: 'none',
+                    background: 'var(--primary)',
+                    color: '#ffffff',
+                    boxShadow: '0 4px 14px rgba(230, 60, 28, 0.25)',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <span>New AI Scan</span>
+                </Link>
+
+                <Link
+                  to="/history"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    padding: '0.6rem 1.2rem',
+                    borderRadius: '999px',
+                    fontWeight: 800,
+                    fontSize: '0.84rem',
+                    textDecoration: 'none',
+                    background: 'var(--surface-alt)',
+                    color: 'var(--text)',
+                    border: '1px solid var(--border)',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                  </svg>
+                  <span>View Scan History</span>
+                </Link>
+              </div>
             </div>
 
-            <Link
-              to="/history"
-              className="button-primary dash-hero-btn"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.7rem 1.3rem',
-                borderRadius: '999px',
-                fontWeight: 800,
-                fontSize: '0.88rem',
-                textDecoration: 'none',
-                boxShadow: '0 4px 14px rgba(230, 60, 28, 0.25)',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              <span>View Scan History</span>
-            </Link>
+            {/* Right Side: Active User Protection Plan & Quota Widget Card */}
+            <div>
+              <ProtectionPlan subscription={sub} />
+            </div>
           </div>
         </section>
-
-        {/* Protection Plan Quota Overview */}
-        <ProtectionPlan />
-
-        {/* Quick Actions Bar */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem', marginBottom: '1.8rem' }}>
-          <Link to="/scan" style={{ textDecoration: 'none' }}>
-            <Button variant="primary" style={{ width: '100%', justifyContent: 'center' }}>
-              🔍 New AI Scan
-            </Button>
-          </Link>
-
-          <Link to="/history" style={{ textDecoration: 'none' }}>
-            <Button variant="secondary" style={{ width: '100%', justifyContent: 'center' }}>
-              View Scan History
-            </Button>
-          </Link>
-
-          <Link to="/safety-tips" style={{ textDecoration: 'none' }}>
-            <Button variant="secondary" style={{ width: '100%', justifyContent: 'center' }}>
-              🛡️ View Safety Tips
-            </Button>
-          </Link>
-        </div>
 
         {/* 4 Core Overview Metrics Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.2rem', marginBottom: '1.8rem' }} className="animate-slide-up">

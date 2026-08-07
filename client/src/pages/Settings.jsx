@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -37,7 +38,7 @@ export default function Settings() {
           </Alert>
         )}
 
-        <Card>
+        <Card style={{ marginBottom: '1.5rem' }}>
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             <div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--text)', margin: '0 0 0.8rem 0' }}>
@@ -95,9 +96,9 @@ export default function Settings() {
                   fontWeight: 700
                 }}
               >
-                <option value="Accra & Kumasi">Greater Accra & Ashanti Regions (Accra & Kumasi)</option>
-                <option value="Western & Central">Western & Central Regions (Takoradi & Cape Coast)</option>
-                <option value="Northern">Northern Regions (Tamale & Wa)</option>
+                <option value="Accra & Kumasi">Greater Accra &amp; Ashanti Regions (Accra &amp; Kumasi)</option>
+                <option value="Western & Central">Western &amp; Central Regions (Takoradi &amp; Cape Coast)</option>
+                <option value="Northern">Northern Regions (Tamale &amp; Wa)</option>
                 <option value="All Ghana">All Regions across Ghana</option>
               </select>
             </div>
@@ -106,6 +107,25 @@ export default function Settings() {
               Save Settings
             </Button>
           </form>
+        </Card>
+
+        {/* Subscription & Payment Methods Quick Link Card */}
+        <Card>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--text)', margin: '0 0 0.3rem 0' }}>
+                Subscription &amp; Payment Methods
+              </h3>
+              <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: 0 }}>
+                Manage your active protection plan, mobile money payment options, and scan quotas.
+              </p>
+            </div>
+            <Link to="/billing" style={{ textDecoration: 'none' }}>
+              <Button variant="outline">
+                Manage Billing &amp; Plan
+              </Button>
+            </Link>
+          </div>
         </Card>
       </div>
     </PageContainer>

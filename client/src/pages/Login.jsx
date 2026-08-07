@@ -30,7 +30,8 @@ export default function Login({ setUser }) {
         const loggedUser = authService.login({ email: email.trim(), password })
         setUser(loggedUser)
         setIsLoading(false)
-        navigate('/dashboard')
+        // Redirect user to the plan selection page immediately after login so they choose their protection plan
+        navigate('/pricing?selectPlan=true')
       } catch (err) {
         setError(err.message || 'Failed to authenticate. Please check your credentials.')
         setIsLoading(false)
@@ -45,7 +46,8 @@ export default function Login({ setUser }) {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
       setIsLoading(false)
-      navigate('/dashboard')
+      // Redirect demo user to plan selection page upon login
+      navigate('/pricing?selectPlan=true')
     }, 400)
   }
 

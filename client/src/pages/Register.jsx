@@ -109,7 +109,8 @@ export default function Register({ setUser }) {
         })
         setUser(registeredUser)
         setIsLoading(false)
-        navigate('/dashboard')
+        // Redirect newly registered user to plan selection page so they choose their protection plan
+        navigate('/pricing?selectPlan=true')
       } catch (err) {
         setError(err.message || 'Registration failed.')
         setIsLoading(false)
@@ -124,7 +125,8 @@ export default function Register({ setUser }) {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
       setIsLoading(false)
-      navigate('/dashboard')
+      // Redirect demo user to plan selection page upon login
+      navigate('/pricing?selectPlan=true')
     }, 400)
   }
 

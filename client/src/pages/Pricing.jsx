@@ -1,17 +1,59 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
+import Alert from '../components/ui/Alert'
 import { MOCK_PROTECTION_PLANS } from '../data/mockPlans'
+// Import subscription service to activate selected plan upon user choice
+import { subscriptionService } from '../services/subscriptionService'
 
 export default function Pricing() {
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const [submittingPlanId, setSubmittingPlanId] = useState(null)
+
+  // Flag determining if the user was directed here immediately after logging in or registering
+  const isSelectingPlan = searchParams.get('selectPlan') === 'true'
+
+  // Handler allowing logged-in user to select/activate a plan and proceed directly to their security dashboard
+  const handleChoosePlan = async (planId) => {
+    setSubmittingPlanId(planId)
+    try {
+      await subscriptionService.upgradePlan(planId)
+      // Navigate straight to dashboard after updating active plan
+      navigate('/dashboard')
+    } catch {
+      setSubmittingPlanId(null)
+      navigate('/dashboard')
+    }
+  }
+
   return (
     <PageContainer>
+      {/* Onboarding Banner displayed when user is asked to choose a plan after logging in */}
+      {isSelectingPlan && (
+        <div style={{ maxWidth: '800px', margin: '0 auto 1.5rem auto' }} className="animate-fade-in">
+          <Alert tone="info">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <span style={{ fontSize: '1.2rem' }}>🛡️</span>
+              <div>
+                <strong style={{ fontSize: '0.92rem', display: 'block', marginBottom: '0.15rem' }}>
+                  Welcome! Choose Your Digital Protection Plan
+                </strong>
+                <span style={{ fontSize: '0.82rem' }}>
+                  Select a safety plan below to activate your SafeLens MoMo fraud shield &amp; threat scanner workspace.
+                </span>
+              </div>
+            </div>
+          </Alert>
+        </div>
+      )}
+
       <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 2.5rem auto' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text)', margin: '0 0 0.4rem 0' }}>
-          Affordable Digital Safety Plans
+          {isSelectingPlan ? 'Select Your Protection Plan' : 'Affordable Digital Safety Plans'}
         </h1>
         <p style={{ fontSize: '0.92rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
           Simple, low-cost protection plans designed for everyday Ghanaian mobile money users and job seekers.
@@ -65,11 +107,15 @@ export default function Pricing() {
               </div>
             </div>
 
-            <Link to="/billing" style={{ textDecoration: 'none' }}>
-              <Button variant={plan.popular ? 'primary' : 'outline'} style={{ width: '100%' }}>
-                {plan.ctaText}
-              </Button>
-            </Link>
+            {/* Plan selection button activating selected plan and redirecting to dashboard workspace */}
+            <Button
+              variant={plan.popular ? 'primary' : 'outline'}
+              style={{ width: '100%' }}
+              disabled={submittingPlanId === plan.id}
+              onClick={() => handleChoosePlan(plan.id)}
+            >
+              {submittingPlanId === plan.id ? 'Activating Plan…' : (isSelectingPlan ? `Select ${plan.name}` : plan.ctaText)}
+            </Button>
           </Card>
         ))}
       </div>
