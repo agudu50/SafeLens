@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
 import { authService } from '../services/authService'
@@ -16,24 +15,21 @@ export default function Login({ setUser }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-
     if (!email.trim() || !password.trim()) {
-      setError('Please fill in both email and password fields.')
+      setError('Please enter your email and password.')
       return
     }
-
     setError('')
     setIsLoading(true)
-
     setTimeout(() => {
       try {
         const loggedUser = authService.login({ email: email.trim(), password })
         setUser(loggedUser)
         setIsLoading(false)
-        // Redirect user to the plan selection page immediately after login so they choose their protection plan
+        // Redirect to plan selection immediately after login
         navigate('/pricing?selectPlan=true')
       } catch (err) {
-        setError(err.message || 'Failed to authenticate. Please check your credentials.')
+        setError(err.message || 'Incorrect email or password. Please try again.')
         setIsLoading(false)
       }
     }, 600)
@@ -46,124 +42,256 @@ export default function Login({ setUser }) {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
       setIsLoading(false)
-      // Redirect demo user to plan selection page upon login
+      // Redirect demo user to plan selection page
       navigate('/pricing?selectPlan=true')
     }, 400)
   }
 
   return (
-    /* Full Screen Fixed Viewport Container covering 100% of screen width and height from corner (0,0) to corner (100vw, 100vh) */
-    <div 
-      style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0,
-        bottom: 0,
-        width: '100vw', 
-        height: '100vh', 
-        zIndex: 9999, 
-        background: 'var(--background)',
-        overflowY: 'auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))'
-      }}
-    >
-      {/* Left Column: Full Screen Desktop 3D Graphic Image & Brand Security Showcase */}
-      <div 
-        style={{ 
-          background: 'linear-gradient(135deg, rgba(230, 60, 28, 0.08), var(--surface-alt))', 
-          padding: '3.2rem 3rem', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'space-between',
-          borderRight: '1px solid var(--border)',
-          minHeight: '100vh'
-        }}
-      >
-          {/* SafeLens Brand Identity Header */}
-          <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.6rem' }}>
-              <div style={{ position: 'relative', display: 'inline-flex' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--surface-strong)', display: 'grid', placeItems: 'center', border: '1px solid var(--border)' }}>
-                  <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '50%' }} />
-                </div>
-                <span className="live-pulse-dot" style={{ position: 'absolute', bottom: '1px', right: '1px', width: '11px', height: '11px', background: 'var(--success)', border: '2px solid var(--surface)' }} />
-              </div>
-              <div>
-                <strong style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--text)', display: 'block', lineHeight: 1.1 }}>
-                  SafeLens
-                </strong>
-                <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700 }}>AI Threat Intelligence</span>
-              </div>
-            </div>
+    /* Full-screen 2-column layout: warm illustrated left panel + clean sign-in card on right */
+    <>
+    {/* Responsive styles for mobile — hides left panel, stacks form full-width */}
+    <style>{`
+      .auth-wrapper {
+        position: fixed; inset: 0;
+        width: 100vw; height: 100vh;
+        z-index: 9999;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        overflow: hidden;
+        background: var(--surface-alt);
+      }
+      .auth-left {
+        position: relative;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: linear-gradient(155deg, #e63c1c 0%, #b52a10 45%, #1a1033 100%);
+      }
+      .auth-right {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem 3rem;
+        box-sizing: border-box;
+        background: var(--surface-alt);
+        overflow-y: auto;
+      }
+      /* Mobile brand bar — hidden on desktop */
+      .auth-mobile-bar { display: none; }
 
-            {/* Enlarged 3D Graphic Image Window spanning screen height */}
-            <div style={{ background: 'var(--surface)', borderRadius: '20px', padding: '1rem', border: '1px solid var(--border)', boxShadow: '0 10px 30px rgba(0,0,0,0.04)', marginBottom: '1.8rem' }}>
-              <div style={{ width: '100%', height: '260px', borderRadius: '14px', overflow: 'hidden', background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img 
-                  src="/images/momo_fraud_analysis.png" 
-                  alt="SafeLens 3D AI Security Engine" 
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '0.5rem', display: 'block' }} 
-                />
-              </div>
-              <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 850, color: 'var(--primary)', letterSpacing: '0.04em', textTransform: 'uppercase', background: 'var(--surface-alt)', padding: '0.25rem 0.7rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                  AI SHIELD ENGINE ACTIVE &bull; 99% THREAT INTERCEPT
-                </span>
-              </div>
-            </div>
+      @media (max-width: 768px) {
+        .auth-wrapper {
+          grid-template-columns: 1fr;
+          overflow-y: auto;
+          height: auto;
+          min-height: 100vh;
+        }
+        .auth-left { display: none; }
+        .auth-right {
+          height: auto;
+          min-height: 100vh;
+          padding: 1.5rem 1.2rem 2rem;
+          justify-content: flex-start;
+        }
+        .auth-mobile-bar {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          margin-bottom: 1.4rem;
+          width: 100%;
+          max-width: 420px;
+        }
+      }
+    `}</style>
+    <div className="auth-wrapper">
 
-            {/* Security Feature Highlights */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.88rem', color: 'var(--text)', fontWeight: 700 }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--success)', flexShrink: 0 }}>
-                  <polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Real-Time Mobile Money &amp; USSD Scam Scanning</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.88rem', color: 'var(--text)', fontWeight: 700 }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--success)', flexShrink: 0 }}>
-                  <polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Instant Phishing Link &amp; Screenshot Audit</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.88rem', color: 'var(--text)', fontWeight: 700 }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--success)', flexShrink: 0 }}>
-                  <polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Plain-English Safety Reports &amp; Escalation Lines</span>
-              </div>
+      {/* LEFT PANEL — Brand story + 3D showcase */}
+      <div className="auth-left">
+
+        {/* Decorative ambient orbs behind content */}
+        <div style={{
+          position: 'absolute', top: '-80px', right: '-80px',
+          width: '340px', height: '340px', borderRadius: '50%',
+          background: 'rgba(255,255,255,0.06)', pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '-60px', left: '-60px',
+          width: '280px', height: '280px', borderRadius: '50%',
+          background: 'rgba(255,255,255,0.04)', pointerEvents: 'none',
+        }} />
+
+        {/* Brand header — top of left panel */}
+        <div style={{ padding: '2rem 2.4rem', display: 'flex', alignItems: 'center', gap: '0.7rem', position: 'relative', zIndex: 1 }}>
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              width: '42px', height: '42px', borderRadius: '12px',
+              background: 'rgba(255,255,255,0.18)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              display: 'grid', placeItems: 'center',
+            }}>
+              <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '8px' }} />
             </div>
+            {/* Live status dot */}
+            <span style={{
+              position: 'absolute', bottom: '-2px', right: '-2px',
+              width: '10px', height: '10px', borderRadius: '50%',
+              background: '#4ade80', border: '2px solid rgba(255,255,255,0.9)',
+            }} />
           </div>
-
-          <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 650, marginTop: '1.6rem' }}>
-            Trusted by over 10,000+ users across Ghana.
+          <div>
+            <strong style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.1 }}>SafeLens</strong>
+            <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.65)', fontWeight: 600, letterSpacing: '0.02em' }}>AI Threat Intelligence</span>
           </div>
         </div>
 
-        {/* Right Column: User Login Form Card Vertically & Horizontally Centered */}
-        <div style={{ padding: '3rem 2.8rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          {/* Centered Form Wrapper (Constrains input field width to 420px max for optimal readability) */}
-          <div style={{ maxWidth: '420px', width: '100%', margin: '0 auto' }}>
+        {/* Central hero content */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 2.4rem 1rem', position: 'relative', zIndex: 1 }}>
+
+          {/* 3D Shield Image */}
+          <div style={{
+            borderRadius: '20px',
+            overflow: 'hidden',
+            marginBottom: '1.8rem',
+            height: 'calc(100vh - 440px)',
+            minHeight: '220px',
+            maxHeight: '320px',
+            position: 'relative',
+            background: 'rgba(0,0,0,0.2)',
+            border: '1px solid rgba(255,255,255,0.12)',
+          }}>
+            <img
+              src="/images/universal_ai_security_shield.png"
+              alt="SafeLens AI Security Shield"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+            {/* Image overlay badge */}
+            <div style={{ position: 'absolute', bottom: '12px', left: '12px' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                fontSize: '0.7rem', fontWeight: 800, color: '#fff',
+                letterSpacing: '0.06em', textTransform: 'uppercase',
+                background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)',
+                padding: '0.3rem 0.75rem', borderRadius: '6px',
+                border: '1px solid rgba(255,255,255,0.15)',
+              }}>
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
+                AI Shield Active
+              </span>
+            </div>
+          </div>
+
+          {/* Headline copy */}
+          <h2 style={{
+            fontSize: '1.65rem', fontWeight: 900, color: '#fff',
+            lineHeight: 1.2, margin: '0 0 0.6rem 0', letterSpacing: '-0.02em',
+          }}>
+            Protecting Ghanaians<br />from digital fraud.
+          </h2>
+          <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.65)', margin: '0 0 1.6rem 0', lineHeight: 1.6 }}>
+            Real-time AI scanning for mobile money scams, phishing links, and USSD fraud across all networks.
+          </p>
+
+          {/* Feature chips */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {[
+              'Mobile Money &amp; USSD Scam Scanning',
+              'Phishing Link &amp; Screenshot Audit',
+              'Plain-English Safety Reports',
+            ].map((feat, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div style={{
+                  width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
+                  background: 'rgba(74, 222, 128, 0.2)',
+                  border: '1px solid rgba(74,222,128,0.4)',
+                  display: 'grid', placeItems: 'center',
+                }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <span style={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.82)', fontWeight: 600 }} dangerouslySetInnerHTML={{ __html: feat }} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom trust badge */}
+        <div style={{ padding: '1.2rem 2.4rem', borderTop: '1px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
+            <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.55)', fontWeight: 600 }}>
+              Trusted by 10,000+ users across Ghana
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT PANEL — Sign-in form */}
+      <div className="auth-right">
+
+        {/* Mobile-only brand bar — shown instead of the hidden left panel */}
+        <div className="auth-mobile-bar">
+          <div style={{
+            width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+            background: 'linear-gradient(135deg, #e63c1c 0%, #b52a10 100%)',
+            display: 'grid', placeItems: 'center',
+            boxShadow: '0 3px 10px rgba(230,60,28,0.35)',
+          }}>
+            <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '24px', height: '24px', objectFit: 'cover', borderRadius: '6px' }} />
+          </div>
+          <div>
+            <strong style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text)', display: 'block', lineHeight: 1.1 }}>SafeLens</strong>
+            <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontWeight: 600 }}>AI Threat Intelligence</span>
+          </div>
+        </div>
+
+        {/* Enhanced form card — elevated with top accent bar and logo badge */}
+        <div style={{
+          width: '100%', maxWidth: '420px',
+          background: 'var(--surface)',
+          borderRadius: '24px',
+          border: '1px solid var(--border)',
+          boxShadow: '0 8px 48px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.04)',
+          overflow: 'hidden',
+        }}>
+
+
+          {/* Card inner content */}
+          <div style={{ padding: '2.2rem 2.2rem 2rem' }}>
+
+            {/* Header */}
             <div style={{ marginBottom: '1.6rem' }}>
-              <h1 style={{ fontSize: '1.85rem', fontWeight: 900, margin: '0 0 0.4rem 0', color: 'var(--text)' }}>
-                Sign In to SafeLens
+              <h1 style={{ fontSize: '1.55rem', fontWeight: 900, margin: '0 0 0.2rem 0', color: 'var(--text)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                Welcome back
               </h1>
-              <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: 0, lineHeight: 1.45 }}>
-                Access threat scanning, scan history, and security dashboard.
+              <p style={{ color: 'var(--muted)', fontSize: '0.86rem', margin: 0, lineHeight: 1.45 }}>
+                Sign in to your security dashboard.
               </p>
             </div>
 
-            {error ? (
-              <Alert title="Authentication Error" type="danger" style={{ marginBottom: '1.4rem', padding: '0.75rem 1rem', fontSize: '0.86rem' }}>
+            {/* Error alert */}
+            {error && (
+              <Alert title="Sign-in failed" type="danger" style={{ marginBottom: '1.2rem' }}>
                 {error}
               </Alert>
-            ) : null}
+            )}
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+            {/* Sign-in form */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+              {/* Email field */}
               <div>
-                <label className="input-label" htmlFor="login-email" style={{ fontSize: '0.86rem', marginBottom: '0.35rem', fontWeight: 750 }}>Email Address</label>
+                <label htmlFor="login-email" style={{
+                  display: 'block', fontSize: '0.82rem', fontWeight: 700,
+                  color: 'var(--text)', marginBottom: '0.38rem', letterSpacing: '0.01em',
+                }}>
+                  Email Address
+                </label>
                 <div style={{ position: 'relative' }}>
                   <input
                     id="login-email"
@@ -171,26 +299,31 @@ export default function Login({ setUser }) {
                     className="scanner-input"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g. kofi@example.com"
+                    placeholder="kofi@example.com"
                     required
                     disabled={isLoading}
-                    style={{ paddingLeft: '2.6rem', paddingBottom: '0.6rem', fontSize: '0.94rem', marginBottom: 0 }}
+                    style={{ paddingLeft: '2.6rem', fontSize: '0.91rem', marginBottom: 0, width: '100%', boxSizing: 'border-box' }}
                   />
-                  <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', width: '1.15rem', height: '1.15rem', color: 'var(--muted)', pointerEvents: 'none' }}>
+                  <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" style={{
+                    position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)',
+                    width: '1rem', height: '1rem', color: 'var(--muted)', pointerEvents: 'none',
+                  }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                   </svg>
                 </div>
               </div>
 
+              {/* Password field */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <label className="input-label" htmlFor="login-password" style={{ margin: 0, fontSize: '0.86rem', fontWeight: 750 }}>Password</label>
-                  <button
-                    type="button"
-                    onClick={() => alert('Demo Account:\nEmail: kofi@example.com\nPassword: password123')}
-                    style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 800, cursor: 'pointer' }}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.38rem' }}>
+                  <label htmlFor="login-password" style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text)', letterSpacing: '0.01em' }}>
+                    Password
+                  </label>
+                  <button type="button"
+                    onClick={() => alert('Demo credentials:\nEmail: kofi@example.com\nPassword: password123')}
+                    style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
                   >
-                    Forgot Password?
+                    Forgot password?
                   </button>
                 </div>
                 <div style={{ position: 'relative' }}>
@@ -200,95 +333,118 @@ export default function Login({ setUser }) {
                     className="scanner-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
+                    placeholder="Enter your password"
                     required
                     disabled={isLoading}
-                    style={{ paddingLeft: '2.6rem', paddingRight: '2.6rem', fontSize: '0.94rem', marginBottom: 0 }}
+                    style={{ paddingLeft: '2.6rem', paddingRight: '3.2rem', fontSize: '0.91rem', marginBottom: 0, width: '100%', boxSizing: 'border-box' }}
                   />
-                  <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', width: '1.15rem', height: '1.15rem', color: 'var(--muted)', pointerEvents: 'none' }}>
+                  <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" style={{
+                    position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)',
+                    width: '1rem', height: '1rem', color: 'var(--muted)', pointerEvents: 'none',
+                  }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                   </svg>
                   <button
                     type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    style={{
-                      position: 'absolute',
-                      right: '0.7rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'transparent',
-                      border: 'none',
-                      padding: '4px 8px',
-                      cursor: 'pointer',
-                      color: showPassword ? 'var(--primary)' : 'var(--muted)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem',
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      borderRadius: '4px',
-                    }}
+                    onClick={() => setShowPassword(prev => !prev)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    style={{
+                      position: 'absolute', right: '0.8rem', top: '50%', transform: 'translateY(-50%)',
+                      background: 'var(--surface-strong)', border: '1px solid var(--border)',
+                      padding: '2px 8px', cursor: 'pointer',
+                      color: 'var(--muted)', fontSize: '0.72rem', fontWeight: 700, borderRadius: '5px',
+                    }}
                   >
                     {showPassword ? 'Hide' : 'Show'}
                   </button>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.84rem', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.2rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', color: 'var(--text)', userSelect: 'none', fontWeight: 650 }}>
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    style={{ width: '0.95rem', height: '0.95rem', accentColor: 'var(--primary)', cursor: 'pointer' }}
-                  />
-                  <span>Remember this session</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', color: 'var(--text)', userSelect: 'none', fontWeight: 650 }}>
-                  <input
-                    type="checkbox"
-                    checked={showPassword}
-                    onChange={(e) => setShowPassword(e.target.checked)}
-                    style={{ width: '0.95rem', height: '0.95rem', accentColor: 'var(--primary)', cursor: 'pointer' }}
-                  />
-                  <span>Show password</span>
-                </label>
-              </div>
+              {/* Remember me */}
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', userSelect: 'none', fontSize: '0.82rem', color: 'var(--muted)', fontWeight: 600 }}>
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  style={{ width: '15px', height: '15px', accentColor: 'var(--primary)', cursor: 'pointer' }}
+                />
+                Keep me signed in for 30 days
+              </label>
 
-              <Button type="submit" disabled={isLoading} style={{ marginTop: '0.5rem', width: '100%', gap: '0.4rem', justifyContent: 'center', padding: '0.7rem 1rem', fontSize: '0.96rem' }}>
+              {/* Sign in button — full-width gradient */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  padding: '0.78rem 1rem', marginTop: '0.2rem',
+                  background: isLoading ? 'var(--muted)' : 'linear-gradient(135deg, #e63c1c 0%, #c8280e 100%)',
+                  border: 'none', borderRadius: '12px',
+                  fontSize: '0.95rem', fontWeight: 800, color: '#fff',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  boxShadow: isLoading ? 'none' : '0 4px 18px rgba(230,60,28,0.38)',
+                  transition: 'opacity 0.15s, box-shadow 0.15s',
+                  opacity: isLoading ? 0.7 : 1,
+                  letterSpacing: '0.01em',
+                }}
+              >
                 {isLoading ? (
                   <>
-                    <span className="live-pulse-dot" style={{ background: '#fff' }} />
-                    Signing In…
+                    <span className="live-pulse-dot" style={{ background: '#fff', flexShrink: 0 }} />
+                    Signing in…
                   </>
                 ) : (
-                  'Sign In'
+                  <>
+                    Sign In
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </>
                 )}
-              </Button>
+              </button>
             </form>
 
-            {/* Quick Demo Login Section */}
-            <div style={{ marginTop: '1.4rem', paddingTop: '1.1rem', borderTop: '1px solid var(--border)', width: '100%' }}>
-              <button
-                type="button"
-                className="auth-demo-btn"
-                onClick={handleQuickDemoLogin}
-                disabled={isLoading}
-                style={{ width: '100%', justifyContent: 'center', padding: '0.6rem 1rem', fontSize: '0.88rem' }}
-              >
-                <span>Quick Demo Login (Kofi Mensah)</span>
-              </button>
+            {/* Divider */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '1.4rem 0' }}>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+              <span style={{ fontSize: '0.73rem', color: 'var(--muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>or continue with</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
             </div>
 
-            <div style={{ marginTop: '1.2rem', textAlign: 'center', fontSize: '0.88rem', color: 'var(--muted)' }}>
-              Don&apos;t have an account?{' '}
+            {/* Demo login button */}
+            <button
+              type="button"
+              onClick={handleQuickDemoLogin}
+              disabled={isLoading}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem',
+                padding: '0.68rem 1rem',
+                background: 'var(--surface-alt)',
+                border: '1.5px solid var(--border)',
+                borderRadius: '12px',
+                fontSize: '0.86rem', fontWeight: 700, color: 'var(--text)',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                transition: 'border-color 0.15s, background 0.15s',
+                opacity: isLoading ? 0.6 : 1,
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              Quick Demo — Kofi Mensah
+            </button>
+
+            {/* Sign-up nudge inside card bottom */}
+            <p style={{ marginTop: '1.4rem', fontSize: '0.83rem', color: 'var(--muted)', textAlign: 'center', margin: '1.4rem 0 0 0' }}>
+              New to SafeLens?{' '}
               <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}>
-                Create free account &rarr;
+                Create a free account
               </Link>
-            </div>
+            </p>
           </div>
         </div>
+      </div>
     </div>
+    </>
   )
 }
