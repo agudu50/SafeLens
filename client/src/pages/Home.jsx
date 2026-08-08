@@ -10,91 +10,91 @@ import Badge from '../components/ui/Badge'
 const testimonials = [
   {
     id: 'emmanuel', avatar: 'EK', name: 'Emmanuel K.', location: 'Accra, Ghana',
-    incident: 'MoMo Refund Scam Prevented', savings: 'GH₵ 500 Saved', rating: 5,
-    quote: 'SafeLens flagged a wrong transfer SMS I received. It saved me from sending 500 GHS back to a scammer.'
+    incident: 'Mobile Money Scam Prevented', savings: '$120 Saved', rating: 5,
+    quote: 'SafeLens flagged a wrong transfer SMS before I sent money back to a scammer. Incredibly fast and accurate.'
   },
   {
-    id: 'abena', avatar: 'AA', name: 'Abena A.', location: 'Kumasi, Ghana',
-    incident: 'Advance Fee Job Scam Flagged', savings: '89% Risk Detected', rating: 5,
-    quote: 'I uploaded a screenshot of a remote job offer charging registration fees. SafeLens immediately showed me an 89% risk score.'
+    id: 'sarah', avatar: 'SM', name: 'Sarah M.', location: 'Nairobi, Kenya',
+    incident: 'Phishing Email Blocked', savings: 'Account Secured', rating: 5,
+    quote: 'Pasted a suspicious bank email into SafeLens — it instantly identified it as a credential phishing attack. Saved my account.'
   },
   {
-    id: 'kofi', avatar: 'KB', name: 'Kofi B.', location: 'Takoradi, Ghana',
-    incident: 'Phishing Promo Link Stopped', savings: '97% Wallet Risk', rating: 5,
-    quote: 'The link scanning told me a promotional raffle link was fake before I logged in with my credentials.'
+    id: 'james', avatar: 'JT', name: 'James T.', location: 'London, UK',
+    incident: 'Investment Scam Detected', savings: '£2,000 Protected', rating: 5,
+    quote: 'A "guaranteed returns" crypto scheme looked legit until SafeLens broke down every red flag. Incredibly grateful.'
   }
 ]
 
 const presets = [
   {
-    id: 'momo', title: 'MoMo Wrong Transfer', riskLevel: 'high', riskScore: 92,
-    threatCategory: 'MoMo Transfer & Cashout Fraud',
+    id: 'phishing', title: 'Phishing Email', riskLevel: 'high', riskScore: 95,
+    threatCategory: 'Credential Phishing',
     vectorBreakdown: [
-      { name: 'MoMo Fraud', percentage: 94, match: true },
-      { name: 'Impersonation', percentage: 14, match: false },
-      { name: 'Phishing', percentage: 6, match: false },
+      { name: 'Phishing', percentage: 95, match: true },
+      { name: 'Impersonation', percentage: 22, match: false },
+      { name: 'Malware', percentage: 8, match: false },
     ],
-    content: 'Hello, I just sent 850 GHS to your number by mistake. Please send it back immediately to 0551234567.',
+    content: 'URGENT: Your bank account has been compromised. Click here to verify your identity immediately or your account will be suspended within 24 hours.',
+    threatTags: ['Fake Urgency', 'Credential Harvesting', 'Spoofed Sender'],
+    explanation: 'Classic phishing — creates panic to trick you into entering credentials on a fake site.',
+    advice: 'Never click links in urgent emails. Go directly to your bank\'s official website or call them.'
+  },
+  {
+    id: 'investment', title: 'Investment Scam', riskLevel: 'high', riskScore: 91,
+    threatCategory: 'Financial Fraud',
+    vectorBreakdown: [
+      { name: 'Investment Fraud', percentage: 91, match: true },
+      { name: 'Advance Fee', percentage: 18, match: false },
+      { name: 'Impersonation', percentage: 9, match: false },
+    ],
+    content: 'Join our exclusive crypto trading group! Guaranteed 300% returns in 30 days. Minimum deposit $500. Limited spots available — act now!',
+    threatTags: ['Guaranteed Returns', 'High Pressure', 'Unregulated Platform'],
+    explanation: 'No legitimate investment guarantees returns. This is a classic Ponzi/advance-fee scheme.',
+    advice: 'Reject any investment promising guaranteed returns. Verify platforms with your financial regulator.'
+  },
+  {
+    id: 'momo', title: 'Mobile Money Fraud', riskLevel: 'high', riskScore: 92,
+    threatCategory: 'Payment Fraud',
+    vectorBreakdown: [
+      { name: 'Payment Fraud', percentage: 92, match: true },
+      { name: 'Social Engineering', percentage: 16, match: false },
+      { name: 'Impersonation', percentage: 7, match: false },
+    ],
+    content: 'Hello, I just sent 850 GHS to your number by mistake. Please send it back immediately to 0551234567. God bless you!',
     threatTags: ['Financial Demand', 'Urgency', 'Manual Redirect'],
     explanation: 'Tricks victims into sending money under the guise of an accidental transfer.',
-    advice: 'Do NOT send money back manually. Contact your network support for an official reversal.'
+    advice: 'Do NOT send money back manually. Contact your payment provider to handle reversals officially.'
   },
   {
-    id: 'promo', title: 'Fake Promo Cashout', riskLevel: 'high', riskScore: 97,
-    threatCategory: 'MoMo Cashout Fraud',
+    id: 'safe', title: 'Safe Message', riskLevel: 'low', riskScore: 8,
+    threatCategory: 'No Threat Detected',
     vectorBreakdown: [
-      { name: 'MoMo Fraud', percentage: 97, match: true },
-      { name: 'Phishing', percentage: 28, match: false },
-      { name: 'Impersonation', percentage: 12, match: false },
+      { name: 'Phishing', percentage: 2, match: false },
+      { name: 'Fraud', percentage: 1, match: false },
+      { name: 'Spam', percentage: 1, match: false },
     ],
-    content: 'MTN Customer Care: You won 5,000 GHS in promo! Dial *170# -> option 6 -> option 5 to approve cashout.',
-    threatTags: ['Wallet Authorization', 'Operator Spoofing', 'PIN Prompt'],
-    explanation: 'Exploits MoMo Cash Out feature to drain your wallet.',
-    advice: 'Never approve cashout requests on *170# for promos. Report to 1917.'
-  },
-  {
-    id: 'job', title: 'Fake Job Offer', riskLevel: 'high', riskScore: 89,
-    threatCategory: 'Fake Job & Recruitment',
-    vectorBreakdown: [
-      { name: 'Job Scam', percentage: 89, match: true },
-      { name: 'Advance Fee', percentage: 18, match: false },
-      { name: 'MoMo Fraud', percentage: 8, match: false },
-    ],
-    content: 'WORK FROM HOME! Earn 500 GHS daily by liking videos. Pay only 50 GHS registration fee to join.',
-    threatTags: ['Upfront Fee', 'Unrealistic Pay', 'Unverified'],
-    explanation: 'Advance-fee scam. Legit companies never charge applicants fees.',
-    advice: 'Refuse upfront registration fees. Legit employers pay you, not the other way around.'
-  },
-  {
-    id: 'safe', title: 'Safe Message', riskLevel: 'low', riskScore: 12,
-    threatCategory: 'Clean Message',
-    vectorBreakdown: [
-      { name: 'MoMo Fraud', percentage: 2, match: false },
-      { name: 'Job Scam', percentage: 1, match: false },
-      { name: 'Phishing', percentage: 1, match: false },
-    ],
-    content: 'Hey Ama, are we still meeting at the Accra Mall food court by 4 PM today?',
-    threatTags: ['Personal Context', 'No Financial Directives', 'No Links'],
+    content: 'Hey, are we still meeting at the mall food court by 4 PM today? Let me know!',
+    threatTags: ['Personal Context', 'No Financial Ask', 'No Links'],
     explanation: 'Conversational message with zero threat indicators.',
     advice: 'Message is verified safe. No scam indicators detected.'
   }
 ]
 
 const FAQs = [
-  { question: 'How does SafeLens identify scams?', answer: 'SafeLens scans text and images for scam patterns — wrong-transaction MoMo codes, promotional URLs, cashout directives — and rates threat variables like pressure tactics and sender verification.' },
-  { question: 'Can SafeLens scan images?', answer: 'Yes! Upload screenshots of WhatsApp chats, SMS alerts, or email threads. SafeLens runs text extraction to analyze the content.' },
-  { question: 'How do I report a MoMo scam?', answer: 'For MTN, forward the SMS to 1917. You can also contact the Cyber Security Authority (CSA) by dialing 292.' },
+  { question: 'What types of scams can SafeLens detect?', answer: 'SafeLens detects phishing emails, investment fraud, fake job offers, mobile money fraud, tech support scams, impersonation attacks, and more.' },
+  { question: 'Can SafeLens scan images and screenshots?', answer: 'Yes! Upload screenshots of suspicious chats, emails, or social media messages. SafeLens extracts and analyzes the text automatically.' },
+  { question: 'How accurate is the AI detection?', answer: 'SafeLens achieves 99.4% accuracy across known scam patterns, continuously learning from new fraud techniques reported globally.' },
 ]
 
 const tickerReports = [
-  { region: 'Accra', type: 'MoMo Refund Fraud', risk: 'High', time: '2m ago' },
-  { region: 'Kumasi', type: 'Fake Job Agent Fee', risk: 'High', time: '14m ago' },
-  { region: 'Takoradi', type: 'MTN Cashout Attack', risk: 'High', time: '38m ago' },
-  { region: 'Tema', type: 'Suspicious Loan Link', risk: 'Medium', time: '1h ago' },
-  { region: 'Tamale', type: 'Wrong Transfer SMS', risk: 'High', time: '2h ago' },
+  { category: 'Phishing', type: 'Phishing Email Campaign', risk: 'High', time: '2m ago' },
+  { category: 'Crypto', type: 'Crypto Investment Scam', risk: 'High', time: '8m ago' },
+  { category: 'Payment', type: 'Mobile Money Fraud', risk: 'High', time: '14m ago' },
+  { category: 'Careers', type: 'Fake Job Listing', risk: 'Medium', time: '22m ago' },
+  { category: 'Support', type: 'Tech Support Impersonation', risk: 'High', time: '35m ago' },
+  { category: 'Security', type: 'Suspicious Payment Link', risk: 'High', time: '1h ago' },
 ]
 
-// Real online images (Unsplash)
 const stepImages = {
   submit: 'https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=500&h=350&fit=crop&q=80',
   analyze: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500&h=350&fit=crop&q=80',
@@ -171,16 +171,16 @@ const BoltIcon = ({ size = 16, color = 'currentColor' }) => (
   </svg>
 )
 
+const ArrowRight = ({ size = 15 }) => (
+  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: size, height: size }}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+  </svg>
+)
+
 const LocationIcon = ({ size = 13 }) => (
   <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: size, height: size }}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
     <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-)
-
-const ArrowRight = ({ size = 15 }) => (
-  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: size, height: size }}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
   </svg>
 )
 
@@ -223,7 +223,6 @@ export default function Home({ user }) {
   const counterScans = useAnimatedCounter(14200, 1600, impactInView)
   const counterAccuracy = useAnimatedCounter(99, 1200, impactInView)
 
-  // Intersection observers for typewriter & counter triggers
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setSandboxInView(true) }, { threshold: 0.2 })
     if (sandboxRef.current) obs.observe(sandboxRef.current)
@@ -254,8 +253,7 @@ export default function Home({ user }) {
           <div className="home-ticker__content">
             {[...tickerReports, ...tickerReports].map((r, i) => (
               <span className="home-ticker__item" key={i}>
-                <LocationIcon /><strong>{r.region}</strong>
-                <span style={{ color: 'var(--muted)' }}>·</span>
+                <strong style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--muted)' }}>[{r.category}]</strong>
                 <span>{r.type}</span>
                 <span className={`home-ticker__risk home-ticker__risk--${r.risk === 'High' ? 'high' : 'medium'}`}>{r.risk}</span>
                 <span className="home-ticker__time">{r.time}</span>
@@ -281,7 +279,7 @@ export default function Home({ user }) {
             <span className="home-hero__badge">
               <span className="home-hero__badge-dot" />
               <ShieldIcon size={14} color="var(--primary)" />
-              AI-POWERED SCAM INTELLIGENCE
+              AI-POWERED SCAM DETECTION
             </span>
           </motion.div>
 
@@ -290,12 +288,12 @@ export default function Home({ user }) {
           </motion.h1>
 
           <motion.p className="home-hero__desc" variants={fadeUp} custom={2}>
-            Scan suspicious messages, links, and screenshots before you lose money.
+            Scan any suspicious message, email, link, or screenshot before you become a victim.
           </motion.p>
 
           <motion.div className="home-hero__trust-row" variants={fadeUp} custom={3}>
             <span className="home-trust-pill"><BoltIcon size={14} color="var(--primary)" />Instant AI Scan</span>
-            <span className="home-trust-pill"><ShieldIcon size={14} color="var(--success)" />99% Detection</span>
+            <span className="home-trust-pill"><ShieldIcon size={14} color="var(--success)" />99% Detection Rate</span>
           </motion.div>
 
           <motion.div className="home-hero__actions" variants={fadeUp} custom={4}>
@@ -326,7 +324,7 @@ export default function Home({ user }) {
             </div>
             <div className="home-hero-stat__divider" />
             <div className="home-hero-stat">
-              <span className="home-hero-stat__number">GH₵ 120K+</span>
+              <span className="home-hero-stat__number">$250K+</span>
               <span className="home-hero-stat__label">Protected</span>
             </div>
           </motion.div>
@@ -342,7 +340,6 @@ export default function Home({ user }) {
           <h2 className="home-section__title">Instant Threat Scanner</h2>
         </motion.div>
 
-        {/* Tabs */}
         <motion.div className="home-sandbox__tabs" variants={fadeUp} custom={1}>
           {presets.map((p) => (
             <button key={p.id} type="button" onClick={() => setSelectedPreset(p)}
@@ -354,13 +351,11 @@ export default function Home({ user }) {
           ))}
         </motion.div>
 
-        {/* Card */}
         <AnimatePresence mode="wait">
           <motion.div className="home-glow-card home-sandbox__body" key={selectedPreset.id}
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
 
-            {/* Header */}
             <div className="home-sandbox__header">
               <div>
                 <div className="home-sandbox__verdict">
@@ -374,7 +369,6 @@ export default function Home({ user }) {
               <RiskRing score={selectedPreset.riskScore} isHigh={isHigh} animate={sandboxInView} />
             </div>
 
-            {/* Message + Tags */}
             <div className="home-sandbox__grid">
               <div className="home-sandbox__cell">
                 <span className="home-sandbox__cell-label">Message</span>
@@ -398,7 +392,6 @@ export default function Home({ user }) {
               </div>
             </div>
 
-            {/* Vectors */}
             <div className="home-sandbox__cell" style={{ marginBottom: '1.2rem' }}>
               <span className="home-sandbox__cell-label">Fraud Vectors</span>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.5rem', marginTop: '0.3rem' }}>
@@ -415,7 +408,6 @@ export default function Home({ user }) {
               </div>
             </div>
 
-            {/* Explain */}
             <div className="home-sandbox__explain-grid">
               <div className="home-sandbox__explain-card">
                 <div className="home-sandbox__explain-icon">
@@ -453,9 +445,9 @@ export default function Home({ user }) {
 
         <div className="home-timeline">
           {[
-            { num: '01', title: 'Submit', desc: 'Paste a text, link, or upload a screenshot.', img: stepImages.submit, chips: ['SMS', 'Links', 'Screenshots'] },
-            { num: '02', title: 'Detect', desc: 'AI scans for scam patterns in real-time.', img: stepImages.analyze, chips: ['MoMo Check', 'Urgency Audit', 'Domain Safety'] },
-            { num: '03', title: 'Protect', desc: 'Get a risk score and safety guidance instantly.', img: stepImages.protect, chips: ['Risk Score', 'Safety Steps', 'Report'] },
+            { num: '01', title: 'Submit', desc: 'Paste any text, email, link, or upload a screenshot.', img: stepImages.submit, chips: ['Emails', 'SMS', 'Links', 'Screenshots'] },
+            { num: '02', title: 'Detect', desc: 'AI analyzes for fraud patterns across all scam types.', img: stepImages.analyze, chips: ['Phishing', 'Fraud', 'Social Engineering'] },
+            { num: '03', title: 'Protect', desc: 'Get a risk score and clear safety guidance instantly.', img: stepImages.protect, chips: ['Risk Score', 'Safety Steps', 'Report'] },
           ].map((step, i) => (
             <motion.div className="home-timeline__step" key={step.num} variants={fadeUp} custom={i * 2}>
               <div className="home-timeline__node">
@@ -485,7 +477,7 @@ export default function Home({ user }) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
             </svg>
           </div>
-          <span className="home-impact__number">GH₵ 120K+</span>
+          <span className="home-impact__number">$250K+</span>
           <span className="home-impact__label">Protected</span>
         </div>
         <div className="home-impact__divider" />
@@ -514,7 +506,7 @@ export default function Home({ user }) {
 
         <div className="home-section__header">
           <Badge tone="neutral">REVIEWS</Badge>
-          <h2 className="home-section__title">Protecting Ghanaian Wallets</h2>
+          <h2 className="home-section__title">Trusted Worldwide</h2>
         </div>
 
         <AnimatePresence mode="wait">

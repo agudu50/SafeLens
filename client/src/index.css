@@ -4116,7 +4116,7 @@ html.dark .helpline-item-link:hover {
 .home-hero__shape--1 {
   width: 420px;
   height: 420px;
-  background: radial-gradient(circle, rgba(230, 60, 28, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(230, 60, 28, 0.25) 0%, transparent 70%);
   top: -10%;
   left: -5%;
   animation: homeFloat1 20s ease-in-out infinite;
@@ -4125,7 +4125,7 @@ html.dark .helpline-item-link:hover {
 .home-hero__shape--2 {
   width: 340px;
   height: 340px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(230, 60, 28, 0.2) 0%, transparent 70%);
   top: 20%;
   right: -8%;
   animation: homeFloat2 24s ease-in-out infinite;
@@ -4134,7 +4134,7 @@ html.dark .helpline-item-link:hover {
 .home-hero__shape--3 {
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(230, 60, 28, 0.15) 0%, transparent 70%);
   bottom: -5%;
   left: 30%;
   animation: homeFloat3 18s ease-in-out infinite;
@@ -4143,7 +4143,7 @@ html.dark .helpline-item-link:hover {
 .home-hero__shape--4 {
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(230, 60, 28, 0.15) 0%, transparent 70%);
   top: 50%;
   right: 25%;
   animation: homeFloat1 22s ease-in-out infinite reverse;
