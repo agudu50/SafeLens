@@ -99,7 +99,7 @@ export default function Register({ setUser }) {
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        background: linear-gradient(155deg, #e63c1c 0%, #b52a10 45%, #1a1033 100%);
+        background: #e63c1c;
       }
       .auth-right {
         height: 100vh;
@@ -239,7 +239,7 @@ export default function Register({ setUser }) {
         <div className="auth-mobile-bar">
           <div style={{
             width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
-            background: 'linear-gradient(135deg, #e63c1c 0%, #b52a10 100%)',
+            background: 'var(--primary)',
             display: 'grid', placeItems: 'center',
             boxShadow: '0 3px 10px rgba(230,60,28,0.35)',
           }}>
@@ -403,13 +403,13 @@ export default function Register({ setUser }) {
               </div>
             </div>
 
-            {/* Submit button — gradient */}
+            {/* Submit button — solid primary color */}
             <button
               type="submit" disabled={isLoading}
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                 padding: '0.6rem 1rem', marginTop: '0.1rem',
-                background: isLoading ? 'var(--muted)' : 'linear-gradient(135deg, #e63c1c 0%, #c8280e 100%)',
+                background: isLoading ? 'var(--muted)' : 'var(--primary)',
                 border: 'none', borderRadius: '12px',
                 fontSize: '0.92rem', fontWeight: 800, color: '#fff',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
