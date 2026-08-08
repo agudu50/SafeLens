@@ -118,7 +118,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
   }
 
   return (
-    <header className="site-header">
+    <header className={`site-header ${open ? 'site-header--open' : ''}`}>
       <div className="nav-shell">
         {/* Brand Logo */}
         <Link
