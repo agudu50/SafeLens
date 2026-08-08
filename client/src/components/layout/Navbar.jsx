@@ -21,29 +21,19 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
   const location = useLocation()
   const navigate = useNavigate()
 
-  // Auto-close mobile drawer on desktop resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 700) {
-        setOpen(false)
-      }
+      if (window.innerWidth > 700) setOpen(false)
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Close menus on route change
   useEffect(() => {
     setOpen(false)
     setShowHelpline(false)
     setShowProfileMenu(false)
   }, [location.pathname])
-
-  const isAppWorkspace =
-    user &&
-    ['/dashboard', '/scan', '/history', '/profile', '/results', '/safety-tips', '/billing', '/settings'].some((path) =>
-      location.pathname.startsWith(path)
-    )
 
   const links = user
     ? [
@@ -130,51 +120,30 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
   return (
     <header className="site-header">
       <div className="nav-shell">
-        {/* ── Brand Logo ── */}
+        {/* Brand Logo */}
         <Link
           to="/"
           className="brand"
           onClick={() => setOpen(false)}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0, textDecoration: 'none' }}
         >
-          <div style={{ position: 'relative', display: 'grid', placeItems: 'center' }}>
-            <img
-              src="/safelens-logo.png"
-              alt="SafeLens"
-              style={{
-                width: '36px',
-                height: '36px',
-                objectFit: 'cover',
-                borderRadius: '50%',
-                border: '1.5px solid var(--border)',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-                transition: 'transform 0.25s ease',
-              }}
-            />
-            <span
-              className="live-pulse-dot"
-              style={{
-                position: 'absolute',
-                bottom: '1px',
-                right: '1px',
-                width: '7px',
-                height: '7px',
-                background: 'var(--success)',
-                border: '1.5px solid var(--surface)',
-              }}
-            />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '1.15rem', color: 'var(--text)', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              SafeLens
-            </span>
-            <span style={{ fontSize: '0.62rem', color: 'var(--muted)', fontWeight: 750, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              AI Guard
-            </span>
-          </div>
+          <img
+            src="/safelens-logo.png"
+            alt="SafeLens"
+            style={{
+              width: '34px',
+              height: '34px',
+              objectFit: 'cover',
+              borderRadius: '50%',
+              border: '1.5px solid var(--border)',
+            }}
+          />
+          <span style={{ fontSize: '1.15rem', color: 'var(--text)', fontWeight: 900, letterSpacing: '-0.02em' }}>
+            SafeLens
+          </span>
         </Link>
 
-        {/* ── Hamburger Toggle (Mobile) ── */}
+        {/* Mobile Toggle */}
         <button
           className={`nav-toggle ${open ? 'nav-toggle--open' : ''}`}
           aria-expanded={open}
@@ -186,7 +155,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           <span />
         </button>
 
-        {/* ── Mobile Backdrop Overlay ── */}
+        {/* Mobile Backdrop Overlay */}
         <AnimatePresence>
           {open && (
             <motion.div
@@ -199,110 +168,8 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
           )}
         </AnimatePresence>
 
-        {/* ── Primary Navigation ── */}
+        {/* Navigation Links */}
         <nav className={`nav-links ${open ? 'nav-links--open' : ''}`} aria-label="Primary navigation">
-          {/* Mobile Drawer Header */}
-          {open && user && (
-            <div className="mobile-drawer-only" style={{ width: '100%', marginBottom: '0.4rem' }}>
-              <div
-                style={{
-                  padding: '0.85rem 1rem',
-                  background: 'var(--surface-alt)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', overflow: 'hidden' }}>
-                  <span
-                    style={{
-                      width: '38px',
-                      height: '38px',
-                      borderRadius: '50%',
-                      background: 'var(--primary)',
-                      color: '#ffffff',
-                      display: 'grid',
-                      placeItems: 'center',
-                      fontSize: '0.88rem',
-                      fontWeight: 900,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {getUserInitials(user)}
-                  </span>
-                  <div style={{ overflow: 'hidden' }}>
-                    <strong style={{ fontSize: '0.88rem', color: 'var(--text)', display: 'block', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {user.name}
-                    </strong>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--success)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
-                      Protection Active
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
-                    color: 'var(--danger)',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    padding: '0.3rem 0.65rem',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(239, 68, 68, 0.2)',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                  }}
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          )}
-
-          {open && !user && (
-            <div className="mobile-drawer-only" style={{ width: '100%', marginBottom: '0.4rem' }}>
-              <div
-                style={{
-                  padding: '0.85rem 1rem',
-                  background: 'var(--surface-alt)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                  <img src="/safelens-logo.png" alt="SafeLens" style={{ width: '30px', height: '30px', borderRadius: '50%' }} />
-                  <div>
-                    <strong style={{ fontSize: '0.86rem', color: 'var(--text)', display: 'block', fontWeight: 800 }}>SafeLens AI Guard</strong>
-                    <span style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>Scam Detection</span>
-                  </div>
-                </div>
-                <Link
-                  to="/login"
-                  onClick={() => setOpen(false)}
-                  style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 850,
-                    color: '#ffffff',
-                    background: 'var(--primary)',
-                    padding: '0.35rem 0.85rem',
-                    borderRadius: '999px',
-                    textDecoration: 'none',
-                  }}
-                >
-                  Sign In
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Desktop Nav Items */}
           {links.map((link) => (
             <NavLink
               key={link.to}
@@ -328,7 +195,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                       </span>
                       <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{link.label}</span>
                     </div>
-                    {link.isBadge ? (
+                    {link.isBadge && (
                       <span
                         style={{
                           fontSize: '0.62rem',
@@ -341,10 +208,6 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                       >
                         PRO
                       </span>
-                    ) : (
-                      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: isActive ? '#ffffff' : 'var(--muted)' }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                      </svg>
                     )}
                   </div>
                 ) : (
@@ -400,12 +263,9 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                 }}
                 title="Scam Helplines"
               >
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span className="live-pulse-dot" style={{ background: 'var(--danger)', width: '6px', height: '6px', position: 'absolute', top: '-2px', right: '-3px' }} />
-                  <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                  </svg>
-                </div>
+                <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                </svg>
               </button>
 
               <AnimatePresence>
@@ -422,33 +282,33 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                         position: 'absolute',
                         top: 'calc(100% + 10px)',
                         right: 0,
-                        width: '270px',
+                        width: '240px',
                         background: 'var(--surface)',
                         border: '1px solid var(--border)',
                         borderRadius: '16px',
                         boxShadow: '0 16px 40px rgba(0, 0, 0, 0.15)',
-                        padding: '0.9rem',
+                        padding: '0.8rem',
                         zIndex: 1000,
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                        <strong style={{ fontSize: '0.86rem', color: 'var(--text)', fontWeight: 800 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <strong style={{ fontSize: '0.84rem', color: 'var(--text)', fontWeight: 800 }}>
                           Emergency Helplines
                         </strong>
-                        <button type="button" onClick={() => setShowHelpline(false)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.9rem' }}>✕</button>
+                        <button type="button" onClick={() => setShowHelpline(false)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.85rem' }}>✕</button>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                        <a href="tel:292" className="helpline-item-link" style={{ textDecoration: 'none', color: 'var(--text)', fontSize: '0.78rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', padding: '0.45rem 0.65rem', borderRadius: '10px' }}>
-                          <span>Cyber Security Authority</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                        <a href="tel:292" className="helpline-item-link" style={{ textDecoration: 'none', color: 'var(--text)', fontSize: '0.78rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', padding: '0.4rem 0.6rem', borderRadius: '8px' }}>
+                          <span>Cyber Security</span>
                           <strong style={{ color: 'var(--primary)' }}>292</strong>
                         </a>
-                        <a href="tel:1917" className="helpline-item-link" style={{ textDecoration: 'none', color: 'var(--text)', fontSize: '0.78rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', padding: '0.45rem 0.65rem', borderRadius: '10px' }}>
-                          <span>MTN Fraud Hotline</span>
+                        <a href="tel:1917" className="helpline-item-link" style={{ textDecoration: 'none', color: 'var(--text)', fontSize: '0.78rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', padding: '0.4rem 0.6rem', borderRadius: '8px' }}>
+                          <span>MTN Fraud</span>
                           <strong style={{ color: 'var(--warning)' }}>1917</strong>
                         </a>
-                        <a href="tel:100" className="helpline-item-link" style={{ textDecoration: 'none', color: 'var(--text)', fontSize: '0.78rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', padding: '0.45rem 0.65rem', borderRadius: '10px' }}>
-                          <span>Telecel / AT Support</span>
+                        <a href="tel:100" className="helpline-item-link" style={{ textDecoration: 'none', color: 'var(--text)', fontSize: '0.78rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', padding: '0.4rem 0.6rem', borderRadius: '8px' }}>
+                          <span>Telecel / AT</span>
                           <strong style={{ color: 'var(--danger)' }}>100</strong>
                         </a>
                       </div>
@@ -492,10 +352,9 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
               )}
             </motion.button>
 
-            {/* Authenticated Profile or Visitor Sign In / Register */}
+            {/* Profile Avatar & Popover */}
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', position: 'relative' }} className="nav-user-container">
-                {/* Avatar Pill */}
                 <button
                   type="button"
                   onClick={() => {
@@ -520,12 +379,11 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                     boxShadow: showProfileMenu ? '0 0 0 3px rgba(230, 60, 28, 0.25)' : '0 2px 8px rgba(0, 0, 0, 0.1)',
                     flexShrink: 0,
                   }}
-                  title={`${user.name} - Profile & Settings`}
+                  title="Profile & Settings"
                 >
                   {getUserInitials(user)}
                 </button>
 
-                {/* Profile Popover Card */}
                 <AnimatePresence>
                   {showProfileMenu && (
                     <>
@@ -539,49 +397,17 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                           position: 'absolute',
                           top: 'calc(100% + 10px)',
                           right: 0,
-                          width: '240px',
+                          width: '210px',
                           background: 'var(--surface)',
                           border: '1px solid var(--border)',
-                          borderRadius: '18px',
+                          borderRadius: '16px',
                           boxShadow: '0 16px 40px rgba(0, 0, 0, 0.16)',
-                          padding: '0.85rem',
+                          padding: '0.6rem',
                           zIndex: 1000,
                         }}
                       >
-                        {/* Header */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem', paddingBottom: '0.65rem', borderBottom: '1px solid var(--border)' }}>
-                          <span
-                            style={{
-                              width: '38px',
-                              height: '38px',
-                              borderRadius: '50%',
-                              background: 'var(--primary)',
-                              color: '#ffffff',
-                              display: 'grid',
-                              placeItems: 'center',
-                              fontSize: '0.9rem',
-                              fontWeight: 900,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {getUserInitials(user)}
-                          </span>
-                          <div style={{ overflow: 'hidden', flex: 1 }}>
-                            <strong style={{ fontSize: '0.88rem', color: 'var(--text)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 800 }}>
-                              {user.name || 'User'}
-                            </strong>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--muted)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.2rem' }}>
-                              {user.email || 'user@example.com'}
-                            </span>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.12)', padding: '0.1rem 0.45rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <span className="live-pulse-dot" style={{ width: '4px', height: '4px', background: 'var(--success)' }} />
-                              PROTECTED
-                            </span>
-                          </div>
-                        </div>
-
                         {/* Menu Links */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.18rem', marginBottom: '0.65rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                           {[
                             { to: '/profile', label: 'My Profile', color: 'var(--primary)', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' },
                             { to: '/billing', label: 'Billing & Plan', color: 'var(--primary)', icon: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z' },
@@ -618,7 +444,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                         </div>
 
                         {/* Sign Out Button */}
-                        <div style={{ paddingTop: '0.55rem', borderTop: '1px solid var(--border)' }}>
+                        <div style={{ paddingTop: '0.45rem', marginTop: '0.3rem', borderTop: '1px solid var(--border)' }}>
                           <button
                             type="button"
                             onClick={handleSignOut}
@@ -627,7 +453,7 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
                               background: 'rgba(239, 68, 68, 0.08)',
                               color: 'var(--danger)',
                               border: '1px solid rgba(239, 68, 68, 0.25)',
-                              padding: '0.45rem 0.75rem',
+                              padding: '0.42rem 0.75rem',
                               borderRadius: '10px',
                               fontWeight: 800,
                               fontSize: '0.8rem',
