@@ -60,6 +60,7 @@ export const authService = {
       phone: phone.trim(),
       password, // In a real app, this would be salted & hashed on the server
       registeredAt: new Date().toISOString().slice(0, 10),
+      hasSelectedPlan: false,
     }
 
     users.push(newUser)
@@ -84,6 +85,10 @@ export const authService = {
 
     const sessionUser = { ...user }
     delete sessionUser.password
+    // Default hasSelectedPlan to false if not explicitly set
+    if (sessionUser.hasSelectedPlan === undefined) {
+      sessionUser.hasSelectedPlan = false
+    }
     localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser))
 
     return sessionUser

@@ -8,21 +8,30 @@ import Alert from '../components/ui/Alert'
 import { MOCK_PROTECTION_PLANS } from '../data/mockPlans'
 // Import subscription service to activate selected plan upon user choice
 import { subscriptionService } from '../services/subscriptionService'
+import { authService } from '../services/authService'
 
-export default function Pricing() {
+export default function Pricing({ user, setUser }) {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [submittingPlanId, setSubmittingPlanId] = useState(null)
 
-  // Flag determining if the user was directed here immediately after logging in or registering
-  const isSelectingPlan = searchParams.get('selectPlan') === 'true'
+  // Flag determining if the user was directed here immediately after logging in or registering or has no selected plan
+  const isSelectingPlan = searchParams.get('selectPlan') === 'true' || (user && !user.hasSelectedPlan)
 
   // Handler allowing logged-in user to select/activate a plan and proceed directly to their security dashboard
   const handleChoosePlan = async (planId) => {
     setSubmittingPlanId(planId)
     try {
       await subscriptionService.upgradePlan(planId)
-      // Navigate straight to dashboard after updating active plan
+      const currentSession = authService.getCurrentUser() || user
+      if (currentSession) {
+        const updatedUser = authService.setStoredUser({
+          ...currentSession,
+          hasSelectedPlan: true,
+          selectedPlan: planId,
+        })
+        if (setUser) setUser(updatedUser)
+      }
       navigate('/dashboard')
     } catch {
       setSubmittingPlanId(null)

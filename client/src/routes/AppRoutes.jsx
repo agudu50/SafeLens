@@ -1,4 +1,4 @@
-import { Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
 import Home from '../pages/Home'
 import Dashboard from '../pages/Dashboard'
 import Scanner from '../pages/Scanner'
@@ -25,7 +25,7 @@ function ProtectedRoute({ user, setUser, children, title = 'Account Required for
     const handleQuickLogin = () => {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
-      navigate('/dashboard')
+      navigate('/pricing?selectPlan=true')
     }
 
     return (
@@ -103,6 +103,12 @@ function ProtectedRoute({ user, setUser, children, title = 'Account Required for
       </PageContainer>
     )
   }
+
+  // If user is logged in but has not chosen a plan yet, redirect to plan selection page
+  if (user && !user.hasSelectedPlan) {
+    return <Navigate to="/pricing?selectPlan=true" replace />
+  }
+
   return children
 }
 
@@ -111,7 +117,7 @@ export default function AppRoutes({ user, setUser }) {
     <Routes>
       <Route path="/" element={<Home user={user} />} />
       <Route path="/about" element={<About user={user} />} />
-      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/pricing" element={<Pricing user={user} setUser={setUser} />} />
       <Route path="/login" element={<Login setUser={setUser} />} />
       <Route path="/register" element={<Register setUser={setUser} />} />
 
