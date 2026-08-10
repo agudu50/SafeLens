@@ -73,14 +73,8 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Enhanced Vibrant Ambient Multi-Radial Mesh Background for Dark Mode */
 html.dark body {
-  background: radial-gradient(circle at 50% -5%, rgba(230, 60, 28, 0.18) 0%, transparent 48%),
-              radial-gradient(circle at 10% 25%, rgba(14, 165, 233, 0.15) 0%, transparent 45%),
-              radial-gradient(circle at 90% 45%, rgba(139, 92, 246, 0.14) 0%, transparent 50%),
-              radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.12) 0%, transparent 55%),
-              #0b1120;
-  background-attachment: fixed;
+  background: #0b1120;
 }
 
 #root {
@@ -1161,7 +1155,6 @@ html.dark .dark-bg-animation {
   opacity: 0.65;
   mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 88%);
   -webkit-mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 88%);
-  animation: cyberGridScroll 75s linear infinite;
 }
 
 @keyframes cyberGridScroll {
@@ -1264,74 +1257,15 @@ html.dark .dark-bg-animation {
   100% { transform: translate3d(-2vw, 2vh, 0); }
 }
 
-/* ========================================================
-   DARK MODE EXCLUSIVE BACKGROUND ANIMATION (Neon Cyber Command)
-   ======================================================== */
-.dark-mesh-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  opacity: 0.8;
-}
-
-.orb-cyber-red {
-  top: -10%;
-  left: 10%;
-  width: 55vw;
-  height: 55vw;
-  max-width: 700px;
-  max-height: 700px;
-  background: radial-gradient(circle, rgba(230, 60, 28, 0.35) 0%, transparent 75%);
-  animation: auroraFlow1 24s ease-in-out infinite alternate;
-}
-
-.orb-cyber-blue {
-  top: 30%;
-  right: -10%;
-  width: 50vw;
-  height: 50vw;
-  max-width: 650px;
-  max-height: 650px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 75%);
-  animation: auroraFlow2 28s ease-in-out infinite alternate;
-}
-
-.orb-cyber-purple {
-  bottom: -10%;
-  left: 20%;
-  width: 45vw;
-  height: 45vw;
-  max-width: 600px;
-  max-height: 600px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.28) 0%, transparent 75%);
-  animation: auroraFlow3 22s ease-in-out infinite alternate;
-}
-
-/* Cyber Radial Masked Grid Overlay */
-.cyber-grid-overlay {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(var(--grid-dot-color) 1.2px, transparent 1.2px),
-    linear-gradient(to right, rgba(230, 60, 28, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(230, 60, 28, 0.02) 1px, transparent 1px);
-  background-size: 32px 32px, 64px 64px, 64px 64px;
-  opacity: 0.6;
-  mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 88%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 88%);
-  animation: scrollBg 70s linear infinite;
-}
-
-.cyber-scan-glow {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 140px;
-  background: linear-gradient(180deg, transparent 0%, var(--scan-glow-color) 50%, transparent 100%);
-  border-bottom: 1px solid rgba(230, 60, 28, 0.15);
-  filter: blur(25px);
-  animation: scanPage 14s ease-in-out infinite;
+/* Background Glowing Animation Overrides */
+.dark-mesh-orb,
+.orb-cyber-red,
+.orb-cyber-blue,
+.orb-cyber-purple,
+.cyber-scan-glow,
+.light-cyber-radar-sweep,
+.light-radar-wave {
+  display: none !important;
 }
 
 /* High-Clarity Cyber Floating Chips / Tip Nodes */
@@ -4563,55 +4497,7 @@ html.dark .helpline-item-link:hover {
 }
 
 .home-hero__shapes {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-}
-
-.home-hero__shape {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.35;
-  will-change: transform;
-}
-
-.home-hero__shape--1 {
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(230, 60, 28, 0.25) 0%, transparent 70%);
-  top: -10%;
-  left: -5%;
-  animation: homeFloat1 20s ease-in-out infinite;
-}
-
-.home-hero__shape--2 {
-  width: 340px;
-  height: 340px;
-  background: radial-gradient(circle, rgba(230, 60, 28, 0.2) 0%, transparent 70%);
-  top: 20%;
-  right: -8%;
-  animation: homeFloat2 24s ease-in-out infinite;
-}
-
-.home-hero__shape--3 {
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle, rgba(230, 60, 28, 0.15) 0%, transparent 70%);
-  bottom: -5%;
-  left: 30%;
-  animation: homeFloat3 18s ease-in-out infinite;
-}
-
-.home-hero__shape--4 {
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(230, 60, 28, 0.15) 0%, transparent 70%);
-  top: 50%;
-  right: 25%;
-  animation: homeFloat1 22s ease-in-out infinite reverse;
+  display: none !important;
 }
 
 .home-hero__content {
