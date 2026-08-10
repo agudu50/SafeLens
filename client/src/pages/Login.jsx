@@ -4,7 +4,7 @@ import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
 import { authService } from '../services/authService'
 
-export default function Login({ setUser }) {
+export default function Login({ setUser, triggerAuthModal }) {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -26,7 +26,12 @@ export default function Login({ setUser }) {
         const loggedUser = authService.login({ email: email.trim(), password })
         setUser(loggedUser)
         setIsLoading(false)
-        // Redirect to plan selection immediately after login
+        if (triggerAuthModal) {
+          triggerAuthModal({
+            type: 'login',
+            title: `Welcome back, ${loggedUser?.name ? loggedUser.name.split(' ')[0] : 'User'}`
+          })
+        }
         navigate('/pricing?selectPlan=true')
       } catch (err) {
         setError(err.message || 'Incorrect email or password. Please try again.')
@@ -42,7 +47,12 @@ export default function Login({ setUser }) {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
       setIsLoading(false)
-      // Redirect demo user to plan selection page
+      if (triggerAuthModal) {
+        triggerAuthModal({
+          type: 'login',
+          title: 'Welcome back, Kofi'
+        })
+      }
       navigate('/pricing?selectPlan=true')
     }, 400)
   }

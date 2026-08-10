@@ -14,7 +14,7 @@ function getUserInitials(user) {
     .toUpperCase()
 }
 
-export default function Navbar({ user, setUser, theme, setTheme }) {
+export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModal }) {
   const [open, setOpen] = useState(false)
   const [showHelpline, setShowHelpline] = useState(false)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
@@ -102,6 +102,12 @@ export default function Navbar({ user, setUser, theme, setTheme }) {
     setUser(null)
     setShowProfileMenu(false)
     setOpen(false)
+    if (triggerAuthModal) {
+      triggerAuthModal({
+        type: 'logout',
+        title: 'Signed Out Successfully'
+      })
+    }
     navigate('/')
   }
 

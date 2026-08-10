@@ -19,7 +19,7 @@ const getPasswordStrength = (pass) => {
   return { score, percent: 100, label: 'Strong password', color: 'var(--success)' }
 }
 
-export default function Register({ setUser }) {
+export default function Register({ setUser, triggerAuthModal }) {
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -58,7 +58,12 @@ export default function Register({ setUser }) {
         const registeredUser = authService.register({ name: name.trim(), email: email.trim(), phone: phoneDigits, password })
         setUser(registeredUser)
         setIsLoading(false)
-        // Redirect newly registered user to plan selection immediately
+        if (triggerAuthModal) {
+          triggerAuthModal({
+            type: 'register',
+            title: `Welcome, ${name.trim().split(' ')[0]}`
+          })
+        }
         navigate('/pricing?selectPlan=true')
       } catch (err) {
         setError(err.message || 'Registration failed. Please try again.')
@@ -74,7 +79,12 @@ export default function Register({ setUser }) {
       const demoUser = authService.login({ email: 'kofi@example.com', password: 'password123' })
       setUser(demoUser)
       setIsLoading(false)
-      // Redirect demo user to plan selection page
+      if (triggerAuthModal) {
+        triggerAuthModal({
+          type: 'login',
+          title: 'Welcome back, Kofi'
+        })
+      }
       navigate('/pricing?selectPlan=true')
     }, 400)
   }

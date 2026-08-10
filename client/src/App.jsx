@@ -4,10 +4,12 @@ import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
 import AppRoutes from './routes/AppRoutes'
 import BackgroundAnimation from './components/layout/BackgroundAnimation'
+import AuthToastModal from './components/ui/AuthToastModal'
 import { authService } from './services/authService'
 
 function App() {
   const [user, setUser] = useState(() => authService.getCurrentUser())
+  const [authModal, setAuthModal] = useState(null)
   const [theme, setTheme] = useState(() => {
     try {
       const stored = localStorage.getItem('safelens_theme')
@@ -27,13 +29,18 @@ function App() {
     }
   }, [theme])
 
+  const triggerAuthModal = (modalConfig) => {
+    setAuthModal(modalConfig)
+  }
+
   return (
     <BrowserRouter>
       <div className="app-shell">
         <BackgroundAnimation />
-        <Navbar user={user} setUser={setUser} theme={theme} setTheme={setTheme} />
+        <AuthToastModal modal={authModal} onClose={() => setAuthModal(null)} />
+        <Navbar user={user} setUser={setUser} theme={theme} setTheme={setTheme} triggerAuthModal={triggerAuthModal} />
         <main className="main-content">
-          <AppRoutes user={user} setUser={setUser} />
+          <AppRoutes user={user} setUser={setUser} triggerAuthModal={triggerAuthModal} />
         </main>
         <Footer user={user} />
       </div>

@@ -112,14 +112,14 @@ function ProtectedRoute({ user, setUser, children, title = 'Account Required for
   return children
 }
 
-export default function AppRoutes({ user, setUser }) {
+export default function AppRoutes({ user, setUser, triggerAuthModal }) {
   return (
     <Routes>
       <Route path="/" element={<Home user={user} />} />
       <Route path="/about" element={<About user={user} />} />
       <Route path="/pricing" element={<Pricing user={user} setUser={setUser} />} />
-      <Route path="/login" element={<Login setUser={setUser} />} />
-      <Route path="/register" element={<Register setUser={setUser} />} />
+      <Route path="/login" element={<Login setUser={setUser} triggerAuthModal={triggerAuthModal} />} />
+      <Route path="/register" element={<Register setUser={setUser} triggerAuthModal={triggerAuthModal} />} />
 
       {/* Protected Features (Accessible if user has an account) */}
       <Route
