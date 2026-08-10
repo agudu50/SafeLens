@@ -5735,6 +5735,12 @@ html.dark .home-glow-card {
 }
 
 @media (max-width: 480px) {
+  .results-card,
+  .scanner-card,
+  .home-cta-banner {
+    padding: 1.25rem 1rem !important;
+  }
+
   .home-hero__title {
     font-size: 1.7rem !important;
   }

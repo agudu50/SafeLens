@@ -31,15 +31,15 @@ export default function About({ user }) {
             SafeLens is an advanced AI-powered threat detection system engineered to safeguard individuals and businesses against Mobile Money (MoMo) cashout fraud, phishing links, and deceptive communications.
           </p>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.65rem 1.4rem', fontSize: '0.92rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', width: '100%', boxSizing: 'border-box' }}>
+            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.65rem 1.25rem', fontSize: '0.9rem', maxWidth: '100%' }}>
               {user ? "Go to Dashboard" : "Sign In to Get Started"}
             </Button>
-            <Button as={Link} to="/safety-tips" variant="secondary" style={{ gap: '0.5rem', padding: '0.65rem 1.4rem', fontSize: '0.92rem' }}>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem' }}>
+            <Button as={Link} to="/safety-tips" variant="secondary" style={{ gap: '0.5rem', padding: '0.65rem 1.25rem', fontSize: '0.9rem', maxWidth: '100%' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', flexShrink: 0 }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
               </svg>
-              <span>Explore Safety Tips &amp; Daily Quiz &rarr;</span>
+              <span>Explore Safety Tips &rarr;</span>
             </Button>
           </div>
         </section>
@@ -262,14 +262,14 @@ export default function About({ user }) {
           <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: '0 auto 1.4rem auto', maxWidth: '540px', lineHeight: 1.5 }}>
             Join thousands of users across Ghana taking proactive steps to stay safe online and eliminate Mobile Money wallet risk.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', width: '100%', boxSizing: 'border-box' }}>
+            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.6rem 1.2rem', fontSize: '0.88rem', maxWidth: '100%' }}>
               <span>{user ? "Go to Dashboard" : "Sign In to Get Started"}</span>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem', flexShrink: 0 }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             </Button>
-            <Button as={Link} to="/safety-tips" variant="secondary" style={{ gap: '0.5rem', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}>
+            <Button as={Link} to="/safety-tips" variant="secondary" style={{ gap: '0.5rem', padding: '0.6rem 1.2rem', fontSize: '0.88rem', maxWidth: '100%' }}>
               <span>Explore Safety Tips</span>
             </Button>
           </div>
