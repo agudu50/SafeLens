@@ -214,6 +214,7 @@ html.dark .site-header {
   gap: 0.4rem;
   white-space: nowrap;
   flex-wrap: nowrap;
+  margin-left: auto;
 }
 
 .nav-link {
