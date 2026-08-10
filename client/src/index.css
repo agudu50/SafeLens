@@ -423,6 +423,33 @@ html.dark .nav-link:hover {
 
 .mobile-nav-grid--guest {
   grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.mobile-nav-grid--guest .mobile-nav-grid-item {
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 0.6rem 0.85rem;
+  gap: 0.6rem;
+  border-radius: 14px;
+}
+
+.mobile-nav-grid--guest .mobile-nav-grid-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+
+.mobile-nav-grid--guest .mobile-nav-grid-icon svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.mobile-nav-grid--guest .mobile-nav-grid-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: left;
 }
 
 .mobile-nav-grid-item {
@@ -437,16 +464,13 @@ html.dark .nav-link:hover {
   border: 1px solid var(--border);
   text-decoration: none;
   color: var(--text);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background 0.2s ease, border-color 0.2s ease;
   position: relative;
   cursor: pointer;
-  animation: mobileGridFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .mobile-nav-grid-item:hover {
   background: var(--surface-strong);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .mobile-nav-grid-item--active {
@@ -457,8 +481,7 @@ html.dark .nav-link:hover {
 }
 
 .mobile-nav-grid-item--active:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(230, 60, 28, 0.35);
+  background: var(--primary) !important;
 }
 
 .mobile-nav-grid-icon {
@@ -533,12 +556,10 @@ html.dark .nav-link:hover {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  animation: mobileGridFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .mobile-drawer-list-item:hover {
   background: var(--surface-strong);
-  transform: translateX(3px);
 }
 
 .mobile-drawer-list-item--active {
@@ -699,7 +720,6 @@ html.dark .nav-link:hover {
 
 .mobile-drawer-auth-btn--primary:hover {
   background: var(--primary-hover);
-  transform: translateY(-1px);
 }
 
 /* Grid item fade-in animation */
@@ -2107,9 +2127,24 @@ html.dark .hero-panel__card {
     -webkit-font-smoothing: antialiased;
   }
 
-  .nav-links--open {
-    display: flex;
-    animation: slideUpMobile 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .mobile-drawer-portal-sheet {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .mobile-drawer-portal-sheet--open {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .nav-backdrop--open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .nav-links::before {
@@ -2174,10 +2209,9 @@ html.dark .hero-panel__card {
     color: var(--text);
   }
 
+  /* Hide desktop action group (Sign In, Register, theme toggle, helplines) from top navbar on mobile */
   .nav-actions {
-    width: 100%;
-    margin-left: 0 !important;
-    margin-top: 0.4rem;
+    display: none !important;
   }
 
   .nav-action {
@@ -3940,32 +3974,9 @@ html.dark .helpline-item-link:hover {
   }
 
   .nav-links {
-    display: none;
-  }
-
-  .nav-links--open {
-    display: flex !important;
-    flex-direction: column !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    width: 100% !important;
-    background: var(--surface) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 24px 24px 0 0 !important;
-    padding: 0.6rem 1.1rem 1.4rem !important;
-    box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.35) !important;
-    z-index: 9999 !important;
-    max-height: 85vh !important;
-    overflow-y: auto !important;
-    gap: 0.65rem !important;
-    -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    animation: slideUpMobile 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
 
@@ -5742,3 +5753,13 @@ html.dark .home-glow-card {
   }
 }
 
+/* Disable all moving background radar scan lines, wave animations, and mesh orbs */
+.light-cyber-radar-sweep,
+.light-radar-wave,
+.cyber-scan-glow,
+.orb-cyber-primary,
+.orb-cyber-secondary,
+.dark-mesh-orb {
+  display: none !important;
+  animation: none !important;
+}

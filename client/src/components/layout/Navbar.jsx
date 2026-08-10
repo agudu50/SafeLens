@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { authService } from '../../services/authService'
@@ -28,6 +29,25 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  // Rigidly lock background body position when mobile drawer is open
+  useEffect(() => {
+    if (open) {
+      const scrollY = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.width = '100%'
+      document.body.style.overflow = 'hidden'
+      return () => {
+        const savedY = Math.abs(parseInt(document.body.style.top || '0', 10))
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        document.body.style.overflow = ''
+        window.scrollTo(0, savedY)
+      }
+    }
+  }, [open])
 
   useEffect(() => {
     setOpen(false)
@@ -166,240 +186,352 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
           )}
         </AnimatePresence>
 
-        {/* Navigation Links (Desktop + Mobile Drawer) */}
-        <nav className={`nav-links ${open ? 'nav-links--open' : ''}`} aria-label="Primary navigation">
-          {open ? (
-            /* ── MOBILE DRAWER CONTENT (Tailored for Logged-In vs Logged-Out) ── */
-            <div className="mobile-drawer-root">
-              {user ? (
-                /* ── LOGGED-IN MOBILE DRAWER ── */
-                <>
-                  {/* User Profile Header Badge */}
-                  <div className="mobile-drawer-profile">
-                    <span className="mobile-drawer-avatar">
-                      {getUserInitials(user)}
+        {/* Desktop Navigation Links */}
+        <nav className="nav-links" aria-label="Primary navigation">
+          {desktopLinks.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) => (isActive ? 'nav-link nav-link--active' : 'nav-link')}
+              onClick={() => setOpen(false)}
+            >
+              {({ isActive }) => (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', whiteSpace: 'nowrap' }}>
+                  {link.icon && <span style={{ display: 'inline-flex', alignItems: 'center' }}>{link.icon}</span>}
+                  <span>{link.label}</span>
+                  {link.isBadge && (
+                    <span
+                      style={{
+                        fontSize: '0.58rem',
+                        fontWeight: 850,
+                        color: isActive ? 'var(--primary)' : '#ffffff',
+                        background: isActive ? '#ffffff' : 'var(--primary)',
+                        padding: '0.08rem 0.38rem',
+                        borderRadius: '999px',
+                        letterSpacing: '0.04em',
+                        marginLeft: '0.1rem',
+                      }}
+                    >
+                      PRO
                     </span>
-                    <div style={{ overflow: 'hidden', flex: 1 }}>
-                      <strong className="mobile-drawer-username">
-                        {user.name}
-                      </strong>
-                      <span className="mobile-drawer-status">
-                        <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
-                        Protection Active
-                      </span>
-                    </div>
-                    {/* Theme Toggle in Header */}
-                    <motion.button
-                      type="button"
-                      className="mobile-drawer-theme-btn"
-                      aria-label="Toggle Theme"
-                      onClick={toggleTheme}
-                      whileTap={{ scale: 0.85, rotate: 20 }}
-                    >
-                      {theme === 'dark' ? (
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--warning)' }}>
-                          <circle cx="12" cy="12" r="5" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
-                        </svg>
-                      ) : (
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--primary)' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                        </svg>
-                      )}
-                    </motion.button>
-                  </div>
-
-                  {/* ── Primary Navigation Grid (Icons on top, labels below) ── */}
-                  <div className="mobile-drawer-section-label">Navigation</div>
-                  <div className="mobile-nav-grid">
-                    {[
-                      { to: '/dashboard', label: 'Dashboard', icon: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' },
-                      { to: '/scan', label: 'AI Scanner', isBadge: true, icon: 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z' },
-                      { to: '/history', label: 'History', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-                      { to: '/safety-tips', label: 'Safety Tips', icon: 'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z' },
-                    ].map((item, idx) => (
-                      <NavLink
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setOpen(false)}
-                        className={({ isActive }) => `mobile-nav-grid-item ${isActive ? 'mobile-nav-grid-item--active' : ''}`}
-                        style={{ animationDelay: `${idx * 0.04}s` }}
-                      >
-                        {({ isActive }) => (
-                          <>
-                            <span className="mobile-nav-grid-icon">
-                              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                              </svg>
-                            </span>
-                            <span className="mobile-nav-grid-label">{item.label}</span>
-                            {item.isBadge && (
-                              <span className={`mobile-nav-grid-badge ${isActive ? 'mobile-nav-grid-badge--active' : ''}`}>
-                                PRO
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </NavLink>
-                    ))}
-                  </div>
-
-                  {/* ── Account Section (List style) ── */}
-                  <div className="mobile-drawer-section-label">Account</div>
-                  <div className="mobile-drawer-list">
-                    {[
-                      { to: '/profile', label: 'My Profile', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' },
-                      { to: '/billing', label: 'Billing & Plan', icon: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z' },
-                      { to: '/settings', label: 'Settings', icon: 'M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12h11.25' },
-                    ].map((item, idx) => (
-                      <NavLink
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setOpen(false)}
-                        className={({ isActive }) => `mobile-drawer-list-item ${isActive ? 'mobile-drawer-list-item--active' : ''}`}
-                        style={{ animationDelay: `${(idx + 4) * 0.04}s` }}
-                      >
-                        {({ isActive }) => (
-                          <>
-                            <span className={`mobile-drawer-list-icon ${isActive ? 'mobile-drawer-list-icon--active' : ''}`}>
-                              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                              </svg>
-                            </span>
-                            <span className="mobile-drawer-list-label">{item.label}</span>
-                            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="mobile-drawer-list-chevron">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                            </svg>
-                          </>
-                        )}
-                      </NavLink>
-                    ))}
-                  </div>
-
-                  {/* Helplines Call Bar */}
-                  <div className="mobile-drawer-helpline-card">
-                    <div className="mobile-drawer-helpline-header">
-                      <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                      </svg>
-                      <span>Emergency Helplines</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      <a href="tel:292" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--primary">
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                        </svg>
-                        CSA 292
-                      </a>
-                      <a href="tel:1917" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--warning">
-                        <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                        </svg>
-                        MTN 1917
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Sign Out Button */}
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="mobile-drawer-signout"
-                  >
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
-                    </svg>
-                    <span>Sign Out</span>
-                  </button>
-                </>
-              ) : (
-                /* ── LOGGED-OUT (GUEST) MOBILE DRAWER ── */
-                <>
-                  {/* Navigation Grid for Guests */}
-                  <div className="mobile-nav-grid mobile-nav-grid--guest">
-                    {[
-                      { to: '/', label: 'Home', icon: 'M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25' },
-                      { to: '/about', label: 'About Us', icon: 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z' },
-                    ].map((item, idx) => (
-                      <NavLink
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setOpen(false)}
-                        className={({ isActive }) => `mobile-nav-grid-item ${isActive ? 'mobile-nav-grid-item--active' : ''}`}
-                        style={{ animationDelay: `${idx * 0.04}s` }}
-                      >
-                        {({ isActive }) => (
-                          <>
-                            <span className="mobile-nav-grid-icon">
-                              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                              </svg>
-                            </span>
-                            <span className="mobile-nav-grid-label">{item.label}</span>
-                          </>
-                        )}
-                      </NavLink>
-                    ))}
-                  </div>
-
-                  {/* Auth Actions: Sign In & Register */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.2rem', paddingTop: '0.6rem', borderTop: '1px solid var(--border)' }}>
-                    <Link
-                      to="/login"
-                      onClick={() => setOpen(false)}
-                      className="mobile-drawer-auth-btn mobile-drawer-auth-btn--secondary"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      to="/register"
-                      onClick={() => setOpen(false)}
-                      className="mobile-drawer-auth-btn mobile-drawer-auth-btn--primary"
-                    >
-                      Register
-                    </Link>
-                  </div>
-                </>
+                  )}
+                </span>
               )}
-            </div>
-          ) : (
-            /* ── DESKTOP NAVIGATION CONTENT ── */
-            desktopLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                className={({ isActive }) => (isActive ? 'nav-link nav-link--active' : 'nav-link')}
-                onClick={() => setOpen(false)}
-              >
-                {({ isActive }) => (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', whiteSpace: 'nowrap' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center' }}>{link.icon}</span>
-                    <span>{link.label}</span>
-                    {link.isBadge && (
-                      <span
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Mobile Bottom Sheet Portal (Mounted to document.body only when open) */}
+        {open && createPortal(
+          <div
+            className="mobile-drawer-portal-wrapper"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              pointerEvents: 'auto',
+            }}
+          >
+            {/* Backdrop */}
+            <div
+              className={`nav-backdrop ${open ? 'nav-backdrop--open' : ''}`}
+              onClick={() => setOpen(false)}
+              onTouchMove={(e) => e.preventDefault()}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'rgba(15, 23, 42, 0.65)',
+                zIndex: 1,
+              }}
+            />
+
+            {/* Bottom Sheet Drawer */}
+            <div
+              className={`mobile-drawer-portal-sheet ${open ? 'mobile-drawer-portal-sheet--open' : ''}`}
+              style={{
+                position: 'relative',
+                zIndex: 2,
+                width: '100%',
+                background: 'var(--surface)',
+                borderTop: '1px solid var(--border)',
+                borderRadius: '24px 24px 0 0',
+                padding: '0.5rem 1rem 1rem',
+                boxShadow: '0 -10px 50px rgba(0, 0, 0, 0.4)',
+                maxHeight: '85vh',
+                overflowY: 'auto',
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                boxSizing: 'border-box',
+              }}
+            >
+              <div style={{ width: '36px', height: '4px', background: 'var(--border)', borderRadius: '999px', margin: '0.2rem auto 0.65rem', flexShrink: 0 }} />
+              <div className="mobile-drawer-root">
+                {user ? (
+                  /* ── LOGGED-IN MOBILE DRAWER ── */
+                  <>
+                    {/* User Profile Header Badge */}
+                    <div className="mobile-drawer-profile">
+                      <span className="mobile-drawer-avatar">
+                        {getUserInitials(user)}
+                      </span>
+                      <div style={{ overflow: 'hidden', flex: 1 }}>
+                        <strong className="mobile-drawer-username">
+                          {user.name}
+                        </strong>
+                        <span className="mobile-drawer-status">
+                          <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
+                          Protection Active
+                        </span>
+                      </div>
+                      {/* Theme Toggle in Header */}
+                      <button
+                        type="button"
+                        className="mobile-drawer-theme-btn"
+                        aria-label="Toggle Theme"
+                        onClick={toggleTheme}
                         style={{
-                          fontSize: '0.58rem',
-                          fontWeight: 850,
-                          color: isActive ? 'var(--primary)' : '#ffffff',
-                          background: isActive ? '#ffffff' : 'var(--primary)',
-                          padding: '0.08rem 0.38rem',
-                          borderRadius: '999px',
-                          letterSpacing: '0.04em',
-                          marginLeft: '0.1rem',
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '10px',
+                          background: 'var(--surface-alt)',
+                          border: '1px solid var(--border)',
+                          display: 'grid',
+                          placeItems: 'center',
+                          cursor: 'pointer',
                         }}
                       >
-                        PRO
-                      </span>
-                    )}
-                  </span>
-                )}
-              </NavLink>
-            ))
-          )}
+                        {theme === 'dark' ? (
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--warning)' }}>
+                            <circle cx="12" cy="12" r="5" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
+                          </svg>
+                        ) : (
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--primary)' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
 
-          {/* Desktop Right Action Group */}
-          {!open && (
-            <div className="nav-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                    {/* ── Primary Navigation Grid (Icons on top, labels below) ── */}
+                    <div className="mobile-drawer-section-label">Navigation</div>
+                    <div className="mobile-nav-grid">
+                      {[
+                        { to: '/dashboard', label: 'Dashboard', icon: 'M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z' },
+                        { to: '/scan', label: 'AI Scanner', isBadge: true, icon: 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z' },
+                        { to: '/history', label: 'History', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+                        { to: '/safety-tips', label: 'Safety Tips', icon: 'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z' },
+                      ].map((item, idx) => (
+                        <NavLink
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => setOpen(false)}
+                          className={({ isActive }) => `mobile-nav-grid-item ${isActive ? 'mobile-nav-grid-item--active' : ''}`}
+                        >
+                          {({ isActive }) => (
+                            <>
+                              <span className="mobile-nav-grid-icon">
+                                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                                </svg>
+                              </span>
+                              <span className="mobile-nav-grid-label">{item.label}</span>
+                              {item.isBadge && (
+                                <span className={`mobile-nav-grid-badge ${isActive ? 'mobile-nav-grid-badge--active' : ''}`}>
+                                  PRO
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </NavLink>
+                      ))}
+                    </div>
+
+                    {/* ── Account Section (List style) ── */}
+                    <div className="mobile-drawer-section-label">Account</div>
+                    <div className="mobile-drawer-list">
+                      {[
+                        { to: '/profile', label: 'My Profile', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' },
+                        { to: '/billing', label: 'Billing & Plan', icon: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z' },
+                        { to: '/settings', label: 'Settings', icon: 'M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12h11.25' },
+                      ].map((item, idx) => (
+                        <NavLink
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => setOpen(false)}
+                          className={({ isActive }) => `mobile-drawer-list-item ${isActive ? 'mobile-drawer-list-item--active' : ''}`}
+                        >
+                          {({ isActive }) => (
+                            <>
+                              <span className={`mobile-drawer-list-icon ${isActive ? 'mobile-drawer-list-icon--active' : ''}`}>
+                                <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                                </svg>
+                              </span>
+                              <span className="mobile-drawer-list-label">{item.label}</span>
+                              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="mobile-drawer-list-chevron">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                              </svg>
+                            </>
+                          )}
+                        </NavLink>
+                      ))}
+                    </div>
+
+                    {/* Helplines Call Bar */}
+                    <div className="mobile-drawer-helpline-card">
+                      <div className="mobile-drawer-helpline-header">
+                        <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                        </svg>
+                        <span>Emergency Helplines</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <a href="tel:292" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--primary">
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                          </svg>
+                          CSA 292
+                        </a>
+                        <a href="tel:1917" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--warning">
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                          </svg>
+                          MTN 1917
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Sign Out Button */}
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="mobile-drawer-signout"
+                    >
+                      <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
+                      </svg>
+                      <span>Sign Out</span>
+                    </button>
+                  </>
+                ) : (
+                  /* ── LOGGED-OUT (GUEST) MOBILE DRAWER ── */
+                  <>
+                    {/* Drawer Header with Title and Light/Dark Mode Button */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                      <span style={{ fontSize: '0.92rem', fontWeight: 900, color: 'var(--text)' }}>
+                        Menu
+                      </span>
+                      <button
+                        type="button"
+                        className="mobile-drawer-theme-btn"
+                        aria-label="Toggle Theme"
+                        onClick={toggleTheme}
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '10px',
+                          background: 'var(--surface-alt)',
+                          border: '1px solid var(--border)',
+                          display: 'grid',
+                          placeItems: 'center',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {theme === 'dark' ? (
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--warning)' }}>
+                            <circle cx="12" cy="12" r="5" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
+                          </svg>
+                        ) : (
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--primary)' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Navigation Grid for Guests */}
+                    <div className="mobile-nav-grid mobile-nav-grid--guest">
+                      {[
+                        { to: '/', label: 'Home', icon: 'M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25' },
+                        { to: '/about', label: 'About Us', icon: 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z' },
+                      ].map((item, idx) => (
+                        <NavLink
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => setOpen(false)}
+                          className={({ isActive }) => `mobile-nav-grid-item ${isActive ? 'mobile-nav-grid-item--active' : ''}`}
+                        >
+                          {({ isActive }) => (
+                            <>
+                              <span className="mobile-nav-grid-icon">
+                                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                                </svg>
+                              </span>
+                              <span className="mobile-nav-grid-label">{item.label}</span>
+                            </>
+                          )}
+                        </NavLink>
+                      ))}
+                    </div>
+
+                    {/* Emergency Helplines Phone Card */}
+                    <div className="mobile-drawer-helpline-card" style={{ marginTop: '0.75rem' }}>
+                      <div className="mobile-drawer-helpline-header">
+                        <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                        </svg>
+                        <span>Emergency Helplines</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <a href="tel:292" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--primary">
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                          </svg>
+                          CSA 292
+                        </a>
+                        <a href="tel:1917" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--warning">
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                          </svg>
+                          MTN 1917
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Auth Actions: Sign In & Register (Side-by-side for instant visibility) */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.65rem', paddingTop: '0.6rem', borderTop: '1px solid var(--border)' }}>
+                      <Link
+                        to="/login"
+                        onClick={() => setOpen(false)}
+                        className="mobile-drawer-auth-btn mobile-drawer-auth-btn--secondary"
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        to="/register"
+                        onClick={() => setOpen(false)}
+                        className="mobile-drawer-auth-btn mobile-drawer-auth-btn--primary"
+                      >
+                        Register
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+        {/* Desktop Right Action Group */}
+        {!open && (
+          <div className="nav-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
               {/* Helpline Emergency Trigger */}
               <div className="helpline-dropdown-wrapper" style={{ position: 'relative' }}>
                 <button
@@ -671,8 +803,7 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
               )}
             </div>
           )}
-        </nav>
-      </div>
-    </header>
-  )
-}
+        </div>
+      </header>
+    )
+  }
