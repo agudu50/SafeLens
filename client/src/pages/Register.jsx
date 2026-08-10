@@ -186,7 +186,7 @@ export default function Register({ setUser, triggerAuthModal }) {
             position: 'relative', background: 'rgba(0,0,0,0.2)',
             border: '1px solid rgba(255,255,255,0.12)',
           }}>
-            <img src="/images/universal_ai_security_shield.png" alt="SafeLens AI Security" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img src="/images/universal_ai_security_shield.png" alt="SafeLens AI Security" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             <div style={{ position: 'absolute', bottom: '12px', left: '12px' }}>
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.4rem',

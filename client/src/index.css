@@ -722,6 +722,18 @@ html.dark .nav-link:hover {
   background: var(--primary-hover);
 }
 
+@keyframes loaderSweep {
+  0% {
+    left: -40%;
+  }
+  50% {
+    left: 60%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
 /* Grid item fade-in animation */
 @keyframes mobileGridFadeIn {
   from {

@@ -177,6 +177,7 @@ export default function Login({ setUser, triggerAuthModal }) {
             <img
               src="/images/universal_ai_security_shield.png"
               alt="SafeLens AI Security Shield"
+              loading="lazy"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
             {/* Image overlay badge */}
