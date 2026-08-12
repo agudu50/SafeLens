@@ -286,12 +286,15 @@ function RiskRing({ score, isHigh, animate }) {
 /* ═══════════ MAIN COMPONENT ═══════════ */
 
 export default function Home({ user }) {
-  const [selectedPreset, setSelectedPreset] = useState(presets[0])
+  const [activeSlideIdx, setActiveSlideIdx] = useState(0)
+  const [isSlideshowPlaying, setIsSlideshowPlaying] = useState(true)
   const [activeFAQ, setActiveFAQ] = useState(null)
   const [sandboxInView, setSandboxInView] = useState(false)
   const [impactInView, setImpactInView] = useState(false)
   const sandboxRef = useRef(null)
   const impactRef = useRef(null)
+
+  const selectedPreset = presets[activeSlideIdx]
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setSandboxInView(true) }, { threshold: 0.15 })
@@ -299,22 +302,23 @@ export default function Home({ user }) {
     return () => obs.disconnect()
   }, [])
 
-  // Auto-cycle through threat presets every 4.5 seconds
+  // Slideshow auto-rotation timer (4.5s)
   useEffect(() => {
+    if (!isSlideshowPlaying) return
     const timer = setInterval(() => {
-      setSelectedPreset((prev) => {
-        const currentIdx = presets.findIndex((p) => p.id === prev.id)
-        return presets[(currentIdx + 1) % presets.length]
-      })
+      setActiveSlideIdx((prev) => (prev + 1) % presets.length)
     }, 4500)
     return () => clearInterval(timer)
-  }, [])
+  }, [isSlideshowPlaying])
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setImpactInView(true) }, { threshold: 0.15 })
     if (impactRef.current) obs.observe(impactRef.current)
     return () => obs.disconnect()
   }, [])
+
+  const prevSlide = () => setActiveSlideIdx((prev) => (prev - 1 + presets.length) % presets.length)
+  const nextSlide = () => setActiveSlideIdx((prev) => (prev + 1) % presets.length)
 
   const isHigh = selectedPreset.riskLevel === 'high'
 
@@ -408,23 +412,81 @@ export default function Home({ user }) {
           <h2 className="home-section__title">Instant Threat Scanner</h2>
         </motion.div>
 
-        {/* Preset Tabs */}
-        <motion.div className="home-sandbox__tabs" variants={fadeUp} custom={1}>
-          {presets.map((p) => (
-            <button key={p.id} type="button" onClick={() => setSelectedPreset(p)}
-              className={`home-sandbox__tab ${selectedPreset.id === p.id ? 'home-sandbox__tab--active' : ''}`}>
-              <span className="home-sandbox__tab-dot"
-                style={{ background: selectedPreset.id === p.id ? '#fff' : (p.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)') }} />
-              {p.title}
+        {/* Preset Tabs & Slideshow Controls */}
+        <motion.div className="home-sandbox__tabs" variants={fadeUp} custom={1} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.8rem' }}>
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {presets.map((p, idx) => (
+              <button key={p.id} type="button" onClick={() => setActiveSlideIdx(idx)}
+                className={`home-sandbox__tab ${activeSlideIdx === idx ? 'home-sandbox__tab--active' : ''}`}>
+                <span className="home-sandbox__tab-dot"
+                  style={{ background: activeSlideIdx === idx ? '#fff' : (p.riskLevel === 'high' ? 'var(--danger)' : 'var(--success)') }} />
+                {p.title}
+              </button>
+            ))}
+          </div>
+
+          {/* Slideshow Toolbar Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'var(--surface)', padding: '0.45rem 0.9rem', borderRadius: '999px', border: '1px solid var(--border)' }}>
+            <button
+              type="button"
+              onClick={prevSlide}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+            >
+              &larr; Prev Slide
             </button>
-          ))}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              {presets.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveSlideIdx(i)}
+                  style={{
+                    width: activeSlideIdx === i ? '18px' : '7px',
+                    height: '7px',
+                    borderRadius: '999px',
+                    background: activeSlideIdx === i ? 'var(--primary)' : 'var(--muted)',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.25s ease'
+                  }}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={nextSlide}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+            >
+              Next Slide &rarr;
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsSlideshowPlaying(!isSlideshowPlaying)}
+              style={{
+                background: 'var(--surface-alt)',
+                border: '1px solid var(--border)',
+                borderRadius: '999px',
+                padding: '0.15rem 0.55rem',
+                color: 'var(--muted)',
+                fontSize: '0.72rem',
+                fontWeight: 750,
+                cursor: 'pointer'
+              }}
+            >
+              {isSlideshowPlaying ? '⏸️ Pause' : '▶️ Play'}
+            </button>
+          </div>
         </motion.div>
 
         {/* Integrated Smartphone Frame + Analysis Details Grid */}
         <AnimatePresence mode="wait">
           <motion.div key={selectedPreset.id}
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '1.8rem', alignItems: 'stretch' }}>
 
             {/* Smartphone Display Simulator Box */}
