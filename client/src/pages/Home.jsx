@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
+import LandingPhoneShowcase from '../components/home/LandingPhoneShowcase'
 
 /* ── Data ── */
 
@@ -134,12 +135,12 @@ function useAnimatedCounter(end, duration = 1400, trigger = true) {
   return val
 }
 
-/* ── Performance Sub-Components (Isolates high-frequency re-renders) ── */
+/* ── Performance Sub-Components ── */
 
 const SandboxTypewriter = memo(function SandboxTypewriter({ text, trigger }) {
   const displayed = useTypewriter(text, 20, trigger)
   return (
-    <div className="home-typewriter">
+    <div className="home-typewriter" style={{ color: '#f8fafc', fontSize: '0.8rem', lineHeight: 1.45 }}>
       &ldquo;{displayed}&rdquo;
       {displayed.length < text.length && <span className="home-typewriter__cursor" />}
     </div>
@@ -209,7 +210,7 @@ const TestimonialsCarousel = memo(function TestimonialsCarousel() {
   )
 })
 
-/* ── Lightweight Framer Motion Variants (No GPU blur bottlenecks) ── */
+/* ── Lightweight Framer Motion Variants ── */
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -388,7 +389,7 @@ export default function Home({ user }) {
         </motion.div>
       </section>
 
-      {/* ═══ SANDBOX ═══ */}
+      {/* ═══ INSTANT THREAT SCANNER (INTEGRATED PHONE SIMULATOR) ═══ */}
       <motion.section className="home-section" ref={sandboxRef}
         initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={staggerContainer}>
 
@@ -397,6 +398,7 @@ export default function Home({ user }) {
           <h2 className="home-section__title">Instant Threat Scanner</h2>
         </motion.div>
 
+        {/* Preset Tabs */}
         <motion.div className="home-sandbox__tabs" variants={fadeUp} custom={1}>
           {presets.map((p) => (
             <button key={p.id} type="button" onClick={() => setSelectedPreset(p)}
@@ -408,85 +410,139 @@ export default function Home({ user }) {
           ))}
         </motion.div>
 
+        {/* Integrated Smartphone Frame + Analysis Details Grid */}
         <AnimatePresence mode="wait">
-          <motion.div className="home-glow-card home-sandbox__body" key={selectedPreset.id}
+          <motion.div key={selectedPreset.id}
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '1.8rem', alignItems: 'stretch' }}>
 
-            <div className="home-sandbox__header">
+            {/* Smartphone Display Simulator Box */}
+            <div
+              style={{
+                background: '#0f172a',
+                border: '4px solid #334155',
+                borderRadius: '32px',
+                padding: '1.2rem',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.35)',
+                maxWidth: '380px',
+                minHeight: '470px',
+                margin: '0 auto',
+                width: '100%',
+                color: '#f8fafc',
+                display: 'flex',
+                flexDirection: 'column',
+                justify: 'space-between',
+                boxSizing: 'border-box'
+              }}
+            >
               <div>
-                <div className="home-sandbox__verdict">
-                  <span className="live-pulse-badge"><span className="live-pulse-dot" />AI VERDICT</span>
-                  <span className={`home-sandbox__verdict-badge home-sandbox__verdict-badge--${isHigh ? 'high' : 'low'}`}>
-                    {selectedPreset.riskLevel.toUpperCase()}
-                  </span>
-                </div>
-                <h3 style={{ margin: '0.3rem 0 0', fontSize: '1.3rem', fontWeight: 900 }}>{selectedPreset.title}</h3>
-              </div>
-              <RiskRing score={selectedPreset.riskScore} isHigh={isHigh} animate={sandboxInView} />
-            </div>
+                {/* Notch */}
+                <div style={{ width: '120px', height: '16px', background: '#334155', borderRadius: '0 0 12px 12px', margin: '-1.2rem auto 0.8rem auto' }} />
 
-            <div className="home-sandbox__grid">
-              <div className="home-sandbox__cell">
-                <span className="home-sandbox__cell-label">Message</span>
-                <SandboxTypewriter text={selectedPreset.content} trigger={sandboxInView} />
-              </div>
-              <div className="home-sandbox__cell">
-                <span className="home-sandbox__cell-label">Risk Triggers</span>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                  {selectedPreset.threatTags.map(tag => (
-                    <span key={tag} className={`home-threat-tag home-threat-tag--${isHigh ? 'high' : 'low'}`}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                      </svg>
-                      {tag}
-                    </span>
-                  ))}
+                {/* Phone Status Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
+                  <span style={{ fontWeight: 800 }}>MTN GH 5G</span>
+                  <span>10:42 AM</span>
+                  <span>100% 🔋</span>
                 </div>
-              </div>
-            </div>
 
-            <div className="home-sandbox__cell" style={{ marginBottom: '1.2rem' }}>
-              <span className="home-sandbox__cell-label">Fraud Vectors</span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.5rem', marginTop: '0.3rem' }}>
-                {selectedPreset.vectorBreakdown.map(v => (
-                  <div key={v.name} className="home-vector-bar">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.73rem', fontWeight: 750, color: v.match ? 'var(--danger)' : 'var(--muted)' }}>
-                      <span>{v.name}</span><span style={{ fontWeight: 900 }}>{v.percentage}%</span>
+                {/* AI Verdict Header inside Phone Screen */}
+                <div style={{ background: '#1e293b', padding: '0.65rem 0.85rem', borderRadius: '12px', marginBottom: '0.85rem', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <div className="home-sandbox__verdict" style={{ marginBottom: '2px' }}>
+                      <span className="live-pulse-badge"><span className="live-pulse-dot" />AI VERDICT</span>
+                      <span className={`home-sandbox__verdict-badge home-sandbox__verdict-badge--${isHigh ? 'high' : 'low'}`}>
+                        {selectedPreset.riskLevel.toUpperCase()}
+                      </span>
                     </div>
-                    <div className="home-vector-bar__track">
-                      <div className="home-vector-bar__fill" style={{ width: `${v.percentage}%`, background: v.match ? 'var(--danger)' : 'var(--border)' }} />
-                    </div>
+                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: '#ffffff' }}>{selectedPreset.title}</h3>
                   </div>
-                ))}
+                  <RiskRing score={selectedPreset.riskScore} isHigh={isHigh} animate={sandboxInView} />
+                </div>
+
+                {/* Message Window inside Phone Screen */}
+                <div style={{ background: '#1e293b', border: '1px solid #334155', padding: '0.85rem 0.95rem', borderRadius: '12px', minHeight: '180px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+                  <span style={{ fontSize: '0.66rem', color: isHigh ? '#f87171' : '#34d399', fontWeight: 800, display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase' }}>
+                    {isHigh ? '⚠️ SUSPECTED THREAT CONTENT:' : '✓ VERIFIED SAFE MESSAGE:'}
+                  </span>
+                  <SandboxTypewriter text={selectedPreset.content} trigger={sandboxInView} />
+                </div>
+              </div>
+
+              {/* Phone Bottom AI Threat Banner */}
+              <div style={{ background: isHigh ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)', border: `1px solid ${isHigh ? 'rgba(239, 68, 68, 0.35)' : 'rgba(16, 185, 129, 0.35)'}`, padding: '0.6rem 0.8rem', borderRadius: '10px', textAlign: 'center', marginTop: '0.6rem' }}>
+                <span style={{ fontSize: '0.74rem', color: isHigh ? '#f87171' : '#34d399', fontWeight: 800 }}>
+                  {isHigh ? `THREAT DETECTED (${selectedPreset.riskScore}% CONFIDENCE)` : 'NO FRAUD THREAT INDICATORS DETECTED'}
+                </span>
               </div>
             </div>
 
-            <div className="home-sandbox__explain-grid">
-              <div className="home-sandbox__explain-card">
-                <div className="home-sandbox__explain-icon">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" strokeLinecap="round" /><circle cx="12" cy="8" r="1" fill="currentColor" /></svg>
-                  Why It&apos;s Risky
+            {/* Right Column: Detailed Breakdown Card */}
+            <div className="home-glow-card home-sandbox__body" style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div className="home-sandbox__cell" style={{ marginBottom: '1rem' }}>
+                  <span className="home-sandbox__cell-label">Risk Triggers</span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.3rem' }}>
+                    {selectedPreset.threatTags.map(tag => (
+                      <span key={tag} className={`home-threat-tag home-threat-tag--${isHigh ? 'high' : 'low'}`}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.5 }}>{selectedPreset.explanation}</p>
-              </div>
-              <div className="home-sandbox__explain-card">
-                <div className="home-sandbox__explain-icon">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.2"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  What To Do
-                </div>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.5, fontWeight: 700 }}>{selectedPreset.advice}</p>
-              </div>
-            </div>
 
-            <div style={{ marginTop: '1.3rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ fontSize: '0.86rem' }}>
-                {user ? "Dashboard" : "Get Started"} →
-              </Button>
+                <div className="home-sandbox__cell" style={{ marginBottom: '1.2rem' }}>
+                  <span className="home-sandbox__cell-label">Fraud Vectors</span>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.5rem', marginTop: '0.3rem' }}>
+                    {selectedPreset.vectorBreakdown.map(v => (
+                      <div key={v.name} className="home-vector-bar">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.73rem', fontWeight: 750, color: v.match ? 'var(--danger)' : 'var(--muted)' }}>
+                          <span>{v.name}</span><span style={{ fontWeight: 900 }}>{v.percentage}%</span>
+                        </div>
+                        <div className="home-vector-bar__track">
+                          <div className="home-vector-bar__fill" style={{ width: `${v.percentage}%`, background: v.match ? 'var(--danger)' : 'var(--border)' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="home-sandbox__explain-grid">
+                  <div className="home-sandbox__explain-card">
+                    <div className="home-sandbox__explain-icon">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" strokeLinecap="round" /><circle cx="12" cy="8" r="1" fill="currentColor" /></svg>
+                      Why It&apos;s Risky
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.5 }}>{selectedPreset.explanation}</p>
+                  </div>
+                  <div className="home-sandbox__explain-card">
+                    <div className="home-sandbox__explain-icon">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.2"><path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      What To Do
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.5, fontWeight: 700 }}>{selectedPreset.advice}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1.4rem' }}>
+                <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ fontSize: '0.88rem', width: '100%', justifyContent: 'center' }}>
+                  {user ? "Dashboard" : "Get Started"} →
+                </Button>
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>
       </motion.section>
+
+      {/* ═══ LANDING PHONE SHOWCASE ═══ */}
+      <div style={{ marginBottom: '3.5rem' }}>
+        <LandingPhoneShowcase />
+      </div>
 
       {/* ═══ HOW IT WORKS ═══ */}
       <motion.section className="home-section"
