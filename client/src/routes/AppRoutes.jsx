@@ -1,13 +1,13 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import PageLoader from '../components/ui/PageLoader'
 import { authService } from '../services/authService'
+import Home from '../pages/Home'
 
-/* ── Lazy Loaded Page Chunks ── */
-const Home = lazy(() => import('../pages/Home'))
+/* ── Lazy Loaded Page Chunks (Secondary Routes) ── */
 const Dashboard = lazy(() => import('../pages/Dashboard'))
 const Scanner = lazy(() => import('../pages/Scanner'))
 const Results = lazy(() => import('../pages/Results'))
@@ -113,6 +113,24 @@ function ProtectedRoute({ user, setUser, children, title = 'Account Required for
 }
 
 export default function AppRoutes({ user, setUser, triggerAuthModal }) {
+  useEffect(() => {
+    // Silently pre-fetch secondary page bundles during idle time for instantaneous route transitions
+    const preloadSecondaryRoutes = () => {
+      import('../pages/About')
+      import('../pages/Login')
+      import('../pages/Register')
+      import('../pages/Pricing')
+      import('../pages/Scanner')
+      import('../pages/Dashboard')
+    }
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      window.requestIdleCallback(preloadSecondaryRoutes)
+    } else {
+      setTimeout(preloadSecondaryRoutes, 1000)
+    }
+  }, [])
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>

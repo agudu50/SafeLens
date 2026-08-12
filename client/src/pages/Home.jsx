@@ -455,7 +455,7 @@ export default function Home({ user }) {
               </div>
               <div className="home-timeline__card">
                 <div className="home-timeline__img">
-                  <img src={step.img} alt={step.title} loading="lazy" style={{ objectFit: 'cover' }} />
+                  <img src={step.img} alt={step.title} decoding="async" style={{ objectFit: 'cover' }} />
                 </div>
                 <h3 className="home-timeline__title">{step.title}</h3>
                 <p className="home-timeline__desc">{step.desc}</p>
