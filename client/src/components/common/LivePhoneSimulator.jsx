@@ -161,7 +161,7 @@ export default function LivePhoneSimulator() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
               <span style={{ fontWeight: 800 }}>MTN GH 5G</span>
               <span>10:42 AM</span>
-              <span>100% 🔋</span>
+              <span>100%</span>
             </div>
 
             {/* Sender Info Bar */}

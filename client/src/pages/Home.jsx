@@ -477,7 +477,7 @@ export default function Home({ user }) {
                 cursor: 'pointer'
               }}
             >
-              {isSlideshowPlaying ? '⏸️ Pause' : '▶️ Play'}
+              {isSlideshowPlaying ? 'Pause' : 'Play'}
             </button>
           </div>
         </motion.div>
@@ -516,7 +516,7 @@ export default function Home({ user }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
                   <span style={{ fontWeight: 800 }}>MTN GH 5G</span>
                   <span>10:42 AM</span>
-                  <span>100% 🔋</span>
+                  <span>100%</span>
                 </div>
 
                 {/* AI Verdict Header inside Phone Screen */}
@@ -536,7 +536,7 @@ export default function Home({ user }) {
                 {/* Message Window inside Phone Screen */}
                 <div style={{ background: '#1e293b', border: '1px solid #334155', padding: '0.85rem 0.95rem', borderRadius: '12px', minHeight: '180px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
                   <span style={{ fontSize: '0.66rem', color: isHigh ? '#f87171' : '#34d399', fontWeight: 800, display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase' }}>
-                    {isHigh ? '⚠️ SUSPECTED THREAT CONTENT:' : '✓ VERIFIED SAFE MESSAGE:'}
+                    {isHigh ? 'SUSPECTED THREAT CONTENT:' : 'VERIFIED SAFE MESSAGE:'}
                   </span>
                   <SandboxTypewriter text={selectedPreset.content} trigger={sandboxInView} />
                 </div>
