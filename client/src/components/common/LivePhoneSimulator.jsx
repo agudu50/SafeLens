@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 // Animated Phone Demos Data - Realistic Scams & Phishing Links
 export const ANIMATED_DEMOS = [
@@ -54,6 +54,7 @@ export const ANIMATED_DEMOS = [
 ]
 
 export default function LivePhoneSimulator() {
+  const navigate = useNavigate()
   const [selectedDemoIdx, setSelectedDemoIdx] = useState(0)
   const [animStep, setAnimStep] = useState(0) // 0: ring, 1: fake msg, 2: typing, 3: safe reply sent & shield verified
   const [isAnimPlaying, setIsAnimPlaying] = useState(true)
@@ -339,23 +340,30 @@ export default function LivePhoneSimulator() {
               </button>
             </div>
 
-            <Link
-              to="/scanner"
+            <button
+              type="button"
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'instant' })
+                navigate('/scanner')
+              }}
               style={{
                 display: 'block',
+                width: '100%',
                 textAlign: 'center',
-                fontSize: '0.78rem',
-                fontWeight: 800,
+                fontSize: '0.82rem',
+                fontWeight: 850,
                 color: 'var(--primary)',
                 textDecoration: 'none',
                 padding: '0.55rem',
                 borderRadius: '8px',
                 background: 'rgba(230, 60, 28, 0.08)',
-                border: '1px solid rgba(230, 60, 28, 0.25)'
+                border: '1px solid rgba(230, 60, 28, 0.25)',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
               }}
             >
               Got a suspicious SMS? Scan with SafeLens AI &rarr;
-            </Link>
+            </button>
           </div>
         </div>
 
