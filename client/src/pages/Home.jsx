@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, memo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageContainer from '../components/layout/PageContainer'
@@ -101,7 +101,7 @@ const stepImages = {
   protect: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500&h=350&fit=crop&q=80',
 }
 
-/* ── Hooks ── */
+/* ── Optimized Self-Contained Hooks ── */
 
 function useTypewriter(text, speed = 24, trigger = true) {
   const [displayed, setDisplayed] = useState('')
@@ -134,27 +134,102 @@ function useAnimatedCounter(end, duration = 1400, trigger = true) {
   return val
 }
 
-/* ── Framer Motion Variants ── */
+/* ── Performance Sub-Components (Isolates high-frequency re-renders) ── */
+
+const SandboxTypewriter = memo(function SandboxTypewriter({ text, trigger }) {
+  const displayed = useTypewriter(text, 20, trigger)
+  return (
+    <div className="home-typewriter">
+      &ldquo;{displayed}&rdquo;
+      {displayed.length < text.length && <span className="home-typewriter__cursor" />}
+    </div>
+  )
+})
+
+const CounterDisplay = memo(function CounterDisplay({ end, duration = 1400, trigger, suffix = '' }) {
+  const val = useAnimatedCounter(end, duration, trigger)
+  return <span>{trigger ? val.toLocaleString() : '0'}{suffix}</span>
+})
+
+const TestimonialsCarousel = memo(function TestimonialsCarousel() {
+  const [activeIdx, setActiveIdx] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => setActiveIdx(p => (p + 1) % testimonials.length), 5500)
+    return () => clearInterval(timer)
+  }, [])
+
+  const t = testimonials[activeIdx]
+
+  return (
+    <div style={{ width: '100%' }}>
+      <AnimatePresence mode="wait">
+        <motion.div className="home-glow-card home-testimonial-card" key={t.id}
+          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
+
+          <div className="home-testimonial-card__quote-mark">&ldquo;</div>
+
+          <div className="home-testimonial-tags">
+            <span className="home-testimonial-tag home-testimonial-tag--verified">✓ VERIFIED</span>
+            <span className="home-testimonial-tag home-testimonial-tag--incident">{t.incident}</span>
+            <span className="home-testimonial-tag home-testimonial-tag--savings">{t.savings}</span>
+          </div>
+
+          <div className="home-testimonial-card__stars">
+            {[...Array(t.rating)].map((_, i) => <StarIcon key={i} />)}
+          </div>
+
+          <p className="home-testimonial-card__text">&ldquo;{t.quote}&rdquo;</p>
+
+          <div className="home-testimonial-card__user">
+            <div className="home-testimonial-card__avatar">{t.avatar}</div>
+            <div className="home-testimonial-card__meta">
+              <span className="home-testimonial-card__name">{t.name}</span>
+              <span className="home-testimonial-card__location"><LocationIcon size={11} />{t.location}</span>
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="home-carousel-controls">
+        <button type="button" className="home-carousel-btn" onClick={() => setActiveIdx(p => p === 0 ? testimonials.length - 1 : p - 1)}>
+          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+        </button>
+        <div className="home-carousel-dots">
+          {testimonials.map((_, i) => (
+            <button key={i} type="button" className={`home-carousel-dot ${activeIdx === i ? 'home-carousel-dot--active' : ''}`} onClick={() => setActiveIdx(i)} />
+          ))}
+        </div>
+        <button type="button" className="home-carousel-btn" onClick={() => setActiveIdx(p => (p + 1) % testimonials.length)}>
+          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+        </button>
+      </div>
+    </div>
+  )
+})
+
+/* ── Lightweight Framer Motion Variants (No GPU blur bottlenecks) ── */
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30, filter: 'blur(4px)' },
+  hidden: { opacity: 0, y: 20 },
   visible: (i = 0) => ({
-    opacity: 1, y: 0, filter: 'blur(0px)',
-    transition: { duration: 0.55, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }
+    opacity: 1, y: 0,
+    transition: { duration: 0.45, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }
   })
 }
 
 const fadeScale = {
-  hidden: { opacity: 0, scale: 0.92 },
+  hidden: { opacity: 0, scale: 0.96 },
   visible: (i = 0) => ({
     opacity: 1, scale: 1,
-    transition: { duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }
   })
 }
 
 const staggerContainer = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } }
+  visible: { transition: { staggerChildren: 0.08 } }
 }
 
 /* ── Icons ── */
@@ -208,39 +283,28 @@ function RiskRing({ score, isHigh, animate }) {
   )
 }
 
-/* ═══════════ COMPONENT ═══════════ */
+/* ═══════════ MAIN COMPONENT ═══════════ */
 
 export default function Home({ user }) {
   const [selectedPreset, setSelectedPreset] = useState(presets[0])
   const [activeFAQ, setActiveFAQ] = useState(null)
-  const [activeTestimonial, setActiveTestimonial] = useState(0)
   const [sandboxInView, setSandboxInView] = useState(false)
   const [impactInView, setImpactInView] = useState(false)
   const sandboxRef = useRef(null)
   const impactRef = useRef(null)
 
-  const typewriterText = useTypewriter(selectedPreset.content, 20, sandboxInView)
-  const counterScans = useAnimatedCounter(14200, 1600, impactInView)
-  const counterAccuracy = useAnimatedCounter(99, 1200, impactInView)
-
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setSandboxInView(true) }, { threshold: 0.2 })
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setSandboxInView(true) }, { threshold: 0.15 })
     if (sandboxRef.current) obs.observe(sandboxRef.current)
     return () => obs.disconnect()
   }, [])
 
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setImpactInView(true) }, { threshold: 0.2 })
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setImpactInView(true) }, { threshold: 0.15 })
     if (impactRef.current) obs.observe(impactRef.current)
     return () => obs.disconnect()
   }, [])
 
-  useEffect(() => {
-    const timer = setInterval(() => setActiveTestimonial(p => (p + 1) % testimonials.length), 5500)
-    return () => clearInterval(timer)
-  }, [])
-
-  const t = testimonials[activeTestimonial]
   const isHigh = selectedPreset.riskLevel === 'high'
 
   return (
@@ -265,13 +329,6 @@ export default function Home({ user }) {
 
       {/* ═══ HERO ═══ */}
       <section className="home-hero">
-        <div className="home-hero__shapes">
-          <div className="home-hero__shape home-hero__shape--1" />
-          <div className="home-hero__shape home-hero__shape--2" />
-          <div className="home-hero__shape home-hero__shape--3" />
-          <div className="home-hero__shape home-hero__shape--4" />
-        </div>
-
         <motion.div className="home-hero__content"
           initial="hidden" animate="visible" variants={staggerContainer}>
 
@@ -354,7 +411,7 @@ export default function Home({ user }) {
         <AnimatePresence mode="wait">
           <motion.div className="home-glow-card home-sandbox__body" key={selectedPreset.id}
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}>
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
 
             <div className="home-sandbox__header">
               <div>
@@ -372,10 +429,7 @@ export default function Home({ user }) {
             <div className="home-sandbox__grid">
               <div className="home-sandbox__cell">
                 <span className="home-sandbox__cell-label">Message</span>
-                <div className="home-typewriter">
-                  &ldquo;{typewriterText}&rdquo;
-                  {typewriterText.length < selectedPreset.content.length && <span className="home-typewriter__cursor" />}
-                </div>
+                <SandboxTypewriter text={selectedPreset.content} trigger={sandboxInView} />
               </div>
               <div className="home-sandbox__cell">
                 <span className="home-sandbox__cell-label">Risk Triggers</span>
@@ -455,7 +509,7 @@ export default function Home({ user }) {
               </div>
               <div className="home-timeline__card">
                 <div className="home-timeline__img">
-                  <img src={step.img} alt={step.title} decoding="async" style={{ objectFit: 'cover' }} />
+                  <img src={step.img} alt={step.title} decoding="async" loading="lazy" style={{ objectFit: 'cover' }} />
                 </div>
                 <h3 className="home-timeline__title">{step.title}</h3>
                 <p className="home-timeline__desc">{step.desc}</p>
@@ -487,7 +541,7 @@ export default function Home({ user }) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
             </svg>
           </div>
-          <span className="home-impact__number">{impactInView ? counterScans.toLocaleString() : '0'}+</span>
+          <span className="home-impact__number"><CounterDisplay end={14200} duration={1600} trigger={impactInView} suffix="+" /></span>
           <span className="home-impact__label">Scans</span>
         </div>
         <div className="home-impact__divider" />
@@ -495,7 +549,7 @@ export default function Home({ user }) {
           <div className="home-impact__icon" style={{ background: 'rgba(16,185,129,0.1)' }}>
             <ShieldIcon size={22} color="var(--success)" />
           </div>
-          <span className="home-impact__number">{impactInView ? `${counterAccuracy}.4` : '0'}%</span>
+          <span className="home-impact__number"><CounterDisplay end={99} duration={1200} trigger={impactInView} suffix=".4%" /></span>
           <span className="home-impact__label">Accuracy</span>
         </div>
       </motion.div>
@@ -509,48 +563,7 @@ export default function Home({ user }) {
           <h2 className="home-section__title">Trusted Worldwide</h2>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div className="home-glow-card home-testimonial-card" key={t.id}
-            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
-
-            <div className="home-testimonial-card__quote-mark">&ldquo;</div>
-
-            <div className="home-testimonial-tags">
-              <span className="home-testimonial-tag home-testimonial-tag--verified">✓ VERIFIED</span>
-              <span className="home-testimonial-tag home-testimonial-tag--incident">{t.incident}</span>
-              <span className="home-testimonial-tag home-testimonial-tag--savings">{t.savings}</span>
-            </div>
-
-            <div className="home-testimonial-card__stars">
-              {[...Array(t.rating)].map((_, i) => <StarIcon key={i} />)}
-            </div>
-
-            <p className="home-testimonial-card__text">&ldquo;{t.quote}&rdquo;</p>
-
-            <div className="home-testimonial-card__user">
-              <div className="home-testimonial-card__avatar">{t.avatar}</div>
-              <div className="home-testimonial-card__meta">
-                <span className="home-testimonial-card__name">{t.name}</span>
-                <span className="home-testimonial-card__location"><LocationIcon size={11} />{t.location}</span>
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="home-carousel-controls">
-          <button type="button" className="home-carousel-btn" onClick={() => setActiveTestimonial(p => p === 0 ? testimonials.length - 1 : p - 1)}>
-            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-          </button>
-          <div className="home-carousel-dots">
-            {testimonials.map((_, i) => (
-              <button key={i} type="button" className={`home-carousel-dot ${activeTestimonial === i ? 'home-carousel-dot--active' : ''}`} onClick={() => setActiveTestimonial(i)} />
-            ))}
-          </div>
-          <button type="button" className="home-carousel-btn" onClick={() => setActiveTestimonial(p => (p + 1) % testimonials.length)}>
-            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-          </button>
-        </div>
+        <TestimonialsCarousel />
       </motion.section>
 
       {/* ═══ CTA ═══ */}
