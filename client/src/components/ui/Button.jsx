@@ -2,6 +2,7 @@ import React from 'react'
 
 export default function Button({
   children,
+  as: Component = 'button',
   variant = 'primary', // primary, secondary, outline, danger, ghost
   size = 'md', // sm, md, lg
   className = '',
@@ -60,11 +61,13 @@ export default function Button({
     }
   }
 
+  const isNativeButton = Component === 'button'
+
   return (
-    <button
-      type={type}
+    <Component
+      type={isNativeButton ? type : undefined}
       className={`btn ${className}`}
-      disabled={disabled || isLoading}
+      disabled={isNativeButton ? (disabled || isLoading) : undefined}
       onClick={onClick}
       style={{
         ...baseStyle,
@@ -87,6 +90,6 @@ export default function Button({
         />
       )}
       {children}
-    </button>
+    </Component>
   )
 }
