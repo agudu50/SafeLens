@@ -1290,14 +1290,12 @@ html.dark .dark-bg-animation {
   100% { transform: translate3d(-2vw, 2vh, 0); }
 }
 
-/* Background Glowing Animation Overrides */
+/* Legacy gradient mesh orbs remain hidden */
 .dark-mesh-orb,
 .orb-cyber-red,
 .orb-cyber-blue,
 .orb-cyber-purple,
-.cyber-scan-glow,
-.light-cyber-radar-sweep,
-.light-radar-wave {
+.cyber-scan-glow {
   display: none !important;
 }
 
@@ -5772,13 +5770,196 @@ html.dark .home-glow-card {
   }
 }
 
-/* Disable all moving background radar scan lines, wave animations, and mesh orbs */
-.light-cyber-radar-sweep,
-.light-radar-wave,
-.cyber-scan-glow,
+/* Hide legacy gradient mesh orbs only */
+.dark-mesh-orb,
 .orb-cyber-primary,
 .orb-cyber-secondary,
-.dark-mesh-orb {
+.orb-cyber-red,
+.orb-cyber-blue,
+.orb-cyber-purple {
   display: none !important;
-  animation: none !important;
+}
+
+/* ── Landing page background (network mesh, solid colors only) ── */
+.landing-page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--background);
+  --landing-line: rgba(148, 163, 184, 0.22);
+  --landing-node: rgba(230, 60, 28, 0.55);
+  --landing-pulse: rgba(230, 60, 28, 0.12);
+  --landing-frame: rgba(148, 163, 184, 0.18);
+  --landing-orbit: rgba(230, 60, 28, 0.14);
+}
+
+html.dark .landing-page-bg {
+  --landing-line: rgba(100, 116, 139, 0.28);
+  --landing-node: rgba(230, 60, 28, 0.7);
+  --landing-pulse: rgba(230, 60, 28, 0.16);
+  --landing-frame: rgba(148, 163, 184, 0.12);
+  --landing-orbit: rgba(230, 60, 28, 0.22);
+}
+
+.landing-bg-dots {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='12' cy='12' r='1' fill='%2394a3b8'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
+}
+
+.landing-bg-network {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.85;
+}
+
+.landing-bg-network__line {
+  stroke: var(--landing-line);
+  stroke-width: 1;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 6 10;
+  animation: landingLinkFlow 14s ease-in-out infinite;
+}
+
+.landing-bg-network__node {
+  fill: var(--landing-node);
+  animation: landingNodeBlink 5s ease-in-out infinite;
+}
+
+.landing-bg-network__pulse {
+  fill: none;
+  stroke: var(--landing-pulse);
+  stroke-width: 1;
+  animation: landingNodeRipple 6s ease-out infinite;
+}
+
+.landing-bg-orbit {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid var(--landing-orbit);
+  transform: translate(-50%, -50%);
+}
+
+.landing-bg-orbit--1 {
+  width: min(68vw, 820px);
+  height: min(68vw, 820px);
+  border-style: dashed;
+  border-width: 1px;
+  animation: landingOrbitSpin 90s linear infinite;
+}
+
+.landing-bg-orbit--2 {
+  width: min(48vw, 560px);
+  height: min(48vw, 560px);
+  border-top-color: transparent;
+  border-right-color: transparent;
+  animation: landingOrbitSpin 65s linear infinite reverse;
+}
+
+.landing-bg-frame {
+  position: absolute;
+  border: 1px solid var(--landing-frame);
+  border-radius: 4px;
+  opacity: 0.45;
+  transform: rotate(var(--frame-rotate, 0deg));
+  animation: landingFrameDrift 28s ease-in-out infinite;
+}
+
+.landing-bg-frame::before,
+.landing-bg-frame::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--primary);
+  border-style: solid;
+  opacity: 0.35;
+}
+
+.landing-bg-frame::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+
+.landing-bg-frame::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+@keyframes landingLinkFlow {
+  0%, 100% {
+    stroke-dashoffset: 0;
+    opacity: 0.35;
+  }
+  50% {
+    stroke-dashoffset: 32;
+    opacity: 0.75;
+  }
+}
+
+@keyframes landingNodeBlink {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+@keyframes landingNodeRipple {
+  0% {
+    r: 6;
+    opacity: 0.55;
+  }
+  100% {
+    r: 28;
+    opacity: 0;
+  }
+}
+
+@keyframes landingOrbitSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes landingFrameDrift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(var(--frame-rotate, 0deg));
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate3d(14px, -18px, 0) rotate(calc(var(--frame-rotate, 0deg) + 6deg));
+    opacity: 0.55;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-bg-network {
+    opacity: 0.55;
+  }
+
+  .landing-bg-frame--hide-mobile {
+    display: none;
+  }
+
+  .landing-bg-orbit--2 {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-bg-network__line,
+  .landing-bg-network__node,
+  .landing-bg-network__pulse,
+  .landing-bg-orbit,
+  .landing-bg-frame {
+    animation: none !important;
+  }
 }
