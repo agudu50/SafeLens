@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
-import { getScanHistory, clearScanHistory } from '../services/scannerService'
+import { getScanHistory } from '../services/scannerService'
 
 const typeOptions = ['All', 'Message', 'Screenshot', 'Link', 'Email']
 const riskOptions = ['All', 'High', 'Medium', 'Low']
@@ -53,13 +53,6 @@ export default function History() {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
     return filteredScans.slice(startIndex, startIndex + ITEMS_PER_PAGE)
   }, [filteredScans, currentPage])
-
-  const handleClearHistory = () => {
-    if (window.confirm('Are you sure you want to clear your local scan history? This action cannot be undone.')) {
-      clearScanHistory()
-      setScans([])
-    }
-  }
 
   // Generate and download a CSV file directly in the browser
   const handleExportCSV = () => {
@@ -137,23 +130,6 @@ export default function History() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                   </svg>
                   <span>Export CSV</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleClearHistory}
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
-                    color: 'var(--danger)',
-                    padding: '0.55rem 1rem',
-                    borderRadius: '999px',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
-                >
-                  Clear History
                 </button>
               </div>
             )}
