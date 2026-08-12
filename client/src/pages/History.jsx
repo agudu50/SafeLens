@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import { getScanHistory, clearScanHistory } from '../services/scannerService'
 
 const typeOptions = ['All', 'Message', 'Screenshot', 'Link', 'Email']
 const riskOptions = ['All', 'High', 'Medium', 'Low']
+const ITEMS_PER_PAGE = 5
 
 export default function History() {
   const navigate = useNavigate()
@@ -12,6 +13,12 @@ export default function History() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState('All')
   const [selectedRisk, setSelectedRisk] = useState('All')
+  const [currentPage, setCurrentPage] = useState(1)
+
+  // Reset to page 1 whenever search query or filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, selectedType, selectedRisk])
 
   // Calculate statistics from the history array
   const stats = useMemo(() => {
@@ -38,6 +45,14 @@ export default function History() {
       return matchesSearch && matchesType && matchesRisk
     })
   }, [scans, searchQuery, selectedType, selectedRisk])
+
+  // Paginated records for current page
+  const totalPages = Math.ceil(filteredScans.length / ITEMS_PER_PAGE) || 1
+
+  const paginatedScans = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredScans.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }, [filteredScans, currentPage])
 
   const handleClearHistory = () => {
     if (window.confirm('Are you sure you want to clear your local scan history? This action cannot be undone.')) {
@@ -301,95 +316,200 @@ export default function History() {
               </Link>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {filteredScans.map((scan) => {
-                const isHigh = scan.riskLevel === 'high' || scan.riskLevel === 'High'
-                const isMedium = scan.riskLevel === 'medium' || scan.riskLevel === 'Medium'
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {paginatedScans.map((scan) => {
+                  const isHigh = scan.riskLevel === 'high' || scan.riskLevel === 'High'
+                  const isMedium = scan.riskLevel === 'medium' || scan.riskLevel === 'Medium'
 
-                let badgeColor = 'var(--success)'
-                let badgeBg = 'rgba(16, 185, 129, 0.12)'
-                let badgeBorder = 'rgba(16, 185, 129, 0.25)'
+                  let badgeColor = 'var(--success)'
+                  let badgeBg = 'rgba(16, 185, 129, 0.12)'
+                  let badgeBorder = 'rgba(16, 185, 129, 0.25)'
 
-                if (isHigh) {
-                  badgeColor = 'var(--danger)'
-                  badgeBg = 'rgba(239, 68, 68, 0.12)'
-                  badgeBorder = 'rgba(239, 68, 68, 0.25)'
-                } else if (isMedium) {
-                  badgeColor = 'var(--warning)'
-                  badgeBg = 'rgba(245, 158, 11, 0.12)'
-                  badgeBorder = 'rgba(245, 158, 11, 0.25)'
-                }
+                  if (isHigh) {
+                    badgeColor = 'var(--danger)'
+                    badgeBg = 'rgba(239, 68, 68, 0.12)'
+                    badgeBorder = 'rgba(239, 68, 68, 0.25)'
+                  } else if (isMedium) {
+                    badgeColor = 'var(--warning)'
+                    badgeBg = 'rgba(245, 158, 11, 0.12)'
+                    badgeBorder = 'rgba(245, 158, 11, 0.25)'
+                  }
 
-                return (
-                  <div
-                    key={scan.id}
-                    style={{
-                      background: 'var(--surface)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '16px',
-                      padding: '1.2rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.75rem',
-                      transition: 'transform 0.2s ease, border-color 0.2s ease'
-                    }}
-                  >
-                    {/* Record Top Row */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.18rem 0.6rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
-                          {scan.type.toUpperCase()}
-                        </span>
-                        <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 700 }}>
-                          {scan.submittedAt}
-                        </span>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.1)', padding: '0.18rem 0.5rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
-                          🛡️ Blockchain Verified
-                        </span>
-                        <span style={{ fontSize: '0.76rem', fontWeight: 800, color: badgeColor, background: badgeBg, padding: '0.2rem 0.65rem', borderRadius: '999px', border: `1px solid ${badgeBorder}` }}>
-                          {scan.riskScore}% {scan.riskLevel.toUpperCase()} RISK
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Scanned Input Text */}
-                    <div style={{ background: 'var(--surface-alt)', padding: '0.8rem 0.95rem', borderRadius: '10px', fontSize: '0.86rem', color: 'var(--text)', fontFamily: 'monospace', lineHeight: 1.45, border: '1px solid var(--border)' }}>
-                      &ldquo;{scan.originalContent}&rdquo;
-                    </div>
-
-                    {/* Summary */}
-                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
-                      <strong style={{ color: 'var(--text)' }}>Summary: </strong>
-                      {scan.summary}
-                    </p>
-
-                    {/* Red Flags Tags */}
-                    {scan.redFlags && scan.redFlags.length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                        {scan.redFlags.map((flag) => (
-                          <span key={flag} style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', background: 'var(--surface-alt)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                            &bull; {flag}
+                  return (
+                    <div
+                      key={scan.id}
+                      style={{
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '16px',
+                        padding: '1.2rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.75rem',
+                        transition: 'transform 0.2s ease, border-color 0.2s ease'
+                      }}
+                    >
+                      {/* Record Top Row */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.18rem 0.6rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                            {scan.type.toUpperCase()}
                           </span>
-                        ))}
-                      </div>
-                    )}
+                          <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 700 }}>
+                            {scan.submittedAt}
+                          </span>
+                        </div>
 
-                    {/* Action Bar */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.8rem', borderTop: '1px solid var(--border)', paddingTop: '0.65rem', marginTop: '0.2rem' }}>
-                      <Link
-                        to={`/results/${scan.id}`}
-                        style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--primary)', textDecoration: 'none' }}
-                      >
-                        View Full Report &rarr;
-                      </Link>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.1)', padding: '0.18rem 0.5rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                            🛡️ Blockchain Verified
+                          </span>
+                          <span style={{ fontSize: '0.76rem', fontWeight: 800, color: badgeColor, background: badgeBg, padding: '0.2rem 0.65rem', borderRadius: '999px', border: `1px solid ${badgeBorder}` }}>
+                            {scan.riskScore}% {scan.riskLevel.toUpperCase()} RISK
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Scanned Input Text */}
+                      <div style={{ background: 'var(--surface-alt)', padding: '0.8rem 0.95rem', borderRadius: '10px', fontSize: '0.86rem', color: 'var(--text)', fontFamily: 'monospace', lineHeight: 1.45, border: '1px solid var(--border)' }}>
+                        &ldquo;{scan.originalContent}&rdquo;
+                      </div>
+
+                      {/* Summary */}
+                      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
+                        <strong style={{ color: 'var(--text)' }}>Summary: </strong>
+                        {scan.summary}
+                      </p>
+
+                      {/* Red Flags Tags */}
+                      {scan.redFlags && scan.redFlags.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                          {scan.redFlags.map((flag) => (
+                            <span key={flag} style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', background: 'var(--surface-alt)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                              &bull; {flag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Action Bar */}
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.8rem', borderTop: '1px solid var(--border)', paddingTop: '0.65rem', marginTop: '0.2rem' }}>
+                        <Link
+                          to={`/results/${scan.id}`}
+                          style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--primary)', textDecoration: 'none' }}
+                        >
+                          View Full Report &rarr;
+                        </Link>
+                      </div>
                     </div>
+                  )
+                })}
+              </div>
+
+              {/* Numbered Pagination Bar */}
+              {totalPages > 1 && (
+                <div style={{
+                  display: 'flex',
+                  justify: 'space-between',
+                  alignItems: 'center',
+                  marginTop: '1.6rem',
+                  paddingTop: '1.2rem',
+                  borderTop: '1px solid var(--border)',
+                  flexWrap: 'wrap',
+                  gap: '0.8rem'
+                }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>
+                    Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredScans.length)}–
+                    {Math.min(currentPage * ITEMS_PER_PAGE, filteredScans.length)} of {filteredScans.length} records
+                  </span>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                    {/* Previous Button */}
+                    <button
+                      type="button"
+                      disabled={currentPage === 1}
+                      onClick={() => {
+                        setCurrentPage(p => Math.max(p - 1, 1))
+                        window.scrollTo({ top: 300, behavior: 'smooth' })
+                      }}
+                      style={{
+                        padding: '0.4rem 0.8rem',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)',
+                        background: 'var(--surface)',
+                        color: currentPage === 1 ? 'var(--muted)' : 'var(--text)',
+                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                        fontSize: '0.8rem',
+                        fontWeight: 750,
+                        opacity: currentPage === 1 ? 0.5 : 1,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      &larr; Prev
+                    </button>
+
+                    {/* Numbered Page Buttons */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                      const isActive = pageNum === currentPage
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          onClick={() => {
+                            setCurrentPage(pageNum)
+                            window.scrollTo({ top: 300, behavior: 'smooth' })
+                          }}
+                          style={{
+                            minWidth: '34px',
+                            height: '34px',
+                            padding: '0 0.45rem',
+                            borderRadius: '8px',
+                            border: isActive ? '1px solid var(--primary)' : '1px solid var(--border)',
+                            background: isActive ? 'var(--primary)' : 'var(--surface)',
+                            color: isActive ? '#ffffff' : 'var(--text)',
+                            fontSize: '0.82rem',
+                            fontWeight: isActive ? 900 : 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justify: 'center',
+                            boxShadow: isActive ? '0 2px 8px rgba(230, 60, 28, 0.25)' : 'none',
+                          }}
+                        >
+                          {pageNum}
+                        </button>
+                      )
+                    })}
+
+                    {/* Next Button */}
+                    <button
+                      type="button"
+                      disabled={currentPage === totalPages}
+                      onClick={() => {
+                        setCurrentPage(p => Math.min(p + 1, totalPages))
+                        window.scrollTo({ top: 300, behavior: 'smooth' })
+                      }}
+                      style={{
+                        padding: '0.4rem 0.8rem',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)',
+                        background: 'var(--surface)',
+                        color: currentPage === totalPages ? 'var(--muted)' : 'var(--text)',
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                        fontSize: '0.8rem',
+                        fontWeight: 750,
+                        opacity: currentPage === totalPages ? 0.5 : 1,
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      Next &rarr;
+                    </button>
                   </div>
-                )
-              })}
-            </div>
+                </div>
+              )}
+            </>
           )}
         </section>
       </div>
