@@ -5963,3 +5963,214 @@ html.dark .landing-page-bg {
     animation: none !important;
   }
 }
+
+/* ── Threat Scanner Workstation Component & Responsive Mobile Styles ── */
+.scanner-workstation-card {
+  width: 100%;
+  padding: 2.2rem 2.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.scanner-workstation-header {
+  text-align: center;
+  margin-bottom: 1.8rem;
+}
+
+.scanner-workstation-title {
+  font-size: 2.1rem;
+  font-weight: 900;
+  margin: 0 0 0.5rem 0;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.scanner-workstation-desc {
+  margin: 0 auto;
+  font-size: 0.92rem;
+  color: var(--muted);
+  max-width: 620px;
+  line-height: 1.5;
+}
+
+.scanner-tabs-switcher {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  padding: 0.4rem;
+  background: var(--surface-alt);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  margin-bottom: 1.6rem;
+}
+
+.scanner-tab-button {
+  padding: 0.7rem 0.6rem;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font-size: 0.86rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.scanner-tab-button--active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(230, 60, 28, 0.3);
+  font-weight: 850;
+}
+
+.scanner-tab-button--inactive {
+  background: transparent;
+  color: var(--text);
+  font-weight: 750;
+}
+
+.scanner-presets-chips-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.scanner-preset-chip {
+  font-size: 0.78rem;
+  font-weight: 750;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.scanner-preset-chip:hover {
+  background: var(--surface-strong);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.scanner-workstation-box {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1.2rem;
+  margin-bottom: 1.4rem;
+}
+
+.scanner-textarea-input {
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.scanner-trust-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 1.4rem;
+  font-size: 0.76rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+/* ── Mobile Responsive Enhancements ── */
+@media (max-width: 640px) {
+  .scanner-workstation-card {
+    padding: 1.1rem 0.9rem !important;
+    border-radius: 18px !important;
+  }
+
+  .scanner-workstation-header {
+    margin-bottom: 1.1rem;
+  }
+
+  .scanner-workstation-title {
+    font-size: 1.45rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.3rem !important;
+  }
+
+  .scanner-workstation-desc {
+    font-size: 0.82rem !important;
+    line-height: 1.45 !important;
+  }
+
+  .scanner-tabs-switcher {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.35rem !important;
+    padding: 0.3rem !important;
+    border-radius: 14px !important;
+    margin-bottom: 1.2rem !important;
+  }
+
+  .scanner-tab-button {
+    padding: 0.55rem 0.4rem !important;
+    border-radius: 10px !important;
+    font-size: 0.78rem !important;
+    gap: 0.35rem !important;
+  }
+
+  .scanner-presets-chips-row {
+    display: flex !important;
+    gap: 0.4rem !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: 0.4rem !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .scanner-presets-chips-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scanner-preset-chip {
+    font-size: 0.74rem !important;
+    padding: 0.3rem 0.7rem !important;
+  }
+
+  .scanner-workstation-box {
+    padding: 0.8rem !important;
+    border-radius: 14px !important;
+    margin-bottom: 1.1rem !important;
+  }
+
+  .scanner-textarea-input {
+    padding: 0.7rem !important;
+    border-radius: 10px !important;
+    font-size: 0.84rem !important;
+  }
+
+  .scanner-trust-row {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    gap: 0.4rem !important;
+    margin-top: 1rem !important;
+    font-size: 0.68rem !important;
+  }
+}
+

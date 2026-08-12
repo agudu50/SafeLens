@@ -170,47 +170,25 @@ export default function Scanner() {
 
       {/* Sleek Modern Central Scanner Workstation Card */}
       <div style={{ maxWidth: '880px', margin: '0 auto' }}>
-        <section
-          className="scanner-card animate-fade-in"
-          style={{
-            width: '100%',
-            padding: '2.2rem 2.2rem',
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: '24px',
-            boxShadow: '0 16px 40px rgba(0, 0, 0, 0.08)',
-            position: 'relative'
-          }}
-        >
+        <section className="scanner-workstation-card animate-fade-in">
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '1.8rem' }}>
+          <div className="scanner-workstation-header">
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
               <Badge tone="medium">
                 <span className="live-pulse-dot" style={{ width: '6px', height: '6px', background: 'var(--primary)', marginRight: '0.35rem' }} />
                 AI THREAT SCANNER
               </Badge>
             </div>
-            <h1 style={{ fontSize: '2.1rem', fontWeight: 900, margin: '0 0 0.5rem 0', color: 'var(--text)' }}>
+            <h1 className="scanner-workstation-title">
               Scan Messages &amp; Fraud Lures
             </h1>
-            <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--muted)', maxWidth: '620px', margin: '0 auto', lineHeight: 1.5 }}>
+            <p className="scanner-workstation-desc">
               Paste suspicious SMS text, web links, or upload screenshots to get an instant AI risk score tailored for Ghana mobile security.
             </p>
           </div>
 
           {/* Segmented Type Switcher Tabs */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-              gap: '0.6rem',
-              padding: '0.4rem',
-              background: 'var(--surface-alt)',
-              borderRadius: '20px',
-              border: '1px solid var(--border)',
-              marginBottom: '1.6rem'
-            }}
-          >
+          <div className="scanner-tabs-switcher">
             {SCAN_TYPES.map((type) => {
               const isActive = activeType === type.id
               return (
@@ -218,22 +196,7 @@ export default function Scanner() {
                   key={type.id}
                   type="button"
                   onClick={() => handleTypeChange(type.id)}
-                  style={{
-                    padding: '0.7rem 0.6rem',
-                    borderRadius: '16px',
-                    border: 'none',
-                    background: isActive ? 'var(--primary)' : 'transparent',
-                    color: isActive ? '#ffffff' : 'var(--text)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justify: 'center',
-                    gap: '0.45rem',
-                    fontWeight: isActive ? 850 : 750,
-                    fontSize: '0.86rem',
-                    transition: 'all 0.2s ease',
-                    boxShadow: isActive ? '0 4px 14px rgba(230, 60, 28, 0.3)' : 'none'
-                  }}
+                  className={`scanner-tab-button ${isActive ? 'scanner-tab-button--active' : 'scanner-tab-button--inactive'}`}
                 >
                   <span style={{ color: isActive ? '#ffffff' : 'var(--primary)', display: 'flex', alignItems: 'center' }}>
                     {type.icon}
@@ -255,28 +218,15 @@ export default function Scanner() {
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="scanner-presets-chips-row">
               {SAMPLE_CONTENT[activeType].map((sample) => (
                 <button
                   key={sample.label}
                   type="button"
                   onClick={() => { setInput(sample.text); setError('') }}
-                  style={{
-                    fontSize: '0.78rem',
-                    fontWeight: 750,
-                    color: 'var(--text)',
-                    background: 'var(--surface-alt)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '999px',
-                    padding: '0.35rem 0.85rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.35rem'
-                  }}
+                  className="scanner-preset-chip"
                 >
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--primary)' }} />
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--primary)', flexShrink: 0 }} />
                   <span>{sample.label}</span>
                 </button>
               ))}
@@ -284,15 +234,7 @@ export default function Scanner() {
           </div>
 
           {/* Main Input Workstation Box */}
-          <div
-            style={{
-              background: 'var(--surface-alt)',
-              border: '1px solid var(--border)',
-              borderRadius: '20px',
-              padding: '1.2rem',
-              marginBottom: '1.4rem'
-            }}
-          >
+          <div className="scanner-workstation-box">
             {activeType === 'screenshot' && (
               <div
                 className={`upload-box ${isDragging ? 'upload-box--active' : ''}`}
@@ -306,7 +248,7 @@ export default function Scanner() {
                   background: 'var(--surface)',
                   border: '2px dashed var(--border)',
                   borderRadius: '16px',
-                  padding: '1.4rem',
+                  padding: '1.2rem 1rem',
                   textAlign: 'center'
                 }}
               >
@@ -326,11 +268,11 @@ export default function Scanner() {
                   </div>
                 ) : (
                   <>
-                    <svg fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24" style={{ width: '2.2rem', height: '2.2rem', color: 'var(--primary)', marginBottom: '0.4rem' }}>
+                    <svg fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24" style={{ width: '2rem', height: '2rem', color: 'var(--primary)', marginBottom: '0.3rem' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
                     </svg>
-                    <strong style={{ fontSize: '0.9rem', color: 'var(--text)', display: 'block' }}>Drag &amp; drop screenshot or click to upload</strong>
-                    <span style={{ fontSize: '0.76rem', color: 'var(--muted)' }}>Supports PNG or JPG images</span>
+                    <strong style={{ fontSize: '0.88rem', color: 'var(--text)', display: 'block' }}>Drag &amp; drop screenshot or click to upload</strong>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Supports PNG or JPG images</span>
                   </>
                 )}
                 <input
@@ -344,27 +286,18 @@ export default function Scanner() {
             )}
 
             <textarea
-              className="scanner-textarea"
+              className="scanner-textarea-input"
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder={PLACEHOLDERS[activeType]}
               style={{
-                width: '100%',
-                minHeight: activeType === 'screenshot' ? '90px' : '150px',
-                padding: '0.85rem',
-                borderRadius: '14px',
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                color: 'var(--text)',
-                fontSize: '0.9rem',
-                lineHeight: 1.5,
-                resize: 'vertical'
+                minHeight: activeType === 'screenshot' ? '90px' : '140px',
               }}
             />
 
             {/* Workstation Toolbar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.6rem', fontSize: '0.78rem', color: 'var(--muted)' }}>
-              <div style={{ display: 'flex', gap: '0.6rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.6rem', fontSize: '0.78rem', color: 'var(--muted)', flexWrap: 'wrap', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
                 <button
                   type="button"
                   onClick={handlePasteClipboard}
@@ -372,7 +305,7 @@ export default function Scanner() {
                     background: 'var(--surface)',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
-                    padding: '0.25rem 0.65rem',
+                    padding: '0.35rem 0.7rem',
                     color: 'var(--primary)',
                     fontWeight: 800,
                     cursor: 'pointer',
@@ -391,7 +324,7 @@ export default function Scanner() {
                   </button>
                 )}
               </div>
-              <span style={{ fontWeight: 700 }}>{input.length} characters</span>
+              <span style={{ fontWeight: 700, fontSize: '0.75rem' }}>{input.length} characters</span>
             </div>
           </div>
 
@@ -407,13 +340,14 @@ export default function Scanner() {
             size="lg"
             onClick={handleScan}
             disabled={!canSubmit || isScanning}
-            style={{ width: '100%', justifyContent: 'center', padding: '0.85rem 1.2rem', fontSize: '1rem', fontWeight: 850, borderRadius: '16px', boxShadow: '0 6px 20px rgba(230, 60, 28, 0.25)' }}
+            className="scanner-submit-btn"
+            style={{ width: '100%', justifyContent: 'center', padding: '0.85rem 1.2rem', fontWeight: 850, borderRadius: '16px', boxShadow: '0 6px 20px rgba(230, 60, 28, 0.25)' }}
           >
             {isScanning ? 'Analyzing Threat Signals…' : 'Analyze Content for Threats'}
           </Button>
 
           {/* Trust Footnote */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.2rem', marginTop: '1.4rem', fontSize: '0.76rem', color: 'var(--muted)', flexWrap: 'wrap' }}>
+          <div className="scanner-trust-row">
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
               <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', color: 'var(--success)' }}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
