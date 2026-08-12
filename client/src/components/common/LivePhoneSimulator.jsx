@@ -8,15 +8,15 @@ export const ANIMATED_DEMOS = [
     shortName: 'MoMo Refund Fraud',
     senderNumber: '+233 54 981 0293',
     incomingMsg: 'Dear customer, your account has been credited GHS 650.00 in error by Kwabena. Please refund via *170# immediately or your MoMo wallet will be suspended within 2 hours.',
-    outgoingMsg: 'Nice try! I just checked my real balance via *170# and no funds were added. Official MTNMoMo messages do not come from regular mobile numbers. Reporting this to 1917.',
+    outgoingMsg: 'Nice try! I just checked my real balance via *170# and no funds were added. Official Mobile Money messages do not come from regular mobile numbers. Reporting this to 1917.',
     shieldRule: 'Rule Verified: Always check balance via *170# or *110# before sending any refund.',
   },
   {
     id: 2,
     shortName: 'WhatsApp Free Data Link',
     senderNumber: 'WhatsApp Group Admin',
-    incomingMsg: 'MTN 50th Anniversary Giveaway! Claim your Free 10GB Data & 500 GHS airtime voucher now. Click here to activate: http://mtn-free-promo-gh.xyz/claim',
-    outgoingMsg: 'I scanned this link with SafeLens AI and it leads to a phishing site (.xyz). Official network promos only use mtn.com.gh. Blocked!',
+    incomingMsg: 'Network 50th Anniversary Giveaway! Claim your Free 10GB Data & 500 GHS airtime voucher now. Click here to activate: http://free-promo-gh.xyz/claim',
+    outgoingMsg: 'I scanned this link with SafeLens AI and it leads to a phishing site (.xyz). Official telecom network promos never use third-party .xyz links. Blocked!',
     shieldRule: 'Rule Verified: Never click .xyz or .top promo links. Always scan with SafeLens first.',
   },
   {
@@ -159,7 +159,7 @@ export default function LivePhoneSimulator() {
 
             {/* Status Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
-              <span style={{ fontWeight: 800 }}>MTN GH 5G</span>
+              <span style={{ fontWeight: 800 }}>SECURE 5G</span>
               <span>10:42 AM</span>
               <span>100%</span>
             </div>
