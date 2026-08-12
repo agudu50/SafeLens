@@ -62,6 +62,49 @@ html.dark {
 
 * {
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.4s ease;
+}
+
+body.is-scrolling *,
+*:hover {
+  scrollbar-color: rgba(230, 60, 28, 0.45) transparent;
+}
+
+/* Custom Auto-Hiding Sleek Scrollbar System */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+  margin: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Reveal scrollbar thumb only when scrolling or hovering */
+body.is-scrolling ::-webkit-scrollbar-thumb,
+*:hover::-webkit-scrollbar-thumb {
+  background: rgba(230, 60, 28, 0.45);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary) !important;
+  box-shadow: 0 0 10px rgba(230, 60, 28, 0.5);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Global Body Styling with rich dark mode ambient security mesh background */

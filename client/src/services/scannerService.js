@@ -17,6 +17,7 @@ const defaultHistory = [
     ],
     originalContent: 'Congratulations! You have been selected for a remote job offer with guaranteed earnings. Send 50 GHS registration fee to proceed.',
     submittedAt: '2 hours ago',
+    createdAt: '2026-08-12',
   },
   {
     id: 'scan-002',
@@ -36,6 +37,7 @@ const defaultHistory = [
     ],
     originalContent: 'Your account has been flagged. Click immediately to secure your profile.',
     submittedAt: 'Yesterday',
+    createdAt: '2026-08-11',
   },
   {
     id: 'scan-003',
@@ -55,6 +57,7 @@ const defaultHistory = [
     ],
     originalContent: 'http://mtn-gh-promo.xyz/claim-cashout',
     submittedAt: '3 days ago',
+    createdAt: '2026-08-09',
   }
 ]
 
@@ -233,6 +236,7 @@ function buildResult({ type = 'message', input = '', riskLevel = '' }) {
     vectorBreakdown,
     originalContent: cleaned || 'Sample scan content placeholder',
     submittedAt: 'Just now',
+    createdAt: new Date().toISOString().slice(0, 10),
   }
 }
 

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
+import Modal from '../components/ui/Modal'
 import { getScanHistory } from '../services/scannerService'
 
 const typeOptions = ['All', 'Message', 'Screenshot', 'Link', 'Email']
@@ -15,10 +16,81 @@ export default function History() {
   const [selectedRisk, setSelectedRisk] = useState('All')
   const [currentPage, setCurrentPage] = useState(1)
 
+  // Date Range Export Modal State
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
+  const [presetRange, setPresetRange] = useState('all')
+
   // Reset to page 1 whenever search query or filters change
   useEffect(() => {
     setCurrentPage(1)
   }, [searchQuery, selectedType, selectedRisk])
+
+  const handleOpenExportModal = () => {
+    setPresetRange('all')
+    setFromDate('')
+    setToDate('')
+    setIsExportModalOpen(true)
+  }
+
+  const handleApplyPreset = (range) => {
+    setPresetRange(range)
+    const today = new Date()
+    const todayStr = today.toISOString().slice(0, 10)
+
+    if (range === 'all') {
+      setFromDate('')
+      setToDate('')
+    } else if (range === '7days') {
+      const past = new Date()
+      past.setDate(today.getDate() - 7)
+      setFromDate(past.toISOString().slice(0, 10))
+      setToDate(todayStr)
+    } else if (range === '30days') {
+      const past = new Date()
+      past.setDate(today.getDate() - 30)
+      setFromDate(past.toISOString().slice(0, 10))
+      setToDate(todayStr)
+    }
+  }
+
+  // Filter scans for export preview based on selected date range
+  const previewExportScans = useMemo(() => {
+    if (!isExportModalOpen) return []
+    return scans.filter((s) => {
+      const recordDate = s.createdAt || new Date().toISOString().slice(0, 10)
+      if (fromDate && recordDate < fromDate) return false
+      if (toDate && recordDate > toDate) return false
+      return true
+    })
+  }, [scans, fromDate, toDate, isExportModalOpen])
+
+  // Download CSV file for previewed records
+  const handleConfirmExportCSV = () => {
+    if (previewExportScans.length === 0) return
+    
+    const headers = 'Scan ID,Type,Risk Level,Risk Score,Verdict Summary,Date,Content\n'
+    const rows = previewExportScans
+      .map((s) => {
+        const cleanSummary = (s.summary || '').replace(/"/g, '""')
+        const cleanContent = (s.originalContent || '').replace(/"/g, '""')
+        const recordDate = s.createdAt || s.submittedAt || ''
+        return `"${s.id}","${s.type}","${s.riskLevel}",${s.riskScore},"${cleanSummary}","${recordDate}","${cleanContent}"`
+      })
+      .join('\n')
+      
+    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.setAttribute('href', url)
+    const rangeSuffix = fromDate && toDate ? `${fromDate}_to_${toDate}` : 'all_time'
+    link.setAttribute('download', `safelens_scan_history_${rangeSuffix}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    setIsExportModalOpen(false)
+  }
 
   // Calculate statistics from the history array
   const stats = useMemo(() => {
@@ -54,29 +126,6 @@ export default function History() {
     return filteredScans.slice(startIndex, startIndex + ITEMS_PER_PAGE)
   }, [filteredScans, currentPage])
 
-  // Generate and download a CSV file directly in the browser
-  const handleExportCSV = () => {
-    if (scans.length === 0) return
-    
-    const headers = 'Scan ID,Type,Risk Level,Risk Score,Verdict Summary,Submitted At,Content\n'
-    const rows = scans
-      .map((s) => {
-        const cleanSummary = s.summary.replace(/"/g, '""')
-        const cleanContent = s.originalContent.replace(/"/g, '""')
-        return `"${s.id}","${s.type}","${s.riskLevel}",${s.riskScore},"${cleanSummary}","${s.submittedAt}","${cleanContent}"`
-      })
-      .join('\n')
-      
-    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.setAttribute('href', url)
-    link.setAttribute('download', `safelens_scan_history_${new Date().toISOString().slice(0, 10)}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-
   return (
     <PageContainer>
       <div className="dash-container">
@@ -111,7 +160,7 @@ export default function History() {
               <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                 <button
                   type="button"
-                  onClick={handleExportCSV}
+                  onClick={handleOpenExportModal}
                   style={{
                     background: 'var(--surface)',
                     border: '1px solid var(--border)',
@@ -489,6 +538,199 @@ export default function History() {
           )}
         </section>
       </div>
+
+      {/* Date Range Selection & Live Preview CSV Export Modal */}
+      <Modal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        title="Export Threat Intelligence Logs to CSV"
+        maxWidth="720px"
+      >
+        <div>
+          {/* Step 1: Select Date Range */}
+          <div style={{ marginBottom: '1.2rem' }}>
+            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.5rem' }}>
+              1. Select Export Date Range
+            </label>
+
+            {/* Quick Preset Range Buttons */}
+            <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', marginBottom: '0.85rem' }}>
+              {[
+                { id: 'all', label: 'All Time' },
+                { id: '7days', label: 'Last 7 Days' },
+                { id: '30days', label: 'Last 30 Days' },
+                { id: 'custom', label: 'Custom Range' },
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => handleApplyPreset(p.id)}
+                  style={{
+                    padding: '0.35rem 0.8rem',
+                    borderRadius: '999px',
+                    fontSize: '0.78rem',
+                    fontWeight: 750,
+                    cursor: 'pointer',
+                    border: presetRange === p.id ? '1px solid var(--primary)' : '1px solid var(--border)',
+                    background: presetRange === p.id ? 'var(--primary)' : 'var(--surface-alt)',
+                    color: presetRange === p.id ? '#ffffff' : 'var(--text)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Date Pickers From Date -> To Date */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', background: 'var(--surface-alt)', padding: '0.9rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.3rem' }}>
+                  From Date (Start)
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => {
+                    setFromDate(e.target.value)
+                    setPresetRange('custom')
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.45rem 0.65rem',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    fontSize: '0.84rem',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.3rem' }}>
+                  To Date (End)
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => {
+                    setToDate(e.target.value)
+                    setPresetRange('custom')
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.45rem 0.65rem',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    fontSize: '0.84rem',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Step 2: Live Export Preview Header & Table */}
+          <div style={{ marginBottom: '1.4rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+              <label style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }}>
+                2. Live Export Data Preview
+              </label>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: previewExportScans.length > 0 ? 'var(--success)' : 'var(--danger)' }}>
+                {previewExportScans.length} {previewExportScans.length === 1 ? 'record' : 'records'} ready
+              </span>
+            </div>
+
+            {previewExportScans.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '1.6rem 1rem', background: 'var(--surface-alt)', borderRadius: '12px', border: '1px dashed var(--border)' }}>
+                <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--muted)' }}>
+                  ⚠️ No scan history records fall within the selected date range ({fromDate || 'Start'} to {toDate || 'End'}).
+                </p>
+              </div>
+            ) : (
+              <div style={{ maxHeight: '220px', overflowY: 'auto', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-alt)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)', color: 'var(--muted)', fontWeight: 800 }}>
+                      <th style={{ padding: '0.55rem 0.75rem' }}>Date</th>
+                      <th style={{ padding: '0.55rem 0.75rem' }}>Type</th>
+                      <th style={{ padding: '0.55rem 0.75rem' }}>Risk Level</th>
+                      <th style={{ padding: '0.55rem 0.75rem' }}>Summary Preview</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewExportScans.map((s) => (
+                      <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '0.5rem 0.75rem', whiteSpace: 'nowrap', fontWeight: 700 }}>
+                          {s.createdAt || s.submittedAt}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--primary)' }}>
+                          {s.type}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', fontWeight: 800, color: s.riskLevel === 'high' || s.riskLevel === 'High' ? 'var(--danger)' : 'var(--success)' }}>
+                          {s.riskScore}% {s.riskLevel.toUpperCase()}
+                        </td>
+                        <td style={{ padding: '0.5rem 0.75rem', color: 'var(--text)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {s.summary}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Actions Footer */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+            <button
+              type="button"
+              onClick={() => setIsExportModalOpen(false)}
+              style={{
+                padding: '0.5rem 1.1rem',
+                borderRadius: '999px',
+                border: '1px solid var(--border)',
+                background: 'var(--surface-alt)',
+                color: 'var(--text)',
+                fontSize: '0.84rem',
+                fontWeight: 750,
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              disabled={previewExportScans.length === 0}
+              onClick={handleConfirmExportCSV}
+              style={{
+                padding: '0.5rem 1.4rem',
+                borderRadius: '999px',
+                border: 'none',
+                background: previewExportScans.length > 0 ? 'var(--primary)' : 'var(--border)',
+                color: '#ffffff',
+                fontSize: '0.84rem',
+                fontWeight: 850,
+                cursor: previewExportScans.length > 0 ? 'pointer' : 'not-allowed',
+                boxShadow: previewExportScans.length > 0 ? '0 4px 14px rgba(230, 60, 28, 0.25)' : 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+              }}
+            >
+              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Download CSV ({previewExportScans.length})
+            </button>
+          </div>
+        </div>
+      </Modal>
     </PageContainer>
   )
 }

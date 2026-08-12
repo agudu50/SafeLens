@@ -10,38 +10,37 @@ export default function Modal({
   if (!isOpen) return null
 
   return (
-    <>
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 100000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0, 0, 0, 0.65)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
+        padding: '5.5rem 1.2rem 2rem 1.2rem',
+        boxSizing: 'border-box',
+      }}
+    >
       <div
-        className="helpline-backdrop-overlay"
-        onClick={onClose}
+        onClick={(e) => e.stopPropagation()}
         style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.55)',
-          backdropFilter: 'blur(4px)',
-          zIndex: 1100
-        }}
-      />
-      <div
-        className="animate-fade-in"
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
+          width: '100%',
           maxWidth,
+          maxHeight: 'calc(100vh - 7.5rem)',
           background: 'var(--surface)',
           border: '1px solid var(--border)',
           borderRadius: '24px',
-          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.25)',
-          padding: '1.5rem',
-          zIndex: 1200,
-          maxHeight: '90vh',
-          overflowY: 'auto'
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.35)',
+          padding: '1.6rem',
+          boxSizing: 'border-box',
+          overflowY: 'auto',
+          position: 'relative',
+          margin: '0 auto',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border)' }}>
@@ -57,7 +56,8 @@ export default function Modal({
               fontSize: '1.2rem',
               color: 'var(--muted)',
               cursor: 'pointer',
-              padding: '0.2rem'
+              padding: '0.2rem',
+              lineHeight: 1,
             }}
           >
             ✕
@@ -65,6 +65,6 @@ export default function Modal({
         </div>
         {children}
       </div>
-    </>
+    </div>
   )
 }
