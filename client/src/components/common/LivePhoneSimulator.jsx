@@ -344,7 +344,7 @@ export default function LivePhoneSimulator() {
               type="button"
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: 'instant' })
-                navigate('/scanner')
+                navigate('/scan')
               }}
               style={{
                 display: 'block',

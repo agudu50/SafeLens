@@ -158,6 +158,14 @@ export default function AppRoutes({ user, setUser, triggerAuthModal }) {
           }
         />
         <Route
+          path="/scanner"
+          element={
+            <ProtectedRoute user={user} setUser={setUser} title="Account Required for Message Scanning">
+              <Scanner user={user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/safety-tips"
           element={
             <ProtectedRoute user={user} setUser={setUser} title="Account Required for Ghana Safety Tips & Self-Defense">

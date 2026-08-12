@@ -129,7 +129,7 @@ export default function SafetyTips({ user }) {
               type="button"
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: 'instant' })
-                navigate('/scanner')
+                navigate('/scan')
               }}
               variant="primary"
               style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem' }}
