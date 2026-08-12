@@ -89,40 +89,8 @@ const COMMON_SCAMS = [
 ]
 
 export default function SafetyTips({ user }) {
+  const navigate = useNavigate()
   const [activeCategory, setActiveCategory] = useState('All')
-  const chatBoxRef = useRef(null)
-
-  // Animation Demo State
-  const [selectedDemoIdx, setSelectedDemoIdx] = useState(0)
-  const [animStep, setAnimStep] = useState(0) // 0: reset/ring, 1: fake msg, 2: typing, 3: safe reply sent & shield verified
-  const [isAnimPlaying, setIsAnimPlaying] = useState(true)
-
-  const activeDemo = ANIMATED_DEMOS[selectedDemoIdx]
-
-  // Auto-scroll chat box when new messages pop in
-  useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight
-    }
-  }, [animStep, selectedDemoIdx])
-
-  // Animation timeline control
-  useEffect(() => {
-    if (!isAnimPlaying) return
-
-    let timer
-    if (animStep === 0) {
-      timer = setTimeout(() => setAnimStep(1), 700)
-    } else if (animStep === 1) {
-      timer = setTimeout(() => setAnimStep(2), 2200)
-    } else if (animStep === 2) {
-      timer = setTimeout(() => setAnimStep(3), 1600)
-    } else if (animStep === 3) {
-      timer = setTimeout(() => setAnimStep(0), 4500)
-    }
-
-    return () => clearTimeout(timer)
-  }, [animStep, isAnimPlaying, selectedDemoIdx])
 
   const filteredScams = activeCategory === 'All'
     ? COMMON_SCAMS
