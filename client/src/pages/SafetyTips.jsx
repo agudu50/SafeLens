@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 
-// Animated Phone Demos Data
+// Animated Phone Demos Data - Realistic Ghanaian Scams & Phishing Links
 const ANIMATED_DEMOS = [
   {
     id: 1,
@@ -28,6 +28,30 @@ const ANIMATED_DEMOS = [
     incomingMsg: 'Congratulations! You have been selected for a Data Entry Remote Job paying GHS 3,500 monthly. Send GHS 80 via MoMo for your staff ID card to begin.',
     outgoingMsg: 'Legitimate companies pay their staff — they never demand Mobile Money payments for job interviews or ID cards. Reporting to 292.',
     shieldRule: 'Rule Verified: Never pay money to get a job offer in Ghana.',
+  },
+  {
+    id: 4,
+    shortName: 'Bank Account Suspension Link',
+    senderNumber: '+233 20 449 1102',
+    incomingMsg: 'Bank Security Alert: Your bank account will be frozen within 24hrs due to missing Ghana Card KYC. Update your account PIN now at http://ecobank-kyc-update.top',
+    outgoingMsg: 'Ghanaian banks never ask customers to type account PINs on external links. I am calling my branch manager directly.',
+    shieldRule: 'Rule Verified: Never type banking PINs or credentials on third-party link forms.',
+  },
+  {
+    id: 5,
+    shortName: 'Online Marketplace Deposit Scam',
+    senderNumber: 'Tonaton_Seller_Accra',
+    incomingMsg: 'iPhone 14 Pro for sale in East Legon for GHS 2,800! Send GHS 300 MoMo dispatch fee before delivery rider leaves shop.',
+    outgoingMsg: 'Pay-on-delivery or physical inspection in public only. I do not pay upfront Mobile Money deposits to unverified online sellers.',
+    shieldRule: 'Rule Verified: Always inspect marketplace items in person before sending money.',
+  },
+  {
+    id: 6,
+    shortName: 'Emergency Hospital Call Panic',
+    senderNumber: '+233 24 109 8831',
+    incomingMsg: 'URGENT: Your family member was involved in an accident near Korle Bu. Send GHS 1,500 MoMo immediately to Dr. Mensah for emergency surgery.',
+    outgoingMsg: 'Taking a breath first. Calling my family member directly on their known personal phone number to confirm their safety.',
+    shieldRule: 'Rule Verified: Hang up and call your relative directly on their private number.',
   }
 ]
 
@@ -341,13 +365,13 @@ export default function SafetyTips({ user }) {
             </div>
 
             {/* Right Side: Demo Breakdown & Timeline */}
-            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px', padding: '1.4rem', height: '470px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+            <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '20px', padding: '1.4rem', minHeight: '470px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
               <div>
                 <div style={{ marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(230, 60, 28, 0.12)', padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(230, 60, 28, 0.12)', padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
                     ANIMATION STEP {animStep + 1} OF 4
                   </span>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 850, margin: '0.25rem 0 0.2rem 0', color: 'var(--text)' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 850, margin: '0.3rem 0 0.2rem 0', color: 'var(--text)' }}>
                     {activeDemo.shortName}
                   </h3>
                   <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
@@ -356,7 +380,7 @@ export default function SafetyTips({ user }) {
                 </div>
 
                 {/* Timeline Progress Bar */}
-                <div style={{ background: 'var(--surface-alt)', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '1.2rem' }}>
+                <div style={{ background: 'var(--surface-alt)', padding: '0.8rem', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '1rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.4rem' }}>
                     <span>1. Fake SMS Received</span>
                     <span>2. Type Response</span>
@@ -373,44 +397,90 @@ export default function SafetyTips({ user }) {
                     />
                   </div>
                 </div>
+
+                {/* Dynamic Step Breakdown Educational Box */}
+                <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.9rem', marginBottom: '1rem' }}>
+                  <strong style={{ display: 'block', fontSize: '0.76rem', color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '0.3rem', letterSpacing: '0.04em' }}>
+                    {animStep === 0 && 'Step 1: Incoming Scam Lure'}
+                    {animStep === 1 && 'Step 2: Spotting the Threat'}
+                    {animStep === 2 && 'Step 3: Verification Protocol'}
+                    {animStep === 3 && 'Step 4: Safe Defense Action'}
+                  </strong>
+
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text)', margin: '0 0 0.6rem 0', lineHeight: 1.5 }}>
+                    {animStep === 0 && 'Scammers send crafted messages to induce panic so you act quickly without checking details.'}
+                    {animStep === 1 && 'Notice the sender is an unverified 10-digit phone number, not an official operator header like MTNMoMo.'}
+                    {animStep === 2 && 'Before responding, pause and verify your actual balance directly via USSD (*170# or *110#).'}
+                    {animStep === 3 && 'Send a firm, clear refusal confirming you verified your balance and report the phone number.'}
+                  </p>
+
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                    <span style={{ fontSize: '0.74rem', color: 'var(--muted)', display: 'block', lineHeight: 1.4 }}>
+                      • <strong>Why this works:</strong> Taking 30 seconds to verify breaks the scammer&rsquo;s high-pressure psychological trap.
+                    </span>
+                    <span style={{ fontSize: '0.74rem', color: 'var(--muted)', display: 'block', lineHeight: 1.4 }}>
+                      • <strong>Official Standard:</strong> Telecom agents never ask for money transfers or PINs over a phone call.
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* Controls */}
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsAnimPlaying(!isAnimPlaying)}
-                  style={{
-                    flex: 1,
-                    padding: '0.55rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
-                    background: 'var(--surface-alt)',
-                    color: 'var(--text)',
-                    fontWeight: 750,
-                    fontSize: '0.82rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {isAnimPlaying ? 'Pause Demo' : 'Play Demo'}
-                </button>
+              {/* Controls and Quick Scanner Link */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsAnimPlaying(!isAnimPlaying)}
+                    style={{
+                      flex: 1,
+                      padding: '0.55rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface-alt)',
+                      color: 'var(--text)',
+                      fontWeight: 750,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {isAnimPlaying ? 'Pause Demo' : 'Play Demo'}
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setAnimStep(0)}
+                  <button
+                    type="button"
+                    onClick={() => setAnimStep(0)}
+                    style={{
+                      padding: '0.55rem 1rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--primary)',
+                      background: 'var(--primary)',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Replay Demo
+                  </button>
+                </div>
+
+                <Link
+                  to="/scanner"
                   style={{
-                    padding: '0.55rem 1rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--primary)',
-                    background: 'var(--primary)',
-                    color: '#ffffff',
+                    display: 'block',
+                    textAlign: 'center',
+                    fontSize: '0.78rem',
                     fontWeight: 800,
-                    fontSize: '0.82rem',
-                    cursor: 'pointer'
+                    color: 'var(--primary)',
+                    textDecoration: 'none',
+                    padding: '0.45rem',
+                    borderRadius: '8px',
+                    background: 'rgba(230, 60, 28, 0.08)',
+                    border: '1px solid rgba(230, 60, 28, 0.2)'
                   }}
                 >
-                  Replay Demo
-                </button>
+                  Got a suspicious SMS? Scan with SafeLens AI &rarr;
+                </Link>
               </div>
             </div>
 
