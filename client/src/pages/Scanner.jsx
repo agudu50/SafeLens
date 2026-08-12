@@ -335,16 +335,17 @@ export default function Scanner() {
           )}
 
           {/* Action Button */}
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={handleScan}
-            disabled={!canSubmit || isScanning}
-            className="scanner-submit-btn"
-            style={{ width: '100%', justifyContent: 'center', padding: '0.85rem 1.2rem', fontWeight: 850, borderRadius: '16px', boxShadow: '0 6px 20px rgba(230, 60, 28, 0.25)' }}
-          >
-            {isScanning ? 'Analyzing Threat Signals…' : 'Analyze Content for Threats'}
-          </Button>
+          <div className="scanner-submit-wrapper">
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={handleScan}
+              disabled={!canSubmit || isScanning}
+              className="scanner-submit-btn"
+            >
+              {isScanning ? 'Analyzing Threat Signals…' : 'Analyze Content for Threats'}
+            </Button>
+          </div>
 
           {/* Trust Footnote */}
           <div className="scanner-trust-row">

@@ -6096,6 +6096,26 @@ html.dark .landing-page-bg {
   flex-wrap: wrap;
 }
 
+.scanner-submit-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.4rem;
+}
+
+.scanner-submit-btn {
+  width: auto !important;
+  min-width: 300px;
+  max-width: 420px;
+  padding: 0.8rem 2.2rem !important;
+  font-size: 0.96rem !important;
+  font-weight: 850 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 6px 20px rgba(230, 60, 28, 0.25) !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+}
+
 /* ── Mobile Responsive Enhancements ── */
 @media (max-width: 640px) {
   .scanner-workstation-card {
@@ -6162,6 +6182,15 @@ html.dark .landing-page-bg {
     padding: 0.7rem !important;
     border-radius: 10px !important;
     font-size: 0.84rem !important;
+  }
+
+  .scanner-submit-btn {
+    width: 100% !important;
+    min-width: auto !important;
+    max-width: 100% !important;
+    padding: 0.72rem 1.2rem !important;
+    font-size: 0.9rem !important;
+    border-radius: 14px !important;
   }
 
   .scanner-trust-row {
