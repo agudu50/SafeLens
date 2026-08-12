@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 
@@ -157,7 +157,7 @@ export default function SafetyTips({ user }) {
     }
   }, [animStep, selectedDemoIdx])
 
-  // Animation timeline control - Auto-cycles through all 6 scam demos
+  // Animation timeline control
   useEffect(() => {
     if (!isAnimPlaying) return
 
@@ -169,10 +169,7 @@ export default function SafetyTips({ user }) {
     } else if (animStep === 2) {
       timer = setTimeout(() => setAnimStep(3), 1600)
     } else if (animStep === 3) {
-      timer = setTimeout(() => {
-        setAnimStep(0)
-        setSelectedDemoIdx((prev) => (prev + 1) % ANIMATED_DEMOS.length)
-      }, 4500)
+      timer = setTimeout(() => setAnimStep(0), 4500)
     }
 
     return () => clearTimeout(timer)
@@ -211,7 +208,15 @@ export default function SafetyTips({ user }) {
           </p>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
-            <Button as={Link} to="/scanner" variant="primary" style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem' }}>
+            <Button
+              type="button"
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'instant' })
+                navigate('/scanner')
+              }}
+              variant="primary"
+              style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem' }}
+            >
               Scan a Suspicious Message
             </Button>
             <Button as="a" href="#demo" variant="secondary" style={{ padding: '0.65rem 1.3rem', fontSize: '0.9rem' }}>
@@ -430,7 +435,7 @@ export default function SafetyTips({ user }) {
 
               {/* Controls and Quick Scanner Link */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button
                     type="button"
                     onClick={() => setIsAnimPlaying(!isAnimPlaying)}
@@ -451,12 +456,9 @@ export default function SafetyTips({ user }) {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      setAnimStep(0)
-                      setSelectedDemoIdx((prev) => (prev + 1) % ANIMATED_DEMOS.length)
-                    }}
+                    onClick={() => setAnimStep(0)}
                     style={{
-                      padding: '0.55rem 0.9rem',
+                      padding: '0.55rem 1rem',
                       borderRadius: '8px',
                       border: '1px solid var(--primary)',
                       background: 'var(--primary)',
@@ -466,27 +468,34 @@ export default function SafetyTips({ user }) {
                       cursor: 'pointer'
                     }}
                   >
-                    Next Scam Demo &rarr;
+                    Replay Demo
                   </button>
                 </div>
 
-                <Link
-                  to="/scanner"
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'instant' })
+                    navigate('/scanner')
+                  }}
                   style={{
                     display: 'block',
+                    width: '100%',
                     textAlign: 'center',
-                    fontSize: '0.78rem',
-                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    fontWeight: 850,
                     color: 'var(--primary)',
                     textDecoration: 'none',
-                    padding: '0.45rem',
+                    padding: '0.55rem',
                     borderRadius: '8px',
                     background: 'rgba(230, 60, 28, 0.08)',
-                    border: '1px solid rgba(230, 60, 28, 0.2)'
+                    border: '1px solid rgba(230, 60, 28, 0.25)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   Got a suspicious SMS? Scan with SafeLens AI &rarr;
-                </Link>
+                </button>
               </div>
             </div>
 
