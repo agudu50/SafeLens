@@ -299,6 +299,17 @@ export default function Home({ user }) {
     return () => obs.disconnect()
   }, [])
 
+  // Auto-cycle through threat presets every 4.5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSelectedPreset((prev) => {
+        const currentIdx = presets.findIndex((p) => p.id === prev.id)
+        return presets[(currentIdx + 1) % presets.length]
+      })
+    }, 4500)
+    return () => clearInterval(timer)
+  }, [])
+
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setImpactInView(true) }, { threshold: 0.15 })
     if (impactRef.current) obs.observe(impactRef.current)
