@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
-import LandingPhoneShowcase from '../components/home/LandingPhoneShowcase'
 
 /* ── Data ── */
 
@@ -538,11 +537,6 @@ export default function Home({ user }) {
           </motion.div>
         </AnimatePresence>
       </motion.section>
-
-      {/* ═══ LANDING PHONE SHOWCASE ═══ */}
-      <div style={{ marginBottom: '3.5rem' }}>
-        <LandingPhoneShowcase />
-      </div>
 
       {/* ═══ HOW IT WORKS ═══ */}
       <motion.section className="home-section"
