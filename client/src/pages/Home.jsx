@@ -483,11 +483,7 @@ export default function Home({ user }) {
         </motion.div>
 
         {/* Integrated Smartphone Frame + Analysis Details Grid */}
-        <AnimatePresence mode="wait">
-          <motion.div key={selectedPreset.id}
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '1.8rem', alignItems: 'stretch' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '1.8rem', alignItems: 'stretch' }}>
 
             {/* Smartphone Display Simulator Box */}
             <div
@@ -607,8 +603,7 @@ export default function Home({ user }) {
                 </Button>
               </div>
             </div>
-          </motion.div>
-        </AnimatePresence>
+        </div>
       </motion.section>
 
       {/* ═══ HOW IT WORKS ═══ */}
