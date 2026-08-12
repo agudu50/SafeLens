@@ -1,8 +1,35 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
 import { authService } from '../services/authService'
+
+const slides = [
+  {
+    id: 1,
+    url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
+    title: 'AI Shield Active',
+    badgeColor: '#4ade80',
+  },
+  {
+    id: 2,
+    url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80',
+    title: 'Ghana Fraud Audit',
+    badgeColor: '#38bdf8',
+  },
+  {
+    id: 3,
+    url: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&auto=format&fit=crop&q=80',
+    title: 'MoMo Payment Guard',
+    badgeColor: '#fbbf24',
+  },
+  {
+    id: 4,
+    url: 'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?w=800&auto=format&fit=crop&q=80',
+    title: 'Instant Threat Scan',
+    badgeColor: '#f43f5e',
+  },
+]
 
 /* Password strength helper function — returns score, label and color */
 const getPasswordStrength = (pass) => {
@@ -23,6 +50,14 @@ export default function Register({ setUser, triggerAuthModal }) {
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % slides.length)
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [])
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -179,25 +214,92 @@ export default function Register({ setUser, triggerAuthModal }) {
         {/* Central hero content */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 2.4rem 1rem', position: 'relative', zIndex: 1 }}>
 
-          {/* 3D Shield image */}
+          {/* Interactive Hero Image Slideshow */}
           <div style={{
-            borderRadius: '20px', overflow: 'hidden', marginBottom: '1.8rem',
-            height: 'calc(100vh - 460px)', minHeight: '180px', maxHeight: '260px',
-            position: 'relative', background: 'rgba(0,0,0,0.2)',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            marginBottom: '1.8rem',
+            height: 'calc(100vh - 460px)',
+            minHeight: '180px',
+            maxHeight: '260px',
+            position: 'relative',
+            background: 'rgba(0,0,0,0.3)',
             border: '1px solid rgba(255,255,255,0.12)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
           }}>
-            <img src="/images/universal_ai_security_shield.png" alt="SafeLens AI Security" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            <div style={{ position: 'absolute', bottom: '12px', left: '12px' }}>
+            {slides.map((slide, index) => (
+              <img
+                key={slide.id}
+                src={slide.url}
+                alt={slide.title}
+                decoding="async"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                  opacity: currentSlide === index ? 1 : 0,
+                  transform: currentSlide === index ? 'scale(1)' : 'scale(1.05)',
+                  transition: 'opacity 0.8s ease-in-out, transform 0.8s ease-in-out',
+                  pointerEvents: 'none',
+                }}
+              />
+            ))}
+
+            {/* Gradient Overlay for Readability */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 45%, rgba(0,0,0,0.15) 100%)',
+              pointerEvents: 'none',
+            }} />
+
+            {/* Image overlay badge */}
+            <div style={{ position: 'absolute', bottom: '14px', left: '14px', zIndex: 2 }}>
               <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
                 fontSize: '0.7rem', fontWeight: 800, color: '#fff',
                 letterSpacing: '0.06em', textTransform: 'uppercase',
-                background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)',
-                padding: '0.3rem 0.75rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(10px)',
+                padding: '0.35rem 0.8rem', borderRadius: '6px',
+                border: '1px solid rgba(255,255,255,0.15)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
               }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#4ade80', display: 'inline-block', flexShrink: 0 }} />
-                AI Protection Ready
+                <span style={{
+                  width: '6px', height: '6px', borderRadius: '50%',
+                  background: slides[currentSlide].badgeColor,
+                  display: 'inline-block', flexShrink: 0,
+                  transition: 'background 0.4s ease',
+                }} />
+                {slides[currentSlide].title}
               </span>
+            </div>
+
+            {/* Carousel Navigation Dots */}
+            <div style={{
+              position: 'absolute', bottom: '16px', right: '14px', zIndex: 2,
+              display: 'flex', gap: '5px', alignItems: 'center',
+            }}>
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setCurrentSlide(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  style={{
+                    width: currentSlide === i ? '18px' : '7px',
+                    height: '7px',
+                    borderRadius: '999px',
+                    background: currentSlide === i ? '#ffffff' : 'rgba(255,255,255,0.4)',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                />
+              ))}
             </div>
           </div>
 
