@@ -29,6 +29,7 @@ export default function Footer({ user }) {
             ) : (
               <>
                 <Link to="/" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 700 }}>Home</Link>
+                <Link to="/how-it-works" style={{ color: 'var(--muted)', textDecoration: 'none' }}>How It Works</Link>
                 <Link to="/scan" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 800 }}>AI Scanner</Link>
                 <Link to="/safety-tips" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Safety Tips</Link>
                 <Link to="/about" style={{ color: 'var(--muted)', textDecoration: 'none' }}>About Us</Link>

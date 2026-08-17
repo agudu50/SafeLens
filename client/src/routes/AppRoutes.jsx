@@ -13,6 +13,7 @@ const Scanner = lazy(() => import('../pages/Scanner'))
 const Results = lazy(() => import('../pages/Results'))
 const History = lazy(() => import('../pages/History'))
 const About = lazy(() => import('../pages/About'))
+const HowItWorks = lazy(() => import('../pages/HowItWorks'))
 const Contact = lazy(() => import('../pages/Contact'))
 const SafetyTips = lazy(() => import('../pages/SafetyTips'))
 const Login = lazy(() => import('../pages/Login'))
@@ -117,6 +118,7 @@ export default function AppRoutes({ user, setUser, triggerAuthModal }) {
   useEffect(() => {
     // Silently pre-fetch secondary page bundles during idle time for instantaneous route transitions
     const preloadSecondaryRoutes = () => {
+      import('../pages/HowItWorks')
       import('../pages/About')
       import('../pages/Contact')
       import('../pages/Login')
@@ -137,6 +139,7 @@ export default function AppRoutes({ user, setUser, triggerAuthModal }) {
     <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={<Home user={user} />} />
+        <Route path="/how-it-works" element={<HowItWorks user={user} />} />
         <Route path="/about" element={<About user={user} />} />
         <Route path="/contact" element={<Contact user={user} />} />
         <Route path="/pricing" element={<Pricing user={user} setUser={setUser} />} />

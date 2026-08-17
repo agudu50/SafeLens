@@ -394,7 +394,7 @@ export default function Home({ user }) {
                 Get Started <ArrowRight />
               </Button>
             )}
-            <Button as={Link} to="/about" variant="secondary">How It Works</Button>
+            <Button as={Link} to="/how-it-works" variant="secondary">How It Works</Button>
           </motion.div>
 
           <motion.div className="home-hero-stats" variants={fadeUp} custom={5}>
