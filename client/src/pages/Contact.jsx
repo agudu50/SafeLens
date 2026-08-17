@@ -95,6 +95,15 @@ const CONTACT_FAQS = [
   },
 ]
 
+const tickerReports = [
+  { category: 'Phishing', type: 'Phishing Email Campaign', risk: 'High', time: '2m ago' },
+  { category: 'Crypto', type: 'Crypto Investment Scam', risk: 'High', time: '8m ago' },
+  { category: 'Payment', type: 'Mobile Money Fraud', risk: 'High', time: '14m ago' },
+  { category: 'Careers', type: 'Fake Job Listing', risk: 'Medium', time: '22m ago' },
+  { category: 'Support', type: 'Tech Support Impersonation', risk: 'High', time: '35m ago' },
+  { category: 'Security', type: 'Suspicious Payment Link', risk: 'High', time: '1h ago' },
+]
+
 export default function Contact({ user }) {
   const [category, setCategory] = useState('scam_report')
   const [formData, setFormData] = useState({
@@ -129,6 +138,23 @@ export default function Contact({ user }) {
 
   return (
     <PageContainer>
+
+      {/* ═══ LIVE TICKER ═══ */}
+      <div className="home-ticker">
+        <span className="home-ticker__badge"><span className="home-ticker__badge-dot" />LIVE</span>
+        <div className="home-ticker__wrap">
+          <div className="home-ticker__content">
+            {[...tickerReports, ...tickerReports].map((r, i) => (
+              <span className="home-ticker__item" key={i}>
+                <strong style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--muted)' }}>[{r.category}]</strong>
+                <span>{r.type}</span>
+                <span className={`home-ticker__risk home-ticker__risk--${r.risk === 'High' ? 'high' : 'medium'}`}>{r.risk}</span>
+                <span className="home-ticker__time">{r.time}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* ═══ HERO SECTION (SAME HOME PAGE PATTERN) ═══ */}
       <section className="home-hero">

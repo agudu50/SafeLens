@@ -38,9 +38,11 @@ const FLOATING_FRAMES = [
   { id: 'f4', top: '22%', left: '82%', size: 110, rotate: -8, delay: '-12s', hideMobile: true },
 ]
 
+const ALLOWED_ROUTES = ['/', '/about', '/contact', '/pricing', '/safety-tips']
+
 export default function BackgroundAnimation() {
   const { pathname } = useLocation()
-  if (pathname !== '/') return null
+  if (!ALLOWED_ROUTES.includes(pathname)) return null
 
   return (
     <div className="landing-page-bg" aria-hidden="true">
