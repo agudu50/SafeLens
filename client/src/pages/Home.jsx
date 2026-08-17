@@ -840,24 +840,27 @@ export default function Home({ user }) {
               </div>
             </div>
           ) : (
-            <form onSubmit={handleQuickSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.2rem' }}>
+            <form onSubmit={handleQuickSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.9rem' }}>
                 <div>
-                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text)', margin: 0 }}>
-                    ⚡ Quick Message or Scam Alert
-                  </h4>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
-                    Reach our SOC analysts or inquiry team directly from the landing page.
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.2rem' }}>
+                    <ShieldIcon size={15} color="var(--primary)" />
+                    <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text)', margin: 0 }}>
+                      Quick Message or Scam Alert
+                    </h4>
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0 }}>
+                    Reach our security response team directly from this page.
+                  </p>
                 </div>
-                <Link to="/contact" style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 750, textDecoration: 'none' }}>
+                <Link to="/contact" style={{ fontSize: '0.82rem', color: 'var(--primary)', fontWeight: 750, textDecoration: 'none' }}>
                   Open Detailed Portal &rarr;
                 </Link>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.9rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.3rem' }}>
                     Your Name
                   </label>
                   <input
@@ -867,7 +870,7 @@ export default function Home({ user }) {
                     onChange={(e) => setQuickContact({ ...quickContact, name: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.65rem 0.85rem',
                       borderRadius: '8px',
                       border: '1px solid var(--border)',
                       background: 'var(--surface-strong)',
@@ -879,7 +882,7 @@ export default function Home({ user }) {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.3rem' }}>
                     Your Email <span style={{ color: 'var(--danger)' }}>*</span>
                   </label>
                   <input
@@ -890,7 +893,7 @@ export default function Home({ user }) {
                     onChange={(e) => setQuickContact({ ...quickContact, email: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.65rem 0.85rem',
                       borderRadius: '8px',
                       border: '1px solid var(--border)',
                       background: 'var(--surface-strong)',
@@ -902,7 +905,7 @@ export default function Home({ user }) {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.3rem' }}>
                     Inquiry Type
                   </label>
                   <select
@@ -910,7 +913,7 @@ export default function Home({ user }) {
                     onChange={(e) => setQuickContact({ ...quickContact, category: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '0.6rem 0.8rem',
+                      padding: '0.65rem 0.85rem',
                       borderRadius: '8px',
                       border: '1px solid var(--border)',
                       background: 'var(--surface-strong)',
@@ -920,15 +923,15 @@ export default function Home({ user }) {
                       cursor: 'pointer',
                     }}
                   >
-                    <option value="scam">🚨 Report Scam / Suspicious SMS</option>
-                    <option value="enterprise">💼 Enterprise API &amp; Partnership</option>
-                    <option value="general">💬 General Question &amp; Support</option>
+                    <option value="scam">Report Scam / Suspicious SMS</option>
+                    <option value="enterprise">Enterprise API &amp; Partnership</option>
+                    <option value="general">General Question &amp; Support</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.3rem' }}>
                   Message / Scam Details <span style={{ color: 'var(--danger)' }}>*</span>
                 </label>
                 <textarea
@@ -939,7 +942,7 @@ export default function Home({ user }) {
                   onChange={(e) => setQuickContact({ ...quickContact, message: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '0.65rem 0.8rem',
+                    padding: '0.7rem 0.85rem',
                     borderRadius: '8px',
                     border: '1px solid var(--border)',
                     background: 'var(--surface-strong)',
@@ -952,17 +955,18 @@ export default function Home({ user }) {
                 />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
-                <span style={{ fontSize: '0.76rem', color: 'var(--muted)' }}>
-                  🔒 Fast encrypted dispatch &bull; Average response &lt; 15 mins
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem', paddingTop: '0.2rem' }}>
+                <span style={{ fontSize: '0.78rem', color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <ShieldIcon size={13} color="var(--primary)" />
+                  Fast encrypted transmission &bull; Average response &lt; 15 mins
                 </span>
                 <Button
                   type="submit"
                   variant="primary"
                   disabled={isSendingQuick}
-                  style={{ padding: '0.6rem 1.4rem', fontWeight: 800, fontSize: '0.86rem' }}
+                  style={{ padding: '0.65rem 1.6rem', fontWeight: 800, fontSize: '0.88rem' }}
                 >
-                  {isSendingQuick ? 'Sending Dispatch...' : 'Send Message &rarr;'}
+                  {isSendingQuick ? 'Sending Dispatch...' : 'Send Message →'}
                 </Button>
               </div>
             </form>
