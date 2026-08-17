@@ -733,14 +733,14 @@ export default function Home({ user }) {
           <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-                <span style={{ fontSize: '0.74rem', background: 'var(--surface-strong)', color: 'var(--danger)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
+                <span style={{ fontSize: '0.74rem', background: 'var(--surface-strong)', color: 'var(--primary)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
                   Official Toll-Free
                 </span>
               </div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: '0 0 0.3rem 0' }}>
                 Ghana Cyber Security Hotline
               </h3>
-              <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--danger)', marginBottom: '0.4rem' }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.4rem' }}>
                 Dial 292
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
@@ -749,7 +749,7 @@ export default function Home({ user }) {
             </div>
             <div style={{ marginTop: '1.2rem' }}>
               <a href="tel:292" style={{ textDecoration: 'none' }}>
-                <Button variant="danger" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem' }}>
+                <Button variant="primary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem' }}>
                   Call 292 Now &rarr;
                 </Button>
               </a>
@@ -759,14 +759,14 @@ export default function Home({ user }) {
           <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-                <span style={{ fontSize: '0.74rem', background: 'var(--surface-strong)', color: 'var(--success)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
+                <span style={{ fontSize: '0.74rem', background: 'var(--surface-strong)', color: 'var(--primary)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
                   Evidence Drop
                 </span>
               </div>
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: '0 0 0.3rem 0' }}>
                 WhatsApp Incident Drop
               </h3>
-              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--text)', marginBottom: '0.4rem' }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.4rem' }}>
                 +233 54 492 6924
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
@@ -775,7 +775,7 @@ export default function Home({ user }) {
             </div>
             <div style={{ marginTop: '1.2rem' }}>
               <a href="https://wa.me/233544926924?text=Hi%20SafeLens%20and%20CSA,%20I%20have%20a%20scam%20to%20report" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                <Button variant="secondary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem' }}>
+                <Button variant="primary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem' }}>
                   Message on WhatsApp &rarr;
                 </Button>
               </a>
@@ -792,7 +792,7 @@ export default function Home({ user }) {
               <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: '0 0 0.3rem 0' }}>
                 SafeLens Incident Desk
               </h3>
-              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.4rem' }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.4rem' }}>
                 security@safelens.org
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>

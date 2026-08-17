@@ -251,7 +251,7 @@ export default function Contact({ user }) {
 
               <div style={{ marginTop: '1.2rem' }}>
                 <a href={item.actionHref} target={item.actionHref.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                  <Button variant="secondary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem' }}>
+                  <Button variant="primary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem' }}>
                     {item.actionLabel} &rarr;
                   </Button>
                 </a>
