@@ -363,35 +363,57 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                           </div>
                         </Link>
 
-                        {/* Theme Toggle Button */}
-                        <button
-                          type="button"
-                          className="mobile-drawer-theme-btn"
-                          aria-label="Toggle Theme"
-                          onClick={toggleTheme}
-                          style={{
-                            width: '38px',
-                            height: '38px',
-                            borderRadius: '11px',
-                            background: 'var(--surface)',
-                            border: '1px solid var(--border)',
-                            display: 'grid',
-                            placeItems: 'center',
-                            cursor: 'pointer',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {theme === 'dark' ? (
-                            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem', color: 'var(--warning)' }}>
-                              <circle cx="12" cy="12" r="5" />
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
+                        {/* Action Buttons: Theme Toggle & Close */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+                          <button
+                            type="button"
+                            className="mobile-drawer-theme-btn"
+                            aria-label="Toggle Theme"
+                            onClick={toggleTheme}
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '11px',
+                              background: 'var(--surface)',
+                              border: '1px solid var(--border)',
+                              display: 'grid',
+                              placeItems: 'center',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {theme === 'dark' ? (
+                              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem', color: 'var(--warning)' }}>
+                                <circle cx="12" cy="12" r="5" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
+                              </svg>
+                            ) : (
+                              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem', color: 'var(--primary)' }}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                              </svg>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            aria-label="Close drawer"
+                            onClick={() => setOpen(false)}
+                            style={{
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '11px',
+                              background: 'var(--surface)',
+                              border: '1px solid var(--border)',
+                              display: 'grid',
+                              placeItems: 'center',
+                              cursor: 'pointer',
+                              color: 'var(--text)',
+                            }}
+                          >
+                            <svg fill="none" stroke="currentColor" strokeWidth="2.4" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                          ) : (
-                            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem', color: 'var(--primary)' }}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                            </svg>
-                          )}
-                        </button>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -478,38 +500,61 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                 ) : (
                   /* ── LOGGED-OUT (GUEST) MOBILE DRAWER ── */
                   <>
-                    {/* Drawer Header with Title and Light/Dark Mode Button */}
+                    {/* Drawer Header with Title and Light/Dark Mode Button & Close Button */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                      <span style={{ fontSize: '0.92rem', fontWeight: 900, color: 'var(--text)' }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: 900, color: 'var(--text)' }}>
                         Menu
                       </span>
-                      <button
-                        type="button"
-                        className="mobile-drawer-theme-btn"
-                        aria-label="Toggle Theme"
-                        onClick={toggleTheme}
-                        style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '10px',
-                          background: 'var(--surface-alt)',
-                          border: '1px solid var(--border)',
-                          display: 'grid',
-                          placeItems: 'center',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {theme === 'dark' ? (
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--warning)' }}>
-                            <circle cx="12" cy="12" r="5" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <button
+                          type="button"
+                          className="mobile-drawer-theme-btn"
+                          aria-label="Toggle Theme"
+                          onClick={toggleTheme}
+                          style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
+                            background: 'var(--surface-alt)',
+                            border: '1px solid var(--border)',
+                            display: 'grid',
+                            placeItems: 'center',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {theme === 'dark' ? (
+                            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--warning)' }}>
+                              <circle cx="12" cy="12" r="5" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
+                            </svg>
+                          ) : (
+                            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--primary)' }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                            </svg>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          aria-label="Close drawer"
+                          onClick={() => setOpen(false)}
+                          style={{
+                            width: '36px',
+                            height: '36px',
+                            borderRadius: '10px',
+                            background: 'var(--surface-alt)',
+                            border: '1px solid var(--border)',
+                            display: 'grid',
+                            placeItems: 'center',
+                            cursor: 'pointer',
+                            color: 'var(--text)',
+                          }}
+                        >
+                          <svg fill="none" stroke="currentColor" strokeWidth="2.4" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                           </svg>
-                        ) : (
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--primary)' }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                          </svg>
-                        )}
-                      </button>
+                        </button>
+                      </div>
                     </div>
 
                     {/* Navigation Grid for Guests */}
