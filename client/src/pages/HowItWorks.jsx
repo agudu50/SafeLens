@@ -270,9 +270,11 @@ export default function HowItWorks({ user }) {
                 <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 1rem 0' }}>
                   Scammers send a fake SMS claiming they sent funds by mistake, then prompt you to enter your 4-digit PIN or approve a USSD prompt on *170# to &ldquo;reverse&rdquo; it. SafeLens detects these keywords and flags them before approval.
                 </p>
-                <div style={{ background: 'var(--surface-strong)', padding: '0.8rem 1rem', borderRadius: '8px', borderLeft: '3px solid var(--danger)' }}>
-                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--danger)', textTransform: 'uppercase' }}>Defense Guidance:</div>
-                  <div style={{ fontSize: '0.84rem', color: 'var(--text)', fontWeight: 700, marginTop: '0.2rem' }}>
+                <div style={{ background: 'var(--surface-strong)', padding: '0.9rem 1.1rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.25rem' }}>
+                    Defense Guidance
+                  </div>
+                  <div style={{ fontSize: '0.86rem', color: 'var(--text)', lineHeight: 1.55 }}>
                     Never send funds back manually or dial USSD codes. Official reversals are handled only by telecom network operators.
                   </div>
                 </div>
@@ -292,9 +294,11 @@ export default function HowItWorks({ user }) {
                 <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 1rem 0' }}>
                   Urgent emails or SMS claiming your banking, social, or wallet account will be deactivated unless you verify within 24 hours. Links redirect to cloned look-alike login forms.
                 </p>
-                <div style={{ background: 'var(--surface-strong)', padding: '0.8rem 1rem', borderRadius: '8px', borderLeft: '3px solid var(--primary)' }}>
-                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase' }}>Defense Guidance:</div>
-                  <div style={{ fontSize: '0.84rem', color: 'var(--text)', fontWeight: 700, marginTop: '0.2rem' }}>
+                <div style={{ background: 'var(--surface-strong)', padding: '0.9rem 1.1rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.25rem' }}>
+                    Defense Guidance
+                  </div>
+                  <div style={{ fontSize: '0.86rem', color: 'var(--text)', lineHeight: 1.55 }}>
                     Never click links in urgent messages. Go directly to official banking apps or websites.
                   </div>
                 </div>
@@ -314,9 +318,11 @@ export default function HowItWorks({ user }) {
                 <p style={{ fontSize: '0.9rem', color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 1rem 0' }}>
                   Fraudsters posing as police officials, telecom support agents, or corporate recruiters demanding processing fees, upfront registration deposits, or security codes.
                 </p>
-                <div style={{ background: 'var(--surface-strong)', padding: '0.8rem 1rem', borderRadius: '8px', borderLeft: '3px solid var(--warning)' }}>
-                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--warning)', textTransform: 'uppercase' }}>Defense Guidance:</div>
-                  <div style={{ fontSize: '0.84rem', color: 'var(--text)', fontWeight: 700, marginTop: '0.2rem' }}>
+                <div style={{ background: 'var(--surface-strong)', padding: '0.9rem 1.1rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.03em', marginBottom: '0.25rem' }}>
+                    Defense Guidance
+                  </div>
+                  <div style={{ fontSize: '0.86rem', color: 'var(--text)', lineHeight: 1.55 }}>
                     Legitimate employers and network providers never demand upfront payment via personal MoMo numbers.
                   </div>
                 </div>
