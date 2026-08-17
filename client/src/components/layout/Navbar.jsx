@@ -358,7 +358,7 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                               </span>
                             </div>
                             <span style={{ fontSize: '0.75rem', color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {user.email || 'Ghana MoMo Shield Active'}
+                              {user.email || ''}
                             </span>
                           </div>
                         </Link>
@@ -392,28 +392,6 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                             </svg>
                           )}
                         </button>
-                      </div>
-
-                      {/* Status Strip */}
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          background: 'var(--surface)',
-                          border: '1px solid var(--border)',
-                          borderRadius: '8px',
-                          padding: '0.35rem 0.65rem',
-                          fontSize: '0.73rem',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--success)', fontWeight: 750 }}>
-                          <span className="live-pulse-dot" style={{ width: '6px', height: '6px', background: 'var(--success)' }} />
-                          <span>Live Shield Active</span>
-                        </div>
-                        <span style={{ color: 'var(--muted)', fontWeight: 650, fontSize: '0.7rem' }}>
-                          CSA 292 Connected
-                        </span>
                       </div>
                     </div>
 
