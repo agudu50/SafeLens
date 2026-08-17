@@ -290,51 +290,134 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                 {user ? (
                   /* ── LOGGED-IN MOBILE DRAWER ── */
                   <>
-                    {/* User Profile Header Badge */}
-                    <div className="mobile-drawer-profile">
-                      <span className="mobile-drawer-avatar">
-                        {getUserInitials(user)}
-                      </span>
-                      <div style={{ overflow: 'hidden', flex: 1 }}>
-                        <strong className="mobile-drawer-username">
-                          {user.name}
-                        </strong>
-                        <span className="mobile-drawer-status">
-                          <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
-                          Protection Active
-                        </span>
+                    {/* User Profile Header Banner */}
+                    <div
+                      style={{
+                        background: 'var(--surface-alt)',
+                        borderRadius: '16px',
+                        border: '1px solid var(--border)',
+                        padding: '0.85rem 0.95rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.75rem',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                        {/* Avatar & User Details */}
+                        <Link
+                          to="/profile"
+                          onClick={() => setOpen(false)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                            textDecoration: 'none',
+                            overflow: 'hidden',
+                            flex: 1,
+                          }}
+                        >
+                          <div style={{ position: 'relative', flexShrink: 0 }}>
+                            <span
+                              style={{
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '50%',
+                                background: 'var(--primary)',
+                                color: '#ffffff',
+                                display: 'grid',
+                                placeItems: 'center',
+                                fontSize: '0.96rem',
+                                fontWeight: 900,
+                                boxShadow: '0 3px 12px rgba(230, 60, 28, 0.3)',
+                                border: '2px solid var(--surface)',
+                              }}
+                            >
+                              {getUserInitials(user)}
+                            </span>
+                            <span
+                              style={{
+                                position: 'absolute',
+                                bottom: '0',
+                                right: '0',
+                                width: '12px',
+                                height: '12px',
+                                borderRadius: '50%',
+                                background: 'var(--success)',
+                                border: '2px solid var(--surface)',
+                              }}
+                            />
+                          </div>
+
+                          <div style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                              <strong style={{ fontSize: '0.94rem', fontWeight: 850, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {user.name}
+                              </strong>
+                              <span style={{ fontSize: '0.62rem', fontWeight: 800, background: 'rgba(230, 60, 28, 0.12)', color: 'var(--primary)', padding: '0.1rem 0.4rem', borderRadius: '4px', textTransform: 'uppercase' }}>
+                                PRO
+                              </span>
+                            </div>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {user.email || 'Ghana MoMo Shield Active'}
+                            </span>
+                          </div>
+                        </Link>
+
+                        {/* Theme Toggle Button */}
+                        <button
+                          type="button"
+                          className="mobile-drawer-theme-btn"
+                          aria-label="Toggle Theme"
+                          onClick={toggleTheme}
+                          style={{
+                            width: '38px',
+                            height: '38px',
+                            borderRadius: '11px',
+                            background: 'var(--surface)',
+                            border: '1px solid var(--border)',
+                            display: 'grid',
+                            placeItems: 'center',
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                          }}
+                        >
+                          {theme === 'dark' ? (
+                            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem', color: 'var(--warning)' }}>
+                              <circle cx="12" cy="12" r="5" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
+                            </svg>
+                          ) : (
+                            <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.05rem', height: '1.05rem', color: 'var(--primary)' }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                            </svg>
+                          )}
+                        </button>
                       </div>
-                      {/* Theme Toggle in Header */}
-                      <button
-                        type="button"
-                        className="mobile-drawer-theme-btn"
-                        aria-label="Toggle Theme"
-                        onClick={toggleTheme}
+
+                      {/* Status Strip */}
+                      <div
                         style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '10px',
-                          background: 'var(--surface-alt)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          background: 'var(--surface)',
                           border: '1px solid var(--border)',
-                          display: 'grid',
-                          placeItems: 'center',
-                          cursor: 'pointer',
+                          borderRadius: '8px',
+                          padding: '0.35rem 0.65rem',
+                          fontSize: '0.73rem',
                         }}
                       >
-                        {theme === 'dark' ? (
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--warning)' }}>
-                            <circle cx="12" cy="12" r="5" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
-                          </svg>
-                        ) : (
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', color: 'var(--primary)' }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                          </svg>
-                        )}
-                      </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--success)', fontWeight: 750 }}>
+                          <span className="live-pulse-dot" style={{ width: '6px', height: '6px', background: 'var(--success)' }} />
+                          <span>Live Shield Active</span>
+                        </div>
+                        <span style={{ color: 'var(--muted)', fontWeight: 650, fontSize: '0.7rem' }}>
+                          CSA 292 Connected
+                        </span>
+                      </div>
                     </div>
 
-                    {/* ── Primary Navigation Grid (Icons on top, labels below) ── */}
+                    {/* ── Primary Navigation Grid ── */}
                     <div className="mobile-drawer-section-label">Navigation</div>
                     <div className="mobile-nav-grid">
                       {[
@@ -342,7 +425,7 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                         { to: '/scan', label: 'AI Scanner', isBadge: true, icon: 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z' },
                         { to: '/history', label: 'History', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
                         { to: '/safety-tips', label: 'Safety Tips', icon: 'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z' },
-                      ].map((item, idx) => (
+                      ].map((item) => (
                         <NavLink
                           key={item.to}
                           to={item.to}
@@ -368,14 +451,16 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                       ))}
                     </div>
 
-                    {/* ── Account Section (List style) ── */}
-                    <div className="mobile-drawer-section-label">Account</div>
+                    {/* ── Account & Resources Section ── */}
+                    <div className="mobile-drawer-section-label">Account &amp; Support</div>
                     <div className="mobile-drawer-list">
                       {[
-                        { to: '/profile', label: 'My Profile', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' },
-                        { to: '/billing', label: 'Billing & Plan', icon: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z' },
-                        { to: '/settings', label: 'Settings', icon: 'M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12h11.25' },
-                      ].map((item, idx) => (
+                        { to: '/profile', label: 'My Profile', color: 'var(--primary)', icon: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' },
+                        { to: '/billing', label: 'Billing & Plan', color: 'var(--primary)', icon: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z' },
+                        { to: '/settings', label: 'Settings', color: 'var(--success)', icon: 'M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12h11.25' },
+                        { to: '/how-it-works', label: 'How It Works', color: 'var(--primary)', icon: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z' },
+                        { to: '/contact', label: 'Contact Security Desk', color: 'var(--primary)', icon: 'M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75' },
+                      ].map((item) => (
                         <NavLink
                           key={item.to}
                           to={item.to}
@@ -399,35 +484,12 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                       ))}
                     </div>
 
-                    {/* Helplines Call Bar */}
-                    <div className="mobile-drawer-helpline-card">
-                      <div className="mobile-drawer-helpline-header">
-                        <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                        </svg>
-                        <span>Emergency Helplines</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <a href="tel:292" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--primary">
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                          </svg>
-                          CSA 292
-                        </a>
-                        <a href="tel:1917" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--warning">
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                          </svg>
-                          MTN 1917
-                        </a>
-                      </div>
-                    </div>
-
                     {/* Sign Out Button */}
                     <button
                       type="button"
                       onClick={handleSignOut}
                       className="mobile-drawer-signout"
+                      style={{ marginTop: '0.4rem' }}
                     >
                       <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25" />
@@ -498,30 +560,6 @@ export default function Navbar({ user, setUser, theme, setTheme, triggerAuthModa
                           )}
                         </NavLink>
                       ))}
-                    </div>
-
-                    {/* Emergency Helplines Phone Card */}
-                    <div className="mobile-drawer-helpline-card" style={{ marginTop: '0.75rem' }}>
-                      <div className="mobile-drawer-helpline-header">
-                        <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                        </svg>
-                        <span>Emergency Helplines</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <a href="tel:292" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--primary">
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                          </svg>
-                          CSA 292
-                        </a>
-                        <a href="tel:1917" className="mobile-drawer-helpline-btn mobile-drawer-helpline-btn--warning">
-                          <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.826-1.47-5.114-3.758-6.584-6.584l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                          </svg>
-                          MTN 1917
-                        </a>
-                      </div>
                     </div>
 
                     {/* Auth Actions: Sign In & Register (Side-by-side for instant visibility) */}
