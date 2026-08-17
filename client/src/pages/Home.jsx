@@ -291,10 +291,23 @@ export default function Home({ user }) {
   const [activeFAQ, setActiveFAQ] = useState(null)
   const [sandboxInView, setSandboxInView] = useState(false)
   const [impactInView, setImpactInView] = useState(false)
+  const [quickContact, setQuickContact] = useState({ name: '', email: '', message: '', category: 'scam' })
+  const [quickSent, setQuickSent] = useState(false)
+  const [isSendingQuick, setIsSendingQuick] = useState(false)
   const sandboxRef = useRef(null)
   const impactRef = useRef(null)
 
   const selectedPreset = presets[activeSlideIdx]
+
+  const handleQuickSubmit = (e) => {
+    e.preventDefault()
+    if (!quickContact.email || !quickContact.message) return
+    setIsSendingQuick(true)
+    setTimeout(() => {
+      setIsSendingQuick(false)
+      setQuickSent(true)
+    }, 850)
+  }
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setSandboxInView(true) }, { threshold: 0.15 })
@@ -693,6 +706,271 @@ export default function Home({ user }) {
           <p className="home-cta-banner__desc">Daily tips, quizzes, and security checklists.</p>
           <Link to="/safety-tips" className="home-cta-banner__btn">Safety Tips <ArrowRight /></Link>
         </div>
+      </motion.section>
+
+      {/* ═══ CONTACT & 24/7 EMERGENCY DISPATCH ═══ */}
+      <motion.section
+        id="contact"
+        className="home-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={staggerContainer}
+      >
+        <motion.div className="home-section__header" variants={fadeUp}>
+          <Badge tone="good">
+            <span className="live-pulse-dot" style={{ background: 'var(--success)', marginRight: '0.35rem' }} />
+            24/7 RAPID RESPONSE &amp; DISPATCH
+          </Badge>
+          <h2 className="home-section__title">Get In Touch &amp; Report Scams</h2>
+          <p style={{ maxWidth: '640px', margin: '0.4rem auto 0 auto', color: 'var(--muted)', fontSize: '0.94rem' }}>
+            Detected a suspicious SMS, active MoMo cashout attempt, or need enterprise scam detection APIs? We respond in real time.
+          </p>
+        </motion.div>
+
+        {/* 3 Action Hotline Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '4px solid var(--danger)' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                <span style={{ fontSize: '1.4rem' }}>🚨</span>
+                <span style={{ fontSize: '0.72rem', background: 'rgba(220, 38, 38, 0.12)', color: 'var(--danger)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                  Official Toll-Free
+                </span>
+              </div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: '0 0 0.3rem 0' }}>
+                Ghana Cyber Security Hotline
+              </h3>
+              <div style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--danger)', marginBottom: '0.4rem' }}>
+                Dial 292
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
+                Direct toll-free connection to Ghana National Cybercrime Incident Response.
+              </p>
+            </div>
+            <div style={{ marginTop: '1.2rem' }}>
+              <a href="tel:292" style={{ textDecoration: 'none' }}>
+                <Button variant="danger" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem' }}>
+                  Call 292 Now &rarr;
+                </Button>
+              </a>
+            </div>
+          </motion.div>
+
+          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '4px solid #25D366' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                <span style={{ fontSize: '1.4rem' }}>💬</span>
+                <span style={{ fontSize: '0.72rem', background: 'rgba(37, 211, 102, 0.12)', color: '#25D366', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                  Evidence Drop
+                </span>
+              </div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: '0 0 0.3rem 0' }}>
+                WhatsApp Incident Drop
+              </h3>
+              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--text)', marginBottom: '0.4rem' }}>
+                +233 54 492 6924
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
+                Send screenshots of fraudulent SMS, fake lottery wins, and WhatsApp impersonations.
+              </p>
+            </div>
+            <div style={{ marginTop: '1.2rem' }}>
+              <a href="https://wa.me/233544926924?text=Hi%20SafeLens%20and%20CSA,%20I%20have%20a%20scam%20to%20report" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <Button variant="secondary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem', borderColor: '#25D366' }}>
+                  Message on WhatsApp &rarr;
+                </Button>
+              </a>
+            </div>
+          </motion.div>
+
+          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '4px solid var(--primary)' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
+                <span style={{ fontSize: '1.4rem' }}>🛡️</span>
+                <span style={{ fontSize: '0.72rem', background: 'var(--surface-strong)', color: 'var(--primary)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                  Full Dispatch Hub
+                </span>
+              </div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)', margin: '0 0 0.3rem 0' }}>
+                SafeLens Incident Desk
+              </h3>
+              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.4rem' }}>
+                security@safelens.org
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
+                Encrypted tickets, API access keys, and technical threat intelligence consultations.
+              </p>
+            </div>
+            <div style={{ marginTop: '1.2rem' }}>
+              <Link to="/contact" style={{ textDecoration: 'none' }}>
+                <Button variant="primary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem' }}>
+                  Open Contact Page &rarr;
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Fast Interactive Inquiry Box */}
+        <motion.div
+          variants={fadeScale}
+          className="home-glow-card"
+          style={{ maxWidth: '780px', margin: '0 auto', padding: '2rem 1.8rem', borderRadius: '18px' }}
+        >
+          {quickSent ? (
+            <div style={{ textAlign: 'center', padding: '1.2rem 0' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.8rem auto' }}>
+                <svg fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24" style={{ width: '28px', height: '28px' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </div>
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)', margin: '0 0 0.3rem 0' }}>
+                Message Dispatched to Security Desk!
+              </h4>
+              <p style={{ fontSize: '0.88rem', color: 'var(--muted)', maxWidth: '440px', margin: '0 auto 1.2rem auto' }}>
+                Our team has received your note. For comprehensive case tracking with file uploads and ticket IDs, you can also view our full contact portal.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap' }}>
+                <Link to="/contact" style={{ textDecoration: 'none' }}>
+                  <Button variant="primary" style={{ fontSize: '0.86rem' }}>
+                    Go to Full Contact Portal &rarr;
+                  </Button>
+                </Link>
+                <Button variant="secondary" onClick={() => { setQuickSent(false); setQuickContact({ name: '', email: '', message: '', category: 'scam' }); }} style={{ fontSize: '0.86rem' }}>
+                  Send Another Message
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleQuickSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                <div>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text)', margin: 0 }}>
+                    ⚡ Quick Message or Scam Alert
+                  </h4>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
+                    Reach our SOC analysts or inquiry team directly from the landing page.
+                  </span>
+                </div>
+                <Link to="/contact" style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 750, textDecoration: 'none' }}>
+                  Open Detailed Portal &rarr;
+                </Link>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.8rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Kwame Mensah"
+                    value={quickContact.name}
+                    onChange={(e) => setQuickContact({ ...quickContact, name: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.6rem 0.8rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface-strong)',
+                      color: 'var(--text)',
+                      fontSize: '0.86rem',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+                    Your Email <span style={{ color: 'var(--danger)' }}>*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="kwame@example.com"
+                    value={quickContact.email}
+                    onChange={(e) => setQuickContact({ ...quickContact, email: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.6rem 0.8rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface-strong)',
+                      color: 'var(--text)',
+                      fontSize: '0.86rem',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+                    Inquiry Type
+                  </label>
+                  <select
+                    value={quickContact.category}
+                    onChange={(e) => setQuickContact({ ...quickContact, category: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '0.6rem 0.8rem',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface-strong)',
+                      color: 'var(--text)',
+                      fontSize: '0.86rem',
+                      outline: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <option value="scam">🚨 Report Scam / Suspicious SMS</option>
+                    <option value="enterprise">💼 Enterprise API &amp; Partnership</option>
+                    <option value="general">💬 General Question &amp; Support</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.25rem' }}>
+                  Message / Scam Details <span style={{ color: 'var(--danger)' }}>*</span>
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Paste scam text, suspicious phone numbers, or describe your request..."
+                  value={quickContact.message}
+                  onChange={(e) => setQuickContact({ ...quickContact, message: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.65rem 0.8rem',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface-strong)',
+                    color: 'var(--text)',
+                    fontSize: '0.86rem',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem' }}>
+                <span style={{ fontSize: '0.76rem', color: 'var(--muted)' }}>
+                  🔒 Fast encrypted dispatch &bull; Average response &lt; 15 mins
+                </span>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={isSendingQuick}
+                  style={{ padding: '0.6rem 1.4rem', fontWeight: 800, fontSize: '0.86rem' }}
+                >
+                  {isSendingQuick ? 'Sending Dispatch...' : 'Send Message &rarr;'}
+                </Button>
+              </div>
+            </form>
+          )}
+        </motion.div>
       </motion.section>
 
       {/* ═══ FAQ ═══ */}

@@ -1,281 +1,316 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import PageContainer from '../components/layout/PageContainer'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
+
+/* ── Lightweight Motion Variants ── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.45, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }
+  })
+}
+
+const fadeScale = {
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: (i = 0) => ({
+    opacity: 1, scale: 1,
+    transition: { duration: 0.4, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }
+  })
+}
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } }
+}
+
+/* ── Icons ── */
+const ShieldIcon = ({ size = 16, color = 'currentColor' }) => (
+  <svg fill="none" stroke={color} strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: size, height: size }}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+  </svg>
+)
+
+const BoltIcon = ({ size = 16, color = 'currentColor' }) => (
+  <svg fill="none" stroke={color} strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: size, height: size }}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+  </svg>
+)
+
+const ArrowRight = ({ size = 15 }) => (
+  <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: size, height: size }}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+  </svg>
+)
 
 export default function About({ user }) {
   const [activeTab, setActiveTab] = useState('mission')
 
   return (
     <PageContainer>
-      <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2.2rem' }}>
-        
-        {/* Hero Section */}
-        <section className="hero-card" style={{ padding: '2.8rem 2rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-          {/* Subtle background glow */}
-          <div style={{ position: 'absolute', top: '-40%', left: '50%', transform: 'translateX(-50%)', width: '500px', height: '300px', background: 'radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(0,0,0,0) 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
 
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
-            <Badge tone="good">
-              <span className="live-pulse-dot" style={{ background: 'var(--primary)', marginRight: '0.35rem' }} />
+      {/* ═══ HERO SECTION (SAME HOME PAGE PATTERN) ═══ */}
+      <section className="home-hero">
+        <motion.div className="home-hero__content"
+          initial="hidden" animate="visible" variants={staggerContainer}>
+
+          <motion.div variants={fadeUp} custom={0}>
+            <span className="home-hero__badge">
+              <span className="home-hero__badge-dot" />
+              <ShieldIcon size={14} color="var(--primary)" />
               ABOUT SAFELENS PLATFORM
-            </Badge>
-          </div>
+            </span>
+          </motion.div>
 
-          <h1 style={{ fontSize: '2.3rem', fontWeight: 900, margin: '0.4rem 0 0.8rem 0', color: 'var(--text)', lineHeight: 1.25 }}>
-            Protecting Digital Communications &amp; Mobile Money in Ghana
-          </h1>
+          <motion.h1 className="home-hero__title" variants={fadeUp} custom={1}>
+            Defending Ghana&apos;s <span className="text-highlight">Digital Wallets</span>
+          </motion.h1>
 
-          <p className="hero-text" style={{ maxWidth: '720px', margin: '0 auto 1.6rem auto', fontSize: '1rem', lineHeight: 1.65, color: 'var(--muted)' }}>
-            SafeLens is an advanced AI-powered threat detection system engineered to safeguard individuals and businesses against Mobile Money (MoMo) cashout fraud, phishing links, and deceptive communications.
-          </p>
+          <motion.p className="home-hero__desc" variants={fadeUp} custom={2}>
+            Purpose-built AI threat detection engineered to eliminate Mobile Money fraud, unverified cashout traps, and phishing scams.
+          </motion.p>
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', width: '100%', boxSizing: 'border-box' }}>
-            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.65rem 1.25rem', fontSize: '0.9rem', maxWidth: '100%' }}>
-              {user ? "Go to Dashboard" : "Sign In to Get Started"}
+          <motion.div className="home-hero__trust-row" variants={fadeUp} custom={3}>
+            <span className="home-trust-pill">
+              <ShieldIcon size={14} color="var(--success)" />
+              Ghana CSA 292 Integrated
+            </span>
+            <span className="home-trust-pill">
+              <BoltIcon size={14} color="var(--primary)" />
+              Sub-Second AI Detection
+            </span>
+          </motion.div>
+
+          <motion.div className="home-hero__actions" variants={fadeUp} custom={4}>
+            {user ? (
+              <Button as={Link} to="/dashboard" variant="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                Dashboard <ArrowRight />
+              </Button>
+            ) : (
+              <Button as={Link} to="/login" variant="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.7rem 1.6rem', fontSize: '0.95rem' }}>
+                Get Started <ArrowRight />
+              </Button>
+            )}
+            <Button as={Link} to="/safety-tips" variant="secondary">
+              Safety Tips
             </Button>
-            <Button as={Link} to="/safety-tips" variant="secondary" style={{ gap: '0.5rem', padding: '0.65rem 1.25rem', fontSize: '0.9rem', maxWidth: '100%' }}>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', flexShrink: 0 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-              </svg>
-              <span>Explore Safety Tips &rarr;</span>
-            </Button>
-          </div>
-        </section>
+          </motion.div>
 
-        {/* Live Platform Impact Stats Bar */}
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <motion.div className="home-hero-stats" variants={fadeUp} custom={5}>
+            <div className="home-hero-stat">
+              <span className="home-hero-stat__number">14,200+</span>
+              <span className="home-hero-stat__label">Scans</span>
+            </div>
+            <div className="home-hero-stat__divider" />
+            <div className="home-hero-stat">
+              <span className="home-hero-stat__number">99.4%</span>
+              <span className="home-hero-stat__label">Accuracy</span>
+            </div>
+            <div className="home-hero-stat__divider" />
+            <div className="home-hero-stat">
+              <span className="home-hero-stat__number">GH₵ 120K+</span>
+              <span className="home-hero-stat__label">Protected</span>
+            </div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ═══ HOW SAFELENS WORKS TIMELINE ═══ */}
+      <motion.section className="home-section"
+        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={staggerContainer}>
+
+        <motion.div className="home-section__header" variants={fadeUp}>
+          <Badge tone="low">DEFENSE PIPELINE</Badge>
+          <h2 className="home-section__title">How SafeLens Protects You</h2>
+        </motion.div>
+
+        <div className="home-timeline">
           {[
-            { number: '14,200+', label: 'Scam Messages Analyzed', desc: 'Real-time AI scans completed' },
-            { number: 'GH₵ 120K+', label: 'Wallet Losses Averted', desc: 'Estimated user funds saved' },
-            { number: '99.4%', label: 'Detection Accuracy', desc: 'Verified threat classification' },
-            { number: '24 / 7', label: 'CSA Ghana Integrated', desc: 'Emergency hotline 292 connected' }
-          ].map((stat, idx) => (
-            <div key={idx} className="results-card" style={{ padding: '1.25rem 1rem', textAlign: 'center' }}>
-              <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--primary)', marginBottom: '0.2rem' }}>
-                {stat.number}
+            {
+              num: '01',
+              title: 'Multi-Modal Ingestion',
+              desc: 'Analyze suspicious SMS, WhatsApp transcripts, emails, or uploaded screenshot images.',
+              chips: ['SMS', 'WhatsApp', 'Screenshots'],
+            },
+            {
+              num: '02',
+              title: 'Neural Threat Analysis',
+              desc: 'Sub-second NLP pattern recognition checks for fake cashout demands and emotional urgency.',
+              chips: ['MoMo Heuristics', 'Phishing Links', 'Spoofed Numbers'],
+            },
+            {
+              num: '03',
+              title: 'Plain Guidance & Action',
+              desc: 'Receive immediate risk breakdown, clear actionable advice, and one-click CSA 292 dispatch.',
+              chips: ['Risk Score', 'What To Do', 'CSA 292 Dispatch'],
+            },
+          ].map((step, i) => (
+            <motion.div className="home-timeline__step" key={step.num} variants={fadeUp} custom={i * 2}>
+              <div className="home-timeline__node">
+                <span className="home-timeline__node-num">{step.num}</span>
               </div>
-              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.15rem' }}>
-                {stat.label}
+              <div className="home-timeline__card">
+                <h3 className="home-timeline__title">{step.title}</h3>
+                <p className="home-timeline__desc">{step.desc}</p>
+                <div className="home-timeline__chips">
+                  {step.chips.map((c) => (
+                    <span key={c} className="home-timeline__chip">{c}</span>
+                  ))}
+                </div>
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
-                {stat.desc}
-              </div>
-            </div>
+            </motion.div>
           ))}
-        </section>
+        </div>
+      </motion.section>
 
-        {/* Tabbed Interactive Section: Mission / AI Security Engine / Security Principles */}
-        <section className="scanner-card" style={{ padding: '2rem 1.6rem' }}>
-          {/* Tab Controls */}
-          <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.8rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-            {[
-              { id: 'mission', label: '🎯 Our Mission & Story' },
-              { id: 'engine', label: '🤖 AI Threat Engine' },
-              { id: 'principles', label: '🛡️ Zero-Trust Security' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  background: activeTab === tab.id ? 'var(--primary)' : 'var(--surface-strong)',
-                  color: activeTab === tab.id ? '#fff' : 'var(--text)',
-                  border: '1px solid ' + (activeTab === tab.id ? 'var(--primary)' : 'var(--border)'),
-                  padding: '0.55rem 1.1rem',
-                  borderRadius: '10px',
-                  fontSize: '0.86rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+      {/* ═══ PILLARS & ARCHITECTURE (TABBED HOME GLOW CARDS) ═══ */}
+      <motion.section className="home-section"
+        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} variants={staggerContainer}>
 
-          {/* Tab 1: Mission & Story */}
-          {activeTab === 'mission' && (
-            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text)' }}>
-                  Why We Built SafeLens
+        <motion.div className="home-section__header" variants={fadeUp}>
+          <Badge tone="medium">CORE PRINCIPLES</Badge>
+          <h2 className="home-section__title">Engineered for Trust</h2>
+        </motion.div>
+
+        {/* Tab Controls */}
+        <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+          {[
+            { id: 'mission', label: 'Mission & Story' },
+            { id: 'engine', label: 'AI Threat Engine' },
+            { id: 'principles', label: 'Zero-Trust Security' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`home-sandbox__tab ${activeTab === tab.id ? 'home-sandbox__tab--active' : ''}`}
+            >
+              <span className="home-sandbox__tab-dot" style={{ background: activeTab === tab.id ? '#fff' : 'var(--primary)' }} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content Cards */}
+        {activeTab === 'mission' && (
+          <motion.div
+            key="mission"
+            initial="hidden" animate="visible" variants={fadeScale}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem' }}
+          >
+            <div className="home-glow-card" style={{ padding: '1.8rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                <ShieldIcon size={18} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text)', margin: 0 }}>
+                  Ghana-First Protection
                 </h3>
-                <p style={{ fontSize: '0.94rem', color: 'var(--muted)', lineHeight: 1.65, margin: 0 }}>
-                  Mobile Money has revolutionized financial inclusion in Ghana, processing billions of cedis daily across MTN MoMo, Telecel Cash, and AT Money. However, this growth has also attracted sophisticated cyber fraudsters using emotional manipulation, fake transfer alerts, and spoofed recruitment links.
-                </p>
               </div>
-
-              <div className="feature-grid" style={{ marginTop: '0.5rem' }}>
-                <div className="info-card" style={{ background: 'var(--surface-strong)', border: '1px solid var(--border)', borderRadius: '16px', padding: '1.25rem' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem', background: 'rgba(56, 189, 248, 0.12)', color: 'var(--primary)', padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.74rem', fontWeight: 800 }}>
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    LOCAL PROTECTION
-                  </div>
-                  <h4 style={{ margin: '0 0 0.3rem 0', fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)' }}>
-                    Protecting Local Wallets
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55 }}>
-                    Tailored specifically for Ghanaian fraud tactics—including fake cashout approval prompts, "wrong transfer" refund demands, and unverified shortcodes.
-                  </p>
-                </div>
-
-                <div className="info-card" style={{ background: 'var(--surface-strong)', border: '1px solid var(--border)', borderRadius: '16px', padding: '1.25rem' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem', background: 'rgba(34, 197, 94, 0.12)', color: 'var(--success)', padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.74rem', fontWeight: 800 }}>
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    PLAIN-ENGLISH
-                  </div>
-                  <h4 style={{ margin: '0 0 0.3rem 0', fontSize: '1.05rem', fontWeight: 800, color: 'var(--text)' }}>
-                    Instant Plain-English Analysis
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--muted)', lineHeight: 1.55 }}>
-                    No complex security jargon. SafeLens delivers immediate verdicts ("Dangerous", "Suspicious", or "Safe") with step-by-step guidance on how to act.
-                  </p>
-                </div>
-              </div>
+              <p style={{ fontSize: '0.88rem', color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
+                Mobile Money powers daily transactions across Ghana. SafeLens is calibrated specifically to recognize local fraud vectors like accidental reversal traps and unauthorized USSD prompt approvals.
+              </p>
             </div>
-          )}
 
-          {/* Tab 2: AI Security Engine */}
-          {activeTab === 'engine' && (
-            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text)' }}>
-                  Multi-Tiered LLM &amp; Heuristic Architecture
+            <div className="home-glow-card" style={{ padding: '1.8rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                <BoltIcon size={18} color="var(--success)" />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text)', margin: 0 }}>
+                  Plain-Language Clarity
                 </h3>
-                <p style={{ fontSize: '0.94rem', color: 'var(--muted)', lineHeight: 1.65, margin: 0 }}>
-                  SafeLens combines lightweight Google Gemma language model pattern recognition with heuristic rule evaluation to assess incoming messages in under 800 milliseconds.
-                </p>
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
-                <div className="results-card" style={{ padding: '1.2rem' }}>
-                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.3rem' }}>STAGE 1</div>
-                  <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text)', fontSize: '0.98rem' }}>NLP &amp; Intent Detection</h4>
-                  <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.5 }}>
-                    Extracts psychological triggers (urgent threats, financial rewards, fake authority calls) embedded in the message text.
-                  </p>
-                </div>
-
-                <div className="results-card" style={{ padding: '1.2rem' }}>
-                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.3rem' }}>STAGE 2</div>
-                  <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text)', fontSize: '0.98rem' }}>URL &amp; Domain Reputation</h4>
-                  <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.5 }}>
-                    Checks embedded hyperlinks for suspicious top-level domains (`.xyz`, `.top`, `.free-bonus`), missing SSL certificates, or brand typosquatting.
-                  </p>
-                </div>
-
-                <div className="results-card" style={{ padding: '1.2rem' }}>
-                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '0.3rem' }}>STAGE 3</div>
-                  <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text)', fontSize: '0.98rem' }}>MoMo Cashout Rule Check</h4>
-                  <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.5 }}>
-                    Flags requests urging the user to enter their 4-digit PIN, approve cashout prompts, or send money back manually.
-                  </p>
-                </div>
-              </div>
+              <p style={{ fontSize: '0.88rem', color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
+                No complex security jargon. SafeLens gives users immediate, unambiguous verdicts with exact steps on how to protect their money and report scammers.
+              </p>
             </div>
-          )}
+          </motion.div>
+        )}
 
-          {/* Tab 3: Zero-Trust Security */}
-          {activeTab === 'principles' && (
-            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--text)' }}>
-                  Our Zero-Trust Privacy Commitments
+        {activeTab === 'engine' && (
+          <motion.div
+            key="engine"
+            initial="hidden" animate="visible" variants={fadeScale}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}
+          >
+            <div className="home-glow-card" style={{ padding: '1.6rem', borderTop: '3px solid var(--primary)' }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)' }}>STAGE 01</span>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)', margin: '0.3rem 0 0.4rem 0' }}>
+                NLP Intent Recognition
+              </h4>
+              <p style={{ fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.5, margin: 0 }}>
+                Identifies psychological urgency hooks, fake bank alerts, and coercive financial manipulation.
+              </p>
+            </div>
+
+            <div className="home-glow-card" style={{ padding: '1.6rem', borderTop: '3px solid var(--warning)' }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--warning)' }}>STAGE 02</span>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)', margin: '0.3rem 0 0.4rem 0' }}>
+                Domain &amp; URL Verification
+              </h4>
+              <p style={{ fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.5, margin: 0 }}>
+                Validates embedded hyperlinks against global threat feeds, phishing registries, and typosquats.
+              </p>
+            </div>
+
+            <div className="home-glow-card" style={{ padding: '1.6rem', borderTop: '3px solid var(--success)' }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--success)' }}>STAGE 03</span>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text)', margin: '0.3rem 0 0.4rem 0' }}>
+                MoMo Heuristics Check
+              </h4>
+              <p style={{ fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.5, margin: 0 }}>
+                Flags deceptive prompts urging users to share 4-digit PINs, reverse funds, or dial unknown codes.
+              </p>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'principles' && (
+          <motion.div
+            key="principles"
+            initial="hidden" animate="visible" variants={fadeScale}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.2rem' }}
+          >
+            <div className="home-glow-card" style={{ padding: '1.8rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                <ShieldIcon size={18} color="var(--success)" />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text)', margin: 0 }}>
+                  Zero Data Monetization
                 </h3>
-                <p style={{ fontSize: '0.94rem', color: 'var(--muted)', lineHeight: 1.65, margin: 0 }}>
-                  We believe cybersecurity tools must be completely transparent and respectful of user privacy.
-                </p>
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
-                <div className="info-card">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--success)' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--text)' }}>No Selling of User Data</h4>
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.5 }}>
-                    Scanned message contents are processed in memory solely to analyze threat patterns and are never monetized or shared with third parties.
-                  </p>
-                </div>
-
-                <div className="info-card">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--success)' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--text)' }}>Direct Official Escalation</h4>
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--muted)', lineHeight: 1.5 }}>
-                    SafeLens connects directly to Cyber Security Authority (CSA 292) and operator hotlines so active victim incidents can be reported immediately.
-                  </p>
-                </div>
-              </div>
+              <p style={{ fontSize: '0.88rem', color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
+                Message contents are evaluated in volatile memory solely to assess scam patterns. Your submissions are never sold or shared with commercial entities.
+              </p>
             </div>
-          )}
-        </section>
 
-        {/* Technology Stack & Standards Badges */}
-        <section style={{ textAlign: 'center' }}>
-          <h4 style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.8rem' }}>
-            Built With Modern Security Standards
-          </h4>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-            {[
-              'Google Gemma LLM Architecture',
-              'React 18 & Vite',
-              'Ghana CSA 292 Standards',
-              'Vanilla Design Tokens',
-              'Web Cryptography Standards',
-              'MoMo Fraud Heuristics'
-            ].map((tech, idx) => (
-              <span
-                key={idx}
-                style={{
-                  background: 'var(--surface-strong)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)',
-                  padding: '0.35rem 0.8rem',
-                  borderRadius: '999px',
-                  fontSize: '0.78rem',
-                  fontWeight: 600
-                }}
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-        </section>
+            <div className="home-glow-card" style={{ padding: '1.8rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                <BoltIcon size={18} color="var(--primary)" />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text)', margin: 0 }}>
+                  Direct CSA Hotline Escalation
+                </h3>
+              </div>
+              <p style={{ fontSize: '0.88rem', color: 'var(--muted)', lineHeight: 1.6, margin: 0 }}>
+                SafeLens is integrated with official incident pathways (National Cyber Security Authority 292), allowing users to report active fraudsters immediately.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </motion.section>
 
-        {/* Bottom CTA Banner */}
-        <section className="results-card" style={{ padding: '2rem 1.5rem', textAlign: 'center', background: 'var(--surface-strong)', border: '1px solid var(--border)' }}>
-          <h3 style={{ margin: '0 0 0.4rem 0', fontSize: '1.3rem', fontWeight: 800, color: 'var(--text)' }}>
-            Start Protecting Your Messages Today
-          </h3>
-          <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: '0 auto 1.4rem auto', maxWidth: '540px', lineHeight: 1.5 }}>
-            Join thousands of users across Ghana taking proactive steps to stay safe online and eliminate Mobile Money wallet risk.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', width: '100%', boxSizing: 'border-box' }}>
-            <Button as={Link} to={user ? "/dashboard" : "/login"} variant="primary" style={{ gap: '0.5rem', padding: '0.6rem 1.2rem', fontSize: '0.88rem', maxWidth: '100%' }}>
-              <span>{user ? "Go to Dashboard" : "Sign In to Get Started"}</span>
-              <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem', flexShrink: 0 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </Button>
-            <Button as={Link} to="/safety-tips" variant="secondary" style={{ gap: '0.5rem', padding: '0.6rem 1.2rem', fontSize: '0.88rem', maxWidth: '100%' }}>
-              <span>Explore Safety Tips</span>
-            </Button>
-          </div>
-        </section>
+      {/* ═══ CTA BANNER (SAME HOME PAGE PATTERN) ═══ */}
+      <motion.section className="home-cta-banner"
+        initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={fadeScale}>
+        <div className="home-cta-banner__pattern" />
+        <div className="home-cta-banner__content">
+          <h3 className="home-cta-banner__title">Start Protecting Your Communications</h3>
+          <p className="home-cta-banner__desc">Join thousands across Ghana staying protected against fraud.</p>
+          <Link to={user ? "/dashboard" : "/login"} className="home-cta-banner__btn">
+            {user ? "Go to Dashboard" : "Get Started"} <ArrowRight />
+          </Link>
+        </div>
+      </motion.section>
 
-      </div>
     </PageContainer>
   )
 }

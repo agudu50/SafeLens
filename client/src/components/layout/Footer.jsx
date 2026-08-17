@@ -23,6 +23,7 @@ export default function Footer({ user }) {
                 <Link to="/scan" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 800 }}>AI Scanner</Link>
                 <Link to="/history" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Scan History</Link>
                 <Link to="/safety-tips" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Safety Tips</Link>
+                <Link to="/contact" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Contact</Link>
                 <Link to="/settings" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Settings</Link>
               </>
             ) : (
@@ -31,6 +32,7 @@ export default function Footer({ user }) {
                 <Link to="/scan" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 800 }}>AI Scanner</Link>
                 <Link to="/safety-tips" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Safety Tips</Link>
                 <Link to="/about" style={{ color: 'var(--muted)', textDecoration: 'none' }}>About Us</Link>
+                <Link to="/contact" style={{ color: 'var(--muted)', textDecoration: 'none' }}>Contact Us</Link>
               </>
             )}
           </nav>
