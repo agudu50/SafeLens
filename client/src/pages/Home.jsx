@@ -730,11 +730,10 @@ export default function Home({ user }) {
 
         {/* 3 Action Hotline Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
-          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '4px solid var(--danger)' }}>
+          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-                <span style={{ fontSize: '1.4rem' }}>🚨</span>
-                <span style={{ fontSize: '0.72rem', background: 'rgba(220, 38, 38, 0.12)', color: 'var(--danger)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                <span style={{ fontSize: '0.74rem', background: 'var(--surface-strong)', color: 'var(--danger)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
                   Official Toll-Free
                 </span>
               </div>
@@ -757,11 +756,10 @@ export default function Home({ user }) {
             </div>
           </motion.div>
 
-          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '4px solid #25D366' }}>
+          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-                <span style={{ fontSize: '1.4rem' }}>💬</span>
-                <span style={{ fontSize: '0.72rem', background: 'rgba(37, 211, 102, 0.12)', color: '#25D366', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                <span style={{ fontSize: '0.74rem', background: 'var(--surface-strong)', color: 'var(--success)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
                   Evidence Drop
                 </span>
               </div>
@@ -777,18 +775,17 @@ export default function Home({ user }) {
             </div>
             <div style={{ marginTop: '1.2rem' }}>
               <a href="https://wa.me/233544926924?text=Hi%20SafeLens%20and%20CSA,%20I%20have%20a%20scam%20to%20report" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                <Button variant="secondary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem', borderColor: '#25D366' }}>
+                <Button variant="secondary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.86rem', padding: '0.6rem' }}>
                   Message on WhatsApp &rarr;
                 </Button>
               </a>
             </div>
           </motion.div>
 
-          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderLeft: '4px solid var(--primary)' }}>
+          <motion.div className="home-glow-card" variants={fadeUp} style={{ padding: '1.6rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem' }}>
-                <span style={{ fontSize: '1.4rem' }}>🛡️</span>
-                <span style={{ fontSize: '0.72rem', background: 'var(--surface-strong)', color: 'var(--primary)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                <span style={{ fontSize: '0.74rem', background: 'var(--surface-strong)', color: 'var(--primary)', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border)' }}>
                   Full Dispatch Hub
                 </span>
               </div>
