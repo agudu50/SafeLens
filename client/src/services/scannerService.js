@@ -1,6 +1,6 @@
 const defaultHistory = [
   {
-    id: 'scan-gdjkzmr',
+    id: 'scan-wwwq2',
     type: 'message',
     riskLevel: 'high',
     riskScore: 95,
@@ -11,22 +11,100 @@ const defaultHistory = [
       "Unsolicited instruction to use USSD codes (*170#)",
       "Impersonation of a mobile network operator (MTN)"
     ],
-    explanation: "This message utilizes fear-based social engineering. By threatening to block the user's wallet, the attacker creates a sense of panic designed to bypass the user's critical thinking. The instruction to dial *170# (the legitimate MTN MoMo USSD code) is a tactic to get the user into a transaction menu where they can be manipulated into authorizing a transfer, changing their PIN, or providing an OTP to a fraudulent prompt initiated by the attacker.",
+    explanation: "This message utilizes fear-based social engineering. By threatening to block the user's wallet, the attacker creates a sense of panic designed to bypass critical thinking. The instruction to dial *170# is a tactic to redirect the user into a menu where fraudulent transfer prompts can be approved.",
     recommendation: 'Reject any unsolicited prompts on your phone. Official telecommunication operators will never threaten automatic wallet termination via unverified SMS.',
     threatCategory: 'Impersonation & Advance Fee Scams',
     vectorBreakdown: [
+      { name: 'Impersonation & Advance Fee Scams', percentage: 95, match: true, color: 'var(--primary)' },
       { name: 'Social Coercion & Urgency', percentage: 96, match: true, color: 'var(--primary)' },
       { name: 'Brand Impersonation (MTN/Telco)', percentage: 92, match: true, color: '#f59e0b' },
-      { name: 'Unauthorized USSD / Cashout Payload', percentage: 98, match: true, color: 'var(--primary)' },
-      { name: 'Sender Identity Anomaly', percentage: 94, match: true, color: '#38bdf8' }
+      { name: 'Unauthorized USSD / Cashout Payload', percentage: 98, match: true, color: 'var(--primary)' }
     ],
     originalContent: 'Urgent notice from MTN: You have 1 unread message and your wallet will be blocked. Dial *170# immediately.',
     submittedAt: 'Just now',
     createdAt: '2026-10-23',
-    modelUsed: 'Google Gemma 4 (gemma-4-26b-a4b-it)'
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
   },
   {
-    id: 'scan-2l6zeyx',
+    id: 'scan-e0qgx',
+    type: 'message',
+    riskLevel: 'high',
+    riskScore: 92,
+    summary: 'Urgent from Telecel Cash: Your wallet has been suspended. Dial *110# to confirm PIN.',
+    redFlags: [
+      "Pretext of account suspension",
+      "Direct request to confirm secret PIN via USSD (*110#)",
+      "Telecel Cash brand impersonation",
+      "Social engineering urgency vector"
+    ],
+    explanation: "Attackers impersonate Telecel Cash customer care, falsely claiming suspension. They instruct victims to dial *110# to trigger PIN confirmation prompts that route cashout requests into the attacker's terminal.",
+    recommendation: 'Never dial USSD codes provided in SMS messages or reveal your PIN under claims of account suspension. Verify status exclusively through official customer care (dial 100).',
+    threatCategory: 'MoMo Transfer & Cashout Fraud',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 92, match: true, color: 'var(--primary)' },
+      { name: 'Brand Impersonation (Telecel)', percentage: 89, match: true, color: '#f59e0b' },
+      { name: 'PIN Harvesting & USSD Menus', percentage: 94, match: true, color: 'var(--primary)' },
+      { name: 'Credential Theft', percentage: 88, match: true, color: '#38bdf8' }
+    ],
+    originalContent: 'Urgent from Telecel Cash: Your wallet has been suspended. Dial *110# to confirm PIN.',
+    submittedAt: 'Just now',
+    createdAt: '2026-10-23',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-rj7xc',
+    type: 'message',
+    riskLevel: 'high',
+    riskScore: 92,
+    summary: 'Urgent notice from MTN: You have 1 unread message and your wallet will be blocked. Dial *170# immediately.',
+    redFlags: [
+      "Threat of wallet deactivation",
+      "Deceptive unread message lure",
+      "Forced USSD redirection (*170#)",
+      "High probability of credential hijacking"
+    ],
+    explanation: "Re-emergence of the MTN MoMo wallet block lure. Designed to initiate unauthorized session prompts that intercept wallet credentials.",
+    recommendation: 'Ignore and report the sender to 1515. Do not dial *170# in response to incoming unsolicited SMS alerts.',
+    threatCategory: 'MoMo Transfer & Cashout Fraud',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 92, match: true, color: 'var(--primary)' },
+      { name: 'Social Coercion & Urgency', percentage: 94, match: true, color: 'var(--primary)' },
+      { name: 'USSD Exploitation', percentage: 90, match: true, color: '#f59e0b' },
+      { name: 'Account Hijack Risk', percentage: 86, match: true, color: '#38bdf8' }
+    ],
+    originalContent: 'Urgent notice from MTN: You have 1 unread message and your wallet will be blocked. Dial *170# immediately.',
+    submittedAt: 'Just now',
+    createdAt: '2026-10-23',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-gdjkz',
+    type: 'message',
+    riskLevel: 'high',
+    riskScore: 95,
+    summary: 'Urgent notice from MTN: You have 1 unread message and your wallet will be blocked. Dial *170# immediately.',
+    redFlags: [
+      "Artificial urgency ('Urgent notice')",
+      "Threat of service disruption ('wallet will be blocked')",
+      "Unsolicited instruction to use USSD codes (*170#)",
+      "Impersonation of a mobile network operator (MTN)"
+    ],
+    explanation: "This message utilizes fear-based social engineering. By threatening to block the user's wallet, the attacker creates a sense of panic designed to bypass the user's critical thinking.",
+    recommendation: 'Reject any unsolicited prompts on your phone. Official telecommunication operators will never threaten automatic wallet termination via unverified SMS.',
+    threatCategory: 'Impersonation & Advance Fee Scams',
+    vectorBreakdown: [
+      { name: 'Impersonation & Advance Fee Scams', percentage: 95, match: true, color: 'var(--primary)' },
+      { name: 'Social Coercion & Urgency', percentage: 96, match: true, color: 'var(--primary)' },
+      { name: 'Brand Impersonation (MTN/Telco)', percentage: 92, match: true, color: '#f59e0b' },
+      { name: 'Unauthorized USSD / Cashout Payload', percentage: 98, match: true, color: 'var(--primary)' }
+    ],
+    originalContent: 'Urgent notice from MTN: You have 1 unread message and your wallet will be blocked. Dial *170# immediately.',
+    submittedAt: 'Just now',
+    createdAt: '2026-10-23',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-2l6ze',
     type: 'message',
     riskLevel: 'high',
     riskScore: 98,
@@ -43,13 +121,115 @@ const defaultHistory = [
     vectorBreakdown: [
       { name: 'MoMo Transfer & Cashout Fraud', percentage: 98, match: true, color: 'var(--primary)' },
       { name: 'Social Coercion & Urgency', percentage: 95, match: true, color: 'var(--primary)' },
-      { name: 'Brand Impersonation (MTN/Telco)', percentage: 92, match: true, color: '#f59e0b' },
-      { name: 'Sender Identity Anomaly', percentage: 88, match: true, color: '#38bdf8' }
+      { name: 'Brand Impersonation (Telecel)', percentage: 92, match: true, color: '#f59e0b' },
+      { name: 'Credential Extraction', percentage: 96, match: true, color: '#38bdf8' }
     ],
     originalContent: 'SECURITY TEST: Telecel promo cashout 1000 GHS approved. Send your PIN to confirm.',
     submittedAt: 'Just now',
     createdAt: '2026-10-23',
-    modelUsed: 'Google Gemma 4 (gemma-4-26b-a4b-it)'
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-t5fr8',
+    type: 'message',
+    riskLevel: 'medium',
+    riskScore: 64,
+    summary: 'Congratulations! You have been selected for a remote job offer with guaranteed earnings of GHS 2,000/week. Send a GHS 50 registration fee to proceed.',
+    redFlags: [
+      "Unsolicited job offer without application or interview",
+      "Unrealistic guaranteed earnings claim (GHS 2,000/week)",
+      "Upfront registration fee demanded via Mobile Money",
+      "Advance-fee scam pattern targeting job seekers"
+    ],
+    explanation: "This is a classic advance-fee employment scam. Fraudsters solicit upfront payments disguised as onboarding, registration, or equipment processing fees, vanishing once funds are transferred.",
+    recommendation: 'Legitimate employers never demand application or processing fees. Refuse the payment and block the contact.',
+    threatCategory: 'Fake Job & Recruitment Lures',
+    vectorBreakdown: [
+      { name: 'Fake Job & Recruitment Lures', percentage: 88, match: true, color: 'var(--warning)' },
+      { name: 'Advance Fee Demands', percentage: 84, match: true, color: 'var(--warning)' },
+      { name: 'Social Engineering', percentage: 70, match: true, color: 'var(--primary)' },
+      { name: 'Financial Extraction', percentage: 64, match: true, color: '#38bdf8' }
+    ],
+    originalContent: 'Congratulations! You have been selected for a remote job offer with guaranteed earnings of GHS 2,000/week. Send a GHS 50 registration fee to proceed.',
+    submittedAt: 'Just now',
+    createdAt: '2026-10-23',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-001',
+    type: 'message',
+    riskLevel: 'high',
+    riskScore: 87,
+    summary: 'Congratulations! You have been selected for a remote job offer with guaranteed earnings. Send 50 GHS registration fee to proceed.',
+    redFlags: [
+      "Advance registration fee solicitation",
+      "Unsolicited employment notification",
+      "Guaranteed income promise without credentials",
+      "Mobile Money cash destination"
+    ],
+    explanation: "A high-confidence employment phishing lure designed to exploit job seekers into sending unrecoverable Mobile Money transfers.",
+    recommendation: 'Do not transfer any funds. Verify recruitment offers directly through official company websites and corporate email domains.',
+    threatCategory: 'MoMo Transfer Fraud',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer Fraud', percentage: 87, match: true, color: 'var(--primary)' },
+      { name: 'Fake Job & Recruitment Lures', percentage: 90, match: true, color: 'var(--warning)' },
+      { name: 'Advance Fee Fraud', percentage: 82, match: true, color: 'var(--warning)' },
+      { name: 'Unverified Sender', percentage: 78, match: true, color: '#38bdf8' }
+    ],
+    originalContent: 'Congratulations! You have been selected for a remote job offer with guaranteed earnings. Send 50 GHS registration fee to proceed.',
+    submittedAt: '2 hours ago',
+    createdAt: '2026-10-23',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-002',
+    type: 'screenshot',
+    riskLevel: 'medium',
+    riskScore: 62,
+    summary: 'Your account has been flagged. Click immediately to secure your profile.',
+    redFlags: [
+      "Vague security alert lacking identifiable account credentials",
+      "Coercive urgency ('immediately')",
+      "Unverified hyperlink in alert screenshot",
+      "Phishing credential-stealing domain destination"
+    ],
+    explanation: "The captured screenshot displays a fake notification prompt designed to induce panic and force user navigation to a credential harvesting site.",
+    recommendation: 'Do not click links embedded in security warnings sent via unverified channels. Check your security dashboard directly via your provider application.',
+    threatCategory: 'MoMo Transfer Fraud',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer Fraud', percentage: 62, match: true, color: 'var(--warning)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 75, match: true, color: 'var(--warning)' },
+      { name: 'Fear Appeal & Coercion', percentage: 68, match: true, color: 'var(--primary)' },
+      { name: 'Visual Spoofing', percentage: 55, match: true, color: '#38bdf8' }
+    ],
+    originalContent: 'Your account has been flagged. Click immediately to secure your profile.',
+    submittedAt: 'Yesterday',
+    createdAt: '2026-10-22',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-m8k2p',
+    type: 'message',
+    riskLevel: 'low',
+    riskScore: 12,
+    summary: 'MTN MoMo: You have received GHS 250.00 from John Doe. Current Balance: GHS 1,420.50. Transaction ID: 29482910482.',
+    redFlags: [
+      "None — standard official telecommunication transaction format",
+      "Sender originates from verified shortcode 170",
+      "No external links, PIN solicitations, or USSD menu triggers"
+    ],
+    explanation: "Authentic financial transaction receipt. Follows legitimate carrier notification syntax without behavioral manipulation or credential harvesting attempts.",
+    recommendation: 'Safe. Always verify incoming balances via your official carrier USSD or application if unexpected.',
+    threatCategory: 'Verified Legitimate Traffic',
+    vectorBreakdown: [
+      { name: 'Legitimate Financial Telemetry', percentage: 98, match: true, color: 'var(--success)' },
+      { name: 'Zero Coercion Detected', percentage: 95, match: true, color: 'var(--success)' },
+      { name: 'Carrier Verification Confirmed', percentage: 99, match: true, color: 'var(--success)' }
+    ],
+    originalContent: 'MTN MoMo: You have received GHS 250.00 from John Doe. Current Balance: GHS 1,420.50. Transaction ID: 29482910482.',
+    submittedAt: '2 days ago',
+    createdAt: '2026-10-21',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
   }
 ]
 
@@ -58,14 +238,17 @@ const loadHistory = () => {
   try {
     const stored = localStorage.getItem('safelens_history')
     if (stored) {
-      history = JSON.parse(stored)
-    } else {
-      history = [...defaultHistory]
-      localStorage.setItem('safelens_history', JSON.stringify(history))
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length >= 8) {
+        history = parsed
+        return
+      }
     }
-  } catch {
-    history = [...defaultHistory]
-  }
+  } catch {}
+  history = [...defaultHistory]
+  try {
+    localStorage.setItem('safelens_history', JSON.stringify(history))
+  } catch {}
 }
 
 // Initial load
@@ -299,20 +482,37 @@ export function getScanHistory() {
 /**
  * Fetches recent threat reports from the Neon Postgres database.
  */
-export async function fetchDbReports(limit = 20) {
+export async function fetchDbReports(limit = 30) {
   try {
     const res = await fetch(`${API_URL}/api/reports?limit=${limit}`)
     if (res.ok) {
       const data = await res.json()
       if (data.reports && data.reports.length > 0) {
         loadHistory()
-        // Merge so DB reports come first in chronological order, followed by any local scans not yet in DB
+        const orderMap = {
+          'scan-wwwq2': 1,
+          'scan-e0qgx': 2,
+          'scan-rj7xc': 3,
+          'scan-gdjkz': 4,
+          'scan-2l6ze': 5,
+          'scan-t5fr8': 6,
+          'scan-001': 7,
+          'scan-002': 8,
+          'scan-m8k2p': 9,
+        }
         const merged = [...data.reports]
         for (const h of history) {
-          if (!merged.some((r) => r.id === h.id)) {
+          if (!merged.some((r) => r.id.toLowerCase().slice(0, 10) === h.id.toLowerCase().slice(0, 10))) {
             merged.push(h)
           }
         }
+        merged.sort((a, b) => {
+          const aKey = (a.id || '').toLowerCase().slice(0, 10)
+          const bKey = (b.id || '').toLowerCase().slice(0, 10)
+          const aOrder = orderMap[aKey] || 99
+          const bOrder = orderMap[bKey] || 99
+          return aOrder - bOrder
+        })
         history = merged
         saveHistory()
         return merged

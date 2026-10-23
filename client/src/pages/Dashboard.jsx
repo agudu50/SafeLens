@@ -16,7 +16,7 @@ export default function Dashboard({ user }) {
       const cached = localStorage.getItem('safelens_history')
       if (cached) {
         const parsed = JSON.parse(cached)
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+        if (Array.isArray(parsed) && parsed.length >= 8) return parsed
       }
       return getScanHistory()
     } catch {
@@ -859,10 +859,10 @@ export default function Dashboard({ user }) {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                    Gemma 4 AI Neural Threat Analysis &amp; Heuristics Hub
+                    Neural Threat Forensics &amp; Intelligence Hub
                   </h3>
-                  <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--muted)', fontSize: '0.66rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
-                    26B-A4B-IT
+                  <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--primary)', fontSize: '0.66rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                    LIVE TELEMETRY
                   </span>
                 </div>
                 <p style={{ fontSize: '0.76rem', color: 'var(--muted)', margin: '0.15rem 0 0 0' }}>
@@ -890,7 +890,7 @@ export default function Dashboard({ user }) {
                     transition: 'all 0.15s ease'
                   }}
                 >
-                  #{item.id ? item.id.slice(0, 9).toUpperCase() : `AUDIT-${idx + 1}`}
+                  #{item.id ? item.id.slice(0, 10).toUpperCase() : `AUDIT-${idx + 1}`}
                 </button>
               ))}
 
@@ -945,7 +945,6 @@ export default function Dashboard({ user }) {
                   padding: '0.8rem 0.95rem',
                   borderRadius: '8px',
                   border: '1px solid var(--border)',
-                  borderLeft: '3px solid var(--primary)',
                   marginBottom: '1rem'
                 }}>
                   "{activeSpotlightIncident.originalContent || activeSpotlightIncident.summary}"
@@ -1605,7 +1604,7 @@ export default function Dashboard({ user }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredReports.slice(0, 8).map((item) => {
+                  {filteredReports.slice(0, 25).map((item) => {
                     const isHigh = item.riskLevel === 'high'
                     const isMed = item.riskLevel === 'medium'
                     const badgeColor = isHigh ? 'var(--primary)' : isMed ? '#f59e0b' : '#10b981'
