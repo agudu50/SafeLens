@@ -1501,205 +1501,44 @@ export default function Dashboard({ user }) {
         </section>
 
         {/* =========================================================================
-            TIER 7: FULL-WIDTH LIVE SECURITY INCIDENT FEED & FORENSIC TRIAGE TABLE
+            INCIDENT REGISTRY LINKAGE
             ========================================================================= */}
-        <section className="cyfocus-card" style={{ padding: '1.4rem', width: '100%' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                  Live Security Incident Feed &amp; Triage
-                </h3>
-                <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--muted)', fontSize: '0.72rem', fontWeight: 800, padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
-                  {filteredReports.length} Records
-                </span>
-              </div>
-              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.25rem 0 0 0' }}>
-                Chronological threat intelligence telemetry synced directly with Neon Postgres
-              </p>
+        <section className="cyfocus-card" style={{ padding: '1.2rem 1.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', background: 'var(--surface-alt)' }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.2rem' }}>
+              <span className="live-pulse-dot" style={{ width: '7px', height: '7px', background: 'var(--primary)' }} />
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                INCIDENT TELEMETRY REGISTRY
+              </span>
             </div>
-
-            {/* Search & Filter Bar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  placeholder="Search incidents, hashes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    background: 'var(--surface-alt)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text)',
-                    borderRadius: '999px',
-                    padding: '0.45rem 0.9rem 0.45rem 2.1rem',
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                    outline: 'none',
-                    width: '220px',
-                  }}
-                />
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </div>
-
-              {/* Type Select */}
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '999px', padding: '0.45rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, outline: 'none' }}
-              >
-                <option value="all">All Channels</option>
-                <option value="message">SMS / WhatsApp</option>
-                <option value="link">Phishing URLs</option>
-                <option value="screenshot">Screenshots OCR</option>
-                <option value="email">Emails</option>
-              </select>
-
-              {/* Severity Select */}
-              <select
-                value={filterSeverity}
-                onChange={(e) => setFilterSeverity(e.target.value)}
-                style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '999px', padding: '0.45rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, outline: 'none' }}
-              >
-                <option value="all">All Severities</option>
-                <option value="high">Critical Risk</option>
-                <option value="medium">Medium Risk</option>
-                <option value="low">Verified Safe</option>
-              </select>
-            </div>
+            <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 900, color: 'var(--text)' }}>
+              Looking for the Complete Security Incident Feed &amp; Triage?
+            </h4>
+            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.78rem', color: 'var(--muted)' }}>
+              All chronological threat intelligence telemetry, multi-channel search filters, and CSV forensic exports are housed in the dedicated Scan History terminal.
+            </p>
           </div>
-
-          {/* Table Container */}
-          {isLoadingReports ? (
-            <div style={{ textAlign: 'center', padding: '3rem' }}>
-              <Spinner />
-              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.6rem' }}>Syncing telemetry with Neon Postgres...</p>
-            </div>
-          ) : filteredReports.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2.5rem', background: 'var(--surface-alt)', borderRadius: '10px', border: '1px dashed var(--border)' }}>
-              <p style={{ margin: 0, fontWeight: 700, color: 'var(--muted)' }}>No security incidents match your filter query.</p>
-            </div>
-          ) : (
-            <div className="cyfocus-table-wrap">
-              <table className="cyfocus-table">
-                <thead>
-                  <tr>
-                    <th>Incident / Hash</th>
-                    <th>Channel</th>
-                    <th>Threat Classification</th>
-                    <th>Risk Assessment</th>
-                    <th>Logged At</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredReports.slice(0, 25).map((item) => {
-                    const isHigh = item.riskLevel === 'high'
-                    const isMed = item.riskLevel === 'medium'
-                    const badgeColor = isHigh ? 'var(--primary)' : isMed ? '#f59e0b' : '#10b981'
-
-                    return (
-                      <tr key={item.id}>
-                        {/* ID + Preview */}
-                        <td style={{ minWidth: '220px' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                            <span style={{ fontFamily: 'monospace', fontWeight: 900, color: 'var(--primary)', fontSize: '0.78rem' }}>
-                              #{item.id.slice(0, 10).toUpperCase()}
-                            </span>
-                            <span style={{ color: 'var(--text)', fontWeight: 600, fontSize: '0.8rem', maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {item.originalContent || item.summary}
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* Channel */}
-                        <td>
-                          <span style={{ textTransform: 'capitalize', fontWeight: 800, fontSize: '0.76rem', color: 'var(--muted)', background: 'var(--surface-alt)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                            {item.type || 'message'}
-                          </span>
-                        </td>
-
-                        {/* Threat Category */}
-                        <td>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text)' }}>
-                            {item.threatCategory || 'MoMo Transfer Fraud'}
-                          </span>
-                        </td>
-
-                        {/* Risk Assessment */}
-                        <td>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'var(--surface)', color: badgeColor, border: `1px solid ${badgeColor}`, padding: '0.2rem 0.55rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 900 }}>
-                            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: badgeColor }} />
-                            {item.riskScore}% {item.riskLevel?.toUpperCase()}
-                          </span>
-                        </td>
-
-                        {/* Logged At */}
-                        <td>
-                          <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 600 }}>
-                            {item.submittedAt || 'Recent'}
-                          </span>
-                        </td>
-
-                        {/* Actions */}
-                        <td style={{ textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
-                            <button
-                              onClick={() => setSelectedIncidentForAudit(item)}
-                              style={{
-                                padding: '0.35rem 0.75rem',
-                                fontSize: '0.74rem',
-                                fontWeight: 800,
-                                borderRadius: '8px',
-                                border: '1px solid var(--border)',
-                                background: 'var(--surface-alt)',
-                                color: 'var(--text)',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              Forensic Audit →
-                            </button>
-                            <Link to={`/results/${item.id}`} style={{ textDecoration: 'none' }}>
-                              <button
-                                style={{
-                                  padding: '0.35rem 0.55rem',
-                                  fontSize: '0.74rem',
-                                  fontWeight: 800,
-                                  borderRadius: '8px',
-                                  border: '1px solid var(--border)',
-                                  background: 'transparent',
-                                  color: 'var(--muted)',
-                                  cursor: 'pointer'
-                                }}
-                                title="Open Dedicated Result Page"
-                              >
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                  <polyline points="15 3 21 3 21 9" />
-                                  <line x1="10" y1="14" x2="21" y2="3" />
-                                </svg>
-                              </button>
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <Link to="/history" style={{ textDecoration: 'none' }}>
+            <button
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)',
+                padding: '0.55rem 1.15rem',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>View Scan History ({reports.length} Records)</span>
+              <span>→</span>
+            </button>
+          </Link>
         </section>
 
         {/* =========================================================================
