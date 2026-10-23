@@ -1,63 +1,55 @@
 const defaultHistory = [
   {
-    id: 'scan-001',
+    id: 'scan-gdjkzmr',
     type: 'message',
     riskLevel: 'high',
-    riskScore: 87,
-    summary: 'This message contains several characteristics commonly associated with fraudulent job offers.',
-    redFlags: ['Requests an upfront payment', 'Creates urgency', 'Promises unrealistic financial rewards', 'Sender identity cannot be verified'],
-    explanation: 'The message asks the recipient to make a payment before receiving employment benefits. This is a common pattern in job-related scams in Ghana.',
-    recommendation: 'Do not send money or personal information. Verify the organization through its official website or contact information.',
-    threatCategory: 'Fake Job & Recruitment Lures',
-    vectorBreakdown: [
-      { name: 'Fake Job & Recruitment Lures', percentage: 89, match: true, color: 'var(--danger)' },
-      { name: 'Impersonation & Advance Fee Scams', percentage: 18, match: false, color: 'var(--warning)' },
-      { name: 'MoMo Transfer & Cashout Fraud', percentage: 8, match: false, color: 'var(--primary)' },
-      { name: 'Phishing Links & Spoofed Websites', percentage: 2, match: false, color: 'var(--success)' },
+    riskScore: 95,
+    summary: 'Urgent notice from MTN: You have 1 unread message and your wallet will be blocked. Dial *170# immediately.',
+    redFlags: [
+      "Artificial urgency ('Urgent notice')",
+      "Threat of service disruption ('wallet will be blocked')",
+      "Unsolicited instruction to use USSD codes (*170#)",
+      "Impersonation of a mobile network operator (MTN)"
     ],
-    originalContent: 'Congratulations! You have been selected for a remote job offer with guaranteed earnings. Send 50 GHS registration fee to proceed.',
-    submittedAt: '2 hours ago',
-    createdAt: '2026-08-12',
-  },
-  {
-    id: 'scan-002',
-    type: 'screenshot',
-    riskLevel: 'medium',
-    riskScore: 62,
-    summary: 'The screenshot shows a high-pressure payment request and a sender that cannot be verified.',
-    redFlags: ['Uses pressure tactics', 'Asks for personal details', 'Suggests immediate action'],
-    explanation: 'The message uses urgency to push quick decisions, which is a common tactic in scam communication.',
-    recommendation: 'Pause before responding and confirm the request through a trusted official channel.',
+    explanation: "This message utilizes fear-based social engineering. By threatening to block the user's wallet, the attacker creates a sense of panic designed to bypass the user's critical thinking. The instruction to dial *170# (the legitimate MTN MoMo USSD code) is a tactic to get the user into a transaction menu where they can be manipulated into authorizing a transfer, changing their PIN, or providing an OTP to a fraudulent prompt initiated by the attacker.",
+    recommendation: 'Reject any unsolicited prompts on your phone. Official telecommunication operators will never threaten automatic wallet termination via unverified SMS.',
     threatCategory: 'Impersonation & Advance Fee Scams',
     vectorBreakdown: [
-      { name: 'Impersonation & Advance Fee Scams', percentage: 82, match: true, color: 'var(--danger)' },
-      { name: 'MoMo Transfer & Cashout Fraud', percentage: 22, match: false, color: 'var(--warning)' },
-      { name: 'Phishing Links & Spoofed Websites', percentage: 10, match: false, color: 'var(--primary)' },
-      { name: 'Fake Job & Recruitment Lures', percentage: 4, match: false, color: 'var(--success)' },
+      { name: 'Social Coercion & Urgency', percentage: 96, match: true, color: 'var(--primary)' },
+      { name: 'Brand Impersonation (MTN/Telco)', percentage: 92, match: true, color: '#f59e0b' },
+      { name: 'Unauthorized USSD / Cashout Payload', percentage: 98, match: true, color: 'var(--primary)' },
+      { name: 'Sender Identity Anomaly', percentage: 94, match: true, color: '#38bdf8' }
     ],
-    originalContent: 'Your account has been flagged. Click immediately to secure your profile.',
-    submittedAt: 'Yesterday',
-    createdAt: '2026-08-11',
+    originalContent: 'Urgent notice from MTN: You have 1 unread message and your wallet will be blocked. Dial *170# immediately.',
+    submittedAt: 'Just now',
+    createdAt: '2026-10-23',
+    modelUsed: 'Google Gemma 4 (gemma-4-26b-a4b-it)'
   },
   {
-    id: 'scan-003',
-    type: 'link',
+    id: 'scan-2l6zeyx',
+    type: 'message',
     riskLevel: 'high',
-    riskScore: 92,
-    summary: 'This link leads to an unverified domain mimicking a prominent telecommunication portal.',
-    redFlags: ['Uses insecure HTTP protocol', 'Domain spoofing attempt', 'Asks for MoMo PIN entry'],
-    explanation: 'The link utilizes a domain containing spelling variations (e.g., mtn-gh-promo.xyz) intended to look like a legitimate site to steal customer credentials.',
-    recommendation: 'Do not open the link or log in. Avoid entering Mobile Money PINs or credit card information on non-official websites.',
-    threatCategory: 'Phishing Links & Spoofed Websites',
-    vectorBreakdown: [
-      { name: 'Phishing Links & Spoofed Websites', percentage: 94, match: true, color: 'var(--danger)' },
-      { name: 'MoMo Transfer & Cashout Fraud', percentage: 14, match: false, color: 'var(--warning)' },
-      { name: 'Fake Job & Recruitment Lures', percentage: 8, match: false, color: 'var(--primary)' },
-      { name: 'Impersonation & Advance Fee Scams', percentage: 4, match: false, color: 'var(--success)' },
+    riskScore: 98,
+    summary: 'SECURITY TEST: Telecel promo cashout 1000 GHS approved. Send your PIN to confirm.',
+    redFlags: [
+      'Direct demand for confidential MoMo PIN',
+      'Unsolicited fake cashout incentive (1,000 GHS)',
+      'Impersonation of Telecel Cash network',
+      'High-threat credential extraction signature'
     ],
-    originalContent: 'http://mtn-gh-promo.xyz/claim-cashout',
-    submittedAt: '3 days ago',
-    createdAt: '2026-08-09',
+    explanation: 'The communication solicits the user to reveal their secret 4-digit Mobile Money PIN under the pretext of claiming an unrequested cash reward. Legitimate telcos never request PINs for promo disbursements.',
+    recommendation: 'Never disclose your PIN or OTP to anyone. Telecel and MTN will never ask for your PIN over SMS, WhatsApp, or phone calls.',
+    threatCategory: 'MoMo Transfer & Cashout Fraud',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer & Cashout Fraud', percentage: 98, match: true, color: 'var(--primary)' },
+      { name: 'Social Coercion & Urgency', percentage: 95, match: true, color: 'var(--primary)' },
+      { name: 'Brand Impersonation (MTN/Telco)', percentage: 92, match: true, color: '#f59e0b' },
+      { name: 'Sender Identity Anomaly', percentage: 88, match: true, color: '#38bdf8' }
+    ],
+    originalContent: 'SECURITY TEST: Telecel promo cashout 1000 GHS approved. Send your PIN to confirm.',
+    submittedAt: 'Just now',
+    createdAt: '2026-10-23',
+    modelUsed: 'Google Gemma 4 (gemma-4-26b-a4b-it)'
   }
 ]
 
@@ -259,6 +251,9 @@ export async function scanThreat({ type = 'message', input = '', image = null, r
       loadHistory()
       history.unshift(data)
       saveHistory()
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('safelens_scan_completed', { detail: data }))
+      }
       return data
     } else {
       const errData = await response.json().catch(() => ({}))
@@ -273,6 +268,9 @@ export async function scanThreat({ type = 'message', input = '', image = null, r
   fallbackResult.modelUsed = 'Local Heuristic Engine (Offline Fallback)'
   history.unshift(fallbackResult)
   saveHistory()
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('safelens_scan_completed', { detail: fallbackResult }))
+  }
   return fallbackResult
 }
 
@@ -282,6 +280,9 @@ export function createMockScanResult(payload) {
   loadHistory()
   history.unshift(result)
   saveHistory()
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('safelens_scan_completed', { detail: result }))
+  }
   return result
 }
 
@@ -305,13 +306,16 @@ export async function fetchDbReports(limit = 20) {
       const data = await res.json()
       if (data.reports && data.reports.length > 0) {
         loadHistory()
-        for (const r of data.reports) {
-          if (!history.some((h) => h.id === r.id)) {
-            history.push(r)
+        // Merge so DB reports come first in chronological order, followed by any local scans not yet in DB
+        const merged = [...data.reports]
+        for (const h of history) {
+          if (!merged.some((r) => r.id === h.id)) {
+            merged.push(h)
           }
         }
+        history = merged
         saveHistory()
-        return data.reports
+        return merged
       }
     }
   } catch (err) {

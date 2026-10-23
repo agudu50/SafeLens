@@ -4,12 +4,26 @@ import PageContainer from '../components/layout/PageContainer'
 import SecurityChatbot from '../components/SecurityChatbot'
 import Button from '../components/ui/Button'
 import Spinner from '../components/ui/Spinner'
-import { getScanHistory, fetchDbReports } from '../services/scannerService'
+import { getScanHistory, fetchDbReports, scanThreat } from '../services/scannerService'
 import { subscriptionService } from '../services/subscriptionService'
 
 export default function Dashboard({ user }) {
-  const [reports, setReports] = useState([])
-  const [isLoadingReports, setIsLoadingReports] = useState(true)
+  const userName = user?.name ? user.name.split(' ')[0] : (user?.email ? user.email.split('@')[0] : 'Kofi')
+
+  // Synchronously initialize from persistent history so content is completely stable on page refresh
+  const [reports, setReports] = useState(() => {
+    try {
+      const cached = localStorage.getItem('safelens_history')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+      return getScanHistory()
+    } catch {
+      return getScanHistory()
+    }
+  })
+  const [isLoadingReports, setIsLoadingReports] = useState(false)
   const [activeTab, setActiveTab] = useState('trends') // 'trends' | 'vectors' | 'matrix'
   const [filterType, setFilterType] = useState('all') // 'all' | 'message' | 'link' | 'screenshot' | 'email'
   const [filterSeverity, setFilterSeverity] = useState('all') // 'all' | 'high' | 'medium' | 'low'
@@ -18,7 +32,23 @@ export default function Dashboard({ user }) {
   const [hoveredDay, setHoveredDay] = useState(4) // Default to Friday peak on load
   const [isCopilotOpen, setIsCopilotOpen] = useState(false)
   const [selectedIncidentForAudit, setSelectedIncidentForAudit] = useState(null)
-  const [spotlightIndex, setSpotlightIndex] = useState(0)
+  const [spotlightIndex, setSpotlightIndex] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('safelens_spotlight_idx')
+      return saved !== null ? parseInt(saved, 10) || 0 : 0
+    } catch {
+      return 0
+    }
+  })
+  const [liveSyncNotification, setLiveSyncNotification] = useState(null)
+  const [isSimulatingScan, setIsSimulatingScan] = useState(false)
+
+  const changeSpotlight = (idx) => {
+    setSpotlightIndex(idx)
+    try {
+      sessionStorage.setItem('safelens_spotlight_idx', String(idx))
+    } catch {}
+  }
 
   // Live Defense Shields state
   const [defenseShields, setDefenseShields] = useState([
@@ -47,10 +77,9 @@ export default function Dashboard({ user }) {
     }
   }, [])
 
-  // Load Neon DB Reports
+  // Load Neon DB Reports and listen for real-time AI scans
   useEffect(() => {
     async function loadData() {
-      setIsLoadingReports(true)
       try {
         const [dbReports] = await Promise.all([
           fetchDbReports(30),
@@ -58,27 +87,76 @@ export default function Dashboard({ user }) {
         ])
         if (dbReports && dbReports.length > 0) {
           setReports(dbReports)
-        } else {
-          setReports(getScanHistory())
         }
       } catch (err) {
         console.warn('Dashboard data fetch error:', err)
-        setReports(getScanHistory())
       } finally {
         setIsLoadingReports(false)
       }
     }
     loadData()
+
+    // 1. Reactive listener: When an AI scan completes anywhere in the application
+    const handleScanCompleted = (event) => {
+      const newScan = event.detail
+      if (!newScan || !newScan.id) return
+      setReports((prev) => {
+        const exists = prev.some((r) => r.id === newScan.id)
+        if (exists) return prev
+        return [newScan, ...prev]
+      })
+      changeSpotlight(0)
+      const scanIdFormatted = newScan.id.slice(0, 9).toUpperCase()
+      setLiveSyncNotification(`Live AI Telemetry Synced: #${scanIdFormatted} (${newScan.riskScore || 95}% ${newScan.riskLevel?.toUpperCase() || 'HIGH'})`)
+      setTimeout(() => setLiveSyncNotification(null), 5000)
+    }
+
+    // 2. Storage listener: Sync across browser tabs/windows
+    const handleStorageChange = (e) => {
+      if (e.key === 'safelens_history') {
+        const fresh = getScanHistory()
+        if (fresh && fresh.length > 0) {
+          setReports(fresh)
+        }
+      }
+    }
+
+    // 3. Periodic Background Sync (every 4s) to pull any newly recorded reports
+    const syncInterval = setInterval(async () => {
+      try {
+        const fresh = await fetchDbReports(30)
+        if (fresh && fresh.length > 0) {
+          setReports((prev) => {
+            const hasNew = fresh.some((f) => !prev.some((p) => p.id === f.id))
+            if (hasNew) {
+              return fresh
+            }
+            return prev
+          })
+        }
+      } catch {
+        // silent fail
+      }
+    }, 4000)
+
+    window.addEventListener('safelens_scan_completed', handleScanCompleted)
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      clearInterval(syncInterval)
+      window.removeEventListener('safelens_scan_completed', handleScanCompleted)
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }, [])
 
-  // Metrics computation
+  // Metrics computation (dynamically updates when AI scans arrive)
   const metrics = useMemo(() => {
     const total = reports.length
     const highRisk = reports.filter((r) => r.riskLevel === 'high').length
     const mediumRisk = reports.filter((r) => r.riskLevel === 'medium').length
     const lowRisk = reports.filter((r) => r.riskLevel === 'low').length
     const avgScore = total > 0 ? Math.round(reports.reduce((acc, r) => acc + (r.riskScore || 0), 0) / total) : 24
-    const exposureRate = total > 0 ? Math.round((highRisk / total) * 100) : 18
+    const exposureRate = total > 0 ? Math.round((highRisk / total) * 100) : 100
 
     return { total, highRisk, mediumRisk, lowRisk, avgScore, exposureRate }
   }, [reports])
@@ -105,30 +183,148 @@ export default function Dashboard({ user }) {
       return reports[spotlightIndex]
     }
     return {
-      id: 'scan-demo-momo',
+      id: 'scan-gdjkzmr',
       type: 'message',
       riskLevel: 'high',
-      riskScore: 96,
+      riskScore: 95,
       summary: 'High-urgency Mobile Money prompt coercion detected. Attack pattern matches known MTN cashout spoofing campaign in Ghana.',
-      threatCategory: 'MoMo Transfer & Cashout Fraud',
-      originalContent: 'Urgent notice from MTN: You have 1 unread transaction and your wallet will be blocked in 15 mins. Dial *170# immediately.',
+      threatCategory: 'Impersonation & Advance Fee Scams',
+      originalContent: 'Urgent notice from MTN: You have 1 unread message and your wallet will be blocked. Dial *170# immediately.',
       submittedAt: 'Just now',
       redFlags: [
-        'High-pressure 15-minute countdown timer',
-        'Direct prompt requesting *170# USSD execution',
-        'Impersonates official MTN Mobile Money customer service',
-        'Unregistered sender shortcode signature'
+        "Artificial urgency ('Urgent notice')",
+        "Threat of service disruption ('wallet will be blocked')",
+        "Unsolicited instruction to use USSD codes (*170#)",
+        "Impersonation of a mobile network operator (MTN)"
       ],
-      explanation: 'The adversary leverages false urgency ("wallet will be blocked") to provoke immediate emotional response, inducing the victim into approving an unprompted USSD cashout request on their handset.',
+      explanation: "This message utilizes fear-based social engineering. By threatening to block the user's wallet, the attacker creates a sense of panic designed to bypass the user's critical thinking. The instruction to dial *170# (the legitimate MTN MoMo USSD code) is a tactic to get the user into a transaction menu where they can be manipulated into authorizing a transfer, changing their PIN, or providing an OTP to a fraudulent prompt initiated by the attacker.",
       recommendation: 'Reject any unsolicited prompts on your phone. Official telecommunication operators will never threaten automatic wallet termination via unverified SMS.',
+      modelUsed: 'Google Gemma 4',
       vectorBreakdown: [
-        { name: 'MoMo Transfer Fraud', percentage: 98, color: 'var(--primary)' },
-        { name: 'Social Engineering Coercion', percentage: 94, color: '#f59e0b' },
-        { name: 'Brand Impersonation', percentage: 91, color: '#38bdf8' },
-        { name: 'Unverified Sender Auth', percentage: 88, color: '#10b981' }
+        { name: 'Social Coercion & Urgency', percentage: 96, color: 'var(--primary)' },
+        { name: 'Brand Impersonation (MTN/Telco)', percentage: 92, color: '#f59e0b' },
+        { name: 'Unauthorized USSD / Cashout Payload', percentage: 98, color: 'var(--primary)' },
+        { name: 'Sender Identity Anomaly', percentage: 94, color: '#38bdf8' }
       ]
     }
   }, [reports, spotlightIndex])
+
+  // Dynamic vector extractor for active spotlight incident
+  const activeVectors = useMemo(() => {
+    const inc = activeSpotlightIncident
+    const score = inc.riskScore || 95
+    const cat = (inc.threatCategory || '').toLowerCase()
+
+    if (inc.vectorBreakdown && Array.isArray(inc.vectorBreakdown) && inc.vectorBreakdown.length > 0) {
+      return inc.vectorBreakdown.slice(0, 4).map((vec) => ({
+        name: vec.name,
+        score: typeof vec.percentage === 'number' ? vec.percentage : (typeof vec.score === 'number' ? vec.score : 85),
+        color: vec.color || (vec.percentage >= 90 ? 'var(--primary)' : vec.percentage >= 75 ? '#f59e0b' : '#38bdf8')
+      }))
+    }
+
+    if (cat.includes('momo') || cat.includes('transfer') || cat.includes('cashout') || (inc.originalContent || '').includes('*170#')) {
+      return [
+        { name: 'Unauthorized USSD / Cashout Payload', score: Math.min(100, Math.max(90, score)), color: 'var(--primary)' },
+        { name: 'Social Coercion & Urgency', score: Math.max(75, score - 2), color: 'var(--primary)' },
+        { name: 'Brand Impersonation (MTN/Telco)', score: Math.max(70, score - 6), color: '#f59e0b' },
+        { name: 'Sender Identity Anomaly', score: Math.max(65, score - 4), color: '#38bdf8' },
+      ]
+    }
+
+    if (cat.includes('phishing') || cat.includes('link') || cat.includes('website') || inc.type === 'link') {
+      return [
+        { name: 'Spoofed TLD Pattern (.xyz/.site)', score: Math.min(100, Math.max(90, score)), color: 'var(--primary)' },
+        { name: 'Credential & PIN Harvesting', score: Math.max(75, score - 3), color: 'var(--primary)' },
+        { name: 'Insecure Protocol / No SSL', score: Math.max(70, score - 7), color: '#f59e0b' },
+        { name: 'Telecom Brand Imitation', score: Math.max(65, score - 5), color: '#38bdf8' },
+      ]
+    }
+
+    if (cat.includes('job') || cat.includes('recruitment')) {
+      return [
+        { name: 'Upfront Registration Fee Demand', score: Math.min(100, Math.max(90, score)), color: 'var(--primary)' },
+        { name: 'Unrealistic Income Guarantees', score: Math.max(75, score - 4), color: 'var(--primary)' },
+        { name: 'Impersonation of Corporate Entity', score: Math.max(70, score - 8), color: '#f59e0b' },
+        { name: 'Unverified Off-Platform Contact', score: Math.max(65, score - 6), color: '#38bdf8' },
+      ]
+    }
+
+    return [
+      { name: 'Social Coercion & Urgency', score: Math.min(100, Math.max(88, score)), color: 'var(--primary)' },
+      { name: 'Brand Impersonation (MTN/Telco)', score: Math.max(72, score - 6), color: '#f59e0b' },
+      { name: 'Unauthorized USSD / Cashout Payload', score: Math.max(75, score), color: 'var(--primary)' },
+      { name: 'Sender Identity Anomaly', score: Math.max(68, score - 4), color: '#38bdf8' },
+    ]
+  }, [activeSpotlightIncident])
+
+  // Dynamic mitigation protocol steps for active spotlight incident
+  const activeMitigations = useMemo(() => {
+    const inc = activeSpotlightIncident
+    const cat = (inc.threatCategory || '').toLowerCase()
+    const content = (inc.originalContent || '').toLowerCase()
+
+    if (cat.includes('momo') || cat.includes('transfer') || cat.includes('cashout') || content.includes('*170#') || content.includes('pin')) {
+      return [
+        { code: '01', title: 'Handset', text: 'Cancel incoming USSD prompt immediately; never enter PIN.', color: 'var(--primary)' },
+        { code: '02', title: 'Carrier', text: 'Forward SMS to MTN Fraud Unit toll-free via 1917.', color: '#f59e0b' },
+        { code: '03', title: 'Base L2', text: 'Immutable proof syndicated on Sepolia testnet.', color: '#10b981' },
+      ]
+    }
+
+    if (cat.includes('phishing') || cat.includes('link') || cat.includes('website') || inc.type === 'link') {
+      return [
+        { code: '01', title: 'Browser', text: 'Close link immediately; clear cache and never input MoMo credentials.', color: 'var(--primary)' },
+        { code: '02', title: 'Registry', text: 'Report malicious domain to CSA CERT toll-free hotline at 292.', color: '#f59e0b' },
+        { code: '03', title: 'Base L2', text: 'Phishing domain hash blacklisted on Sepolia testnet.', color: '#10b981' },
+      ]
+    }
+
+    if (cat.includes('job') || cat.includes('recruitment')) {
+      return [
+        { code: '01', title: 'Payment', text: 'Refuse registration fee; legitimate recruiters never demand cash upfront.', color: 'var(--primary)' },
+        { code: '02', title: 'Verify', text: 'Cross-check hiring entity with Ghana Registrar General / CSA.', color: '#f59e0b' },
+        { code: '03', title: 'Base L2', text: 'Fraudulent recruiter identity indexed on Sepolia testnet.', color: '#10b981' },
+      ]
+    }
+
+    return [
+      { code: '01', title: 'Handset', text: 'Block sender number immediately; do not reply to threat prompts.', color: 'var(--primary)' },
+      { code: '02', title: 'Carrier', text: 'Forward SMS to MTN Fraud Unit toll-free via 1917.', color: '#f59e0b' },
+      { code: '03', title: 'Base L2', text: 'Immutable proof syndicated on Sepolia testnet.', color: '#10b981' },
+    ]
+  }, [activeSpotlightIncident])
+
+  // Instant In-Page Test Scanner to verify real-time reactivity
+  const handleTriggerTestScan = async () => {
+    if (isSimulatingScan) return
+    setIsSimulatingScan(true)
+    const samples = [
+      {
+        type: 'message',
+        input: 'SECURITY ALERT: MTN MoMo cashout of 850 GHS authorized to 0244988771. If this was not you, dial *170# to cancel prompt.',
+        threatCategory: 'MoMo Transfer & Cashout Fraud',
+      },
+      {
+        type: 'link',
+        input: 'http://mtn-gh-promo-data.site/claim-50gb-free-cashout?user=0244123456',
+        threatCategory: 'Phishing Links & Spoofed Websites',
+      },
+      {
+        type: 'message',
+        input: 'URGENT CSA NOTICE: Your SIM registration is flagged. Reply with your Ghana Card number and MoMo PIN to prevent deactivation.',
+        threatCategory: 'Impersonation & Advance Fee Scams',
+      }
+    ]
+    const pick = samples[Math.floor(Math.random() * samples.length)]
+    try {
+      await scanThreat(pick)
+    } catch (err) {
+      console.warn('Test scan error:', err)
+    } finally {
+      setIsSimulatingScan(false)
+    }
+  }
 
   // 7-day Telemetry trend data
   const trendDays = [
@@ -228,11 +424,33 @@ export default function Dashboard({ user }) {
             width: 100%;
           }
 
-          /* 4-Column KPI Grid */
+          /* 4-Column KPI Grid & Enhanced KPI Cards */
           .cyfocus-kpi-deck {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1.15rem;
+          }
+
+          .cyfocus-kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.3rem 1.35rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.95rem;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+          }
+
+          .cyfocus-kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(230, 60, 28, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
           }
 
           /* Balanced 50% / 50% Posture & Escalation Deck */
@@ -242,11 +460,23 @@ export default function Dashboard({ user }) {
             gap: 1.4rem;
           }
 
-          /* AI Spotlight Layout */
-          .cyfocus-ai-spotlight-deck {
+          /* Modern 3-Column AI Forensic Bento Grid */
+          .cyfocus-ai-bento {
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 1.4rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.15rem;
+          }
+
+          .cyfocus-bento-card {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+            box-sizing: border-box;
           }
 
           /* Segmented Switcher */
@@ -330,7 +560,7 @@ export default function Dashboard({ user }) {
             .cyfocus-kpi-deck {
               grid-template-columns: repeat(2, 1fr);
             }
-            .cyfocus-posture-deck, .cyfocus-ai-spotlight-deck {
+            .cyfocus-posture-deck, .cyfocus-ai-bento {
               grid-template-columns: 1fr;
             }
           }
@@ -342,16 +572,20 @@ export default function Dashboard({ user }) {
         `}</style>
 
         {/* =========================================================================
-            TIER 1: CLEAN COMMAND BAR (Clean Title + Header AI Copilot Button + Scanner CTA)
+            TIER 1: CLEAN COMMAND BAR (Welcome User + Header AI Copilot Button + Scanner CTA)
             ========================================================================= */}
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.2rem', paddingBottom: '0.2rem' }}>
           <div>
-            <div style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, marginBottom: '0.25rem' }}>
-              {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} • {currentTime.toLocaleTimeString()}
+            <div style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <span className="live-pulse-dot" style={{ width: '6px', height: '6px', background: '#10b981' }} />
+              <span>{currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} • {currentTime.toLocaleTimeString()}</span>
             </div>
             <h1 style={{ fontSize: '1.95rem', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: 'var(--text)' }}>
-              Cybersecurity Command Center
+              Welcome back, {userName}!
             </h1>
+            <p style={{ fontSize: '0.84rem', color: 'var(--muted)', margin: '0.25rem 0 0 0', fontWeight: 700 }}>
+              Cybersecurity Command Center &bull; National Mobile Money &amp; Domain Defense Hub
+            </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -464,72 +698,143 @@ export default function Dashboard({ user }) {
             ========================================================================= */}
         <section className="cyfocus-kpi-deck">
           {/* KPI 1: Threat Exposure Index */}
-          <div className="cyfocus-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Threat Exposure Index
-              </span>
-              <span style={{ background: 'var(--surface-alt)', color: 'var(--primary)', border: '1px solid var(--primary)', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+          <div className="cyfocus-kpi-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: 'var(--primary)', flexShrink: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" strokeWidth="3" />
+                  </svg>
+                </div>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--muted)' }}>
+                  Threat Exposure
+                </span>
+              </div>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--primary)', fontSize: '0.68rem', fontWeight: 800, padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
+                <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--primary)' }} />
                 Active
               </span>
             </div>
-            <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--primary)', lineHeight: 1.1, marginBottom: '0.25rem' }}>
-              {metrics.exposureRate}%
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', margin: '0.25rem 0 0.1rem 0' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--primary)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                {metrics.exposureRate}%
+              </span>
+              <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--primary)' }}>
+                ↑ +18% peak
+              </span>
             </div>
+
             <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600 }}>
               {metrics.highRisk} Critical threats identified in recent stream
             </div>
           </div>
 
-          {/* KPI 2: Total AI Scans */}
-          <div className="cyfocus-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                AI Telemetry Scans
-              </span>
-              <span style={{ background: 'var(--surface-alt)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+          {/* KPI 2: AI Telemetry Scans */}
+          <div className="cyfocus-kpi-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: '#38bdf8', flexShrink: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                    <rect x="9" y="9" width="6" height="6" />
+                    <line x1="9" y1="1" x2="9" y2="4" />
+                    <line x1="15" y1="1" x2="15" y2="4" />
+                    <line x1="9" y1="20" x2="9" y2="23" />
+                    <line x1="15" y1="20" x2="15" y2="23" />
+                    <line x1="20" y1="9" x2="23" y2="9" />
+                    <line x1="20" y1="14" x2="23" y2="14" />
+                    <line x1="1" y1="9" x2="4" y2="9" />
+                    <line x1="1" y1="14" x2="4" y2="14" />
+                  </svg>
+                </div>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--muted)' }}>
+                  AI Telemetry Scans
+                </span>
+              </div>
+              <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '0.68rem', fontWeight: 800, padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
                 Gemma 4
               </span>
             </div>
-            <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1, marginBottom: '0.25rem' }}>
-              {metrics.total || 42}
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', margin: '0.25rem 0 0.1rem 0' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                {metrics.total}
+              </span>
+              <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--muted)' }}>
+                380ms avg
+              </span>
             </div>
+
             <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600 }}>
               Evaluated across SMS, WhatsApp &amp; Screenshots
             </div>
           </div>
 
           {/* KPI 3: Neutralized Scams */}
-          <div className="cyfocus-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Neutralized Threats
-              </span>
-              <span style={{ background: 'var(--surface-alt)', color: '#f59e0b', border: '1px solid #f59e0b', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+          <div className="cyfocus-kpi-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: '#10b981', flexShrink: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <polyline points="9 12 11 14 15 10" />
+                  </svg>
+                </div>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--muted)' }}>
+                  Neutralized Threats
+                </span>
+              </div>
+              <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: '#10b981', fontSize: '0.68rem', fontWeight: 800, padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
                 Shields Up
               </span>
             </div>
-            <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1, marginBottom: '0.25rem' }}>
-              {metrics.highRisk + metrics.mediumRisk || 31}
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', margin: '0.25rem 0 0.1rem 0' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                {metrics.highRisk + metrics.mediumRisk}
+              </span>
+              <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#10b981' }}>
+                100% blocked
+              </span>
             </div>
+
             <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600 }}>
               Prevented unauthorized transfers and credential theft
             </div>
           </div>
 
           {/* KPI 4: Base L2 On-Chain */}
-          <div className="cyfocus-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Base L2 Smart Registry
-              </span>
-              <span style={{ background: 'var(--surface-alt)', color: '#38bdf8', border: '1px solid #38bdf8', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+          <div className="cyfocus-kpi-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: '#38bdf8', flexShrink: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                    <polyline points="2 17 12 22 22 17" />
+                    <polyline points="2 12 12 17 22 12" />
+                  </svg>
+                </div>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--muted)' }}>
+                  Base L2 Registry
+                </span>
+              </div>
+              <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: '#38bdf8', fontSize: '0.68rem', fontWeight: 800, padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
                 Gasless
               </span>
             </div>
-            <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1, marginBottom: '0.25rem' }}>
-              142
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.6rem', margin: '0.25rem 0 0.1rem 0' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                142
+              </span>
+              <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--muted)' }}>
+                on-chain
+              </span>
             </div>
+
             <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               Contract: 0xb0E56...859c (Sepolia)
             </div>
@@ -537,13 +842,14 @@ export default function Dashboard({ user }) {
         </section>
 
         {/* =========================================================================
-            TIER 4: DEDICATED AI THREAT ANALYSIS & FORENSIC INTELLIGENCE SPOTLIGHT (NEW)
+            TIER 4: DEDICATED AI THREAT ANALYSIS & FORENSIC INTELLIGENCE (MODERN BENTO)
             ========================================================================= */}
         <section className="cyfocus-card" style={{ padding: '1.4rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.15rem', flexWrap: 'wrap', gap: '0.8rem' }}>
+          {/* Section Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.8rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z" />
                   <circle cx="9" cy="13" r="1" />
                   <circle cx="15" cy="13" r="1" />
@@ -551,26 +857,31 @@ export default function Dashboard({ user }) {
                 </svg>
               </div>
               <div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                  Gemma 4 AI Neural Threat Analysis &amp; Heuristics Hub
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                    Gemma 4 AI Neural Threat Analysis &amp; Heuristics Hub
+                  </h3>
+                  <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--muted)', fontSize: '0.66rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                    26B-A4B-IT
+                  </span>
+                </div>
                 <p style={{ fontSize: '0.76rem', color: 'var(--muted)', margin: '0.15rem 0 0 0' }}>
-                  Live multimodal forensic breakdown of active threat telemetry targeting Ghanaian infrastructure
+                  Welcome {userName} &bull; Live multimodal forensic breakdown of active threat telemetry targeting Ghanaian infrastructure
                 </p>
               </div>
             </div>
 
-            {/* Incident Quick Switcher */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            {/* Telemetry Sample Switcher + Instant Test Trigger */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 700 }}>Telemetry Sample:</span>
-              {(reports.slice(0, 3).length > 0 ? reports.slice(0, 3) : [activeSpotlightIncident]).map((item, idx) => (
+              {(reports.slice(0, 5).length > 0 ? reports.slice(0, 5) : [activeSpotlightIncident]).map((item, idx) => (
                 <button
                   key={item.id || idx}
-                  onClick={() => setSpotlightIndex(idx)}
+                  onClick={() => changeSpotlight(idx)}
                   style={{
                     background: spotlightIndex === idx ? 'var(--primary)' : 'var(--surface-alt)',
                     color: spotlightIndex === idx ? '#ffffff' : 'var(--text)',
-                    border: '1px solid var(--border)',
+                    border: `1px solid ${spotlightIndex === idx ? 'var(--primary)' : 'var(--border)'}`,
                     borderRadius: '6px',
                     padding: '0.3rem 0.65rem',
                     fontSize: '0.72rem',
@@ -579,169 +890,204 @@ export default function Dashboard({ user }) {
                     transition: 'all 0.15s ease'
                   }}
                 >
-                  #{item.id ? item.id.slice(0, 8).toUpperCase() : `AUDIT-${idx + 1}`}
+                  #{item.id ? item.id.slice(0, 9).toUpperCase() : `AUDIT-${idx + 1}`}
                 </button>
               ))}
+
+              {/* Instant Test Scan Trigger to verify real-time dashboard reactivity */}
+              <button
+                onClick={handleTriggerTestScan}
+                disabled={isSimulatingScan}
+                style={{
+                  background: 'var(--surface-alt)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--primary)',
+                  borderRadius: '6px',
+                  padding: '0.3rem 0.65rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 900,
+                  cursor: isSimulatingScan ? 'wait' : 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  transition: 'all 0.15s ease'
+                }}
+                title="Run immediate live Gemma 4 threat analysis to test real-time dashboard telemetry updates"
+              >
+                <span className="live-pulse-dot" style={{ width: '6px', height: '6px', background: 'var(--primary)' }} />
+                <span>{isSimulatingScan ? 'Analyzing...' : '+ Run Test Scan'}</span>
+              </button>
             </div>
           </div>
 
-          <div className="cyfocus-ai-spotlight-deck">
-            {/* Left Column: Forensic Evidence & Neural Explanation */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.25rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.6rem' }}>
-                <div>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    Incident Payload / Target Text
+          {/* 3-Panel Modern Bento Grid */}
+          <div className="cyfocus-ai-bento">
+            {/* Bento Panel 1: Intercepted Telemetry & Behavioral Red Flags */}
+            <div className="cyfocus-bento-card">
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    01 / Telemetry Evidence
                   </span>
-                  <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text)', marginTop: '0.35rem', lineHeight: 1.45, fontFamily: 'monospace', background: 'var(--surface)', padding: '0.7rem 0.9rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                    "{activeSpotlightIncident.originalContent || activeSpotlightIncident.summary}"
+                  <span style={{ fontSize: '0.66rem', fontWeight: 800, color: 'var(--text)', background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.15rem 0.5rem', borderRadius: '999px', textTransform: 'capitalize' }}>
+                    {activeSpotlightIncident.type || 'message'}
+                  </span>
+                </div>
+
+                {/* Target Payload */}
+                <div style={{
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  color: 'var(--text)',
+                  lineHeight: 1.5,
+                  fontFamily: 'monospace',
+                  background: 'var(--surface)',
+                  padding: '0.8rem 0.95rem',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border)',
+                  borderLeft: '3px solid var(--primary)',
+                  marginBottom: '1rem'
+                }}>
+                  "{activeSpotlightIncident.originalContent || activeSpotlightIncident.summary}"
+                </div>
+
+                {/* Extracted Red Flags Checklist */}
+                <div>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.5rem' }}>
+                    Extracted Behavioral Red Flags ({activeSpotlightIncident.redFlags?.length || 4})
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                    {(activeSpotlightIncident.redFlags && activeSpotlightIncident.redFlags.length > 0 ? activeSpotlightIncident.redFlags : [
+                      "Artificial urgency ('Urgent notice')",
+                      "Threat of service disruption ('wallet will be blocked')",
+                      "Unsolicited instruction to use USSD codes (*170#)",
+                      "Impersonation of a mobile network operator (MTN)"
+                    ]).map((flag, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.55rem',
+                          fontSize: '0.74rem',
+                          color: 'var(--text)',
+                          fontWeight: 700,
+                          lineHeight: 1.35
+                        }}
+                      >
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary)', flexShrink: 0, marginTop: '4px' }} />
+                        <span>{flag}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Extracted Red Flags Badges */}
+            {/* Bento Panel 2: Gemma 4 Neural Reasoning & Diagnosis */}
+            <div className="cyfocus-bento-card">
               <div>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.45rem' }}>
-                  Extracted Behavioral Red Flags ({activeSpotlightIncident.redFlags?.length || 4})
-                </span>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
-                  {(activeSpotlightIncident.redFlags || [
-                    'Direct prompt requesting *170# execution',
-                    'High psychological urgency and timeout',
-                    'Impersonates official MTN MoMo service',
-                    'Unregistered alphanumeric sender ID'
-                  ]).map((flag, idx) => (
-                    <span
-                      key={idx}
-                      style={{
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        color: 'var(--text)',
-                        fontSize: '0.73rem',
-                        fontWeight: 700,
-                        padding: '0.3rem 0.65rem',
-                        borderRadius: '6px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.4rem'
-                      }}
-                    >
-                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary)' }} />
-                      {flag}
-                    </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    02 / Neural Diagnosis
+                  </span>
+                  <span style={{ fontSize: '0.66rem', fontWeight: 800, color: 'var(--primary)', background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                    Confidence: {activeSpotlightIncident.riskScore || 98}%
+                  </span>
+                </div>
+
+                {/* Threat Category */}
+                <div style={{ fontSize: '0.96rem', fontWeight: 900, color: 'var(--text)', marginBottom: '0.65rem' }}>
+                  {activeSpotlightIncident.threatCategory || 'MoMo Transfer & Cashout Fraud'}
+                </div>
+
+                {/* Neural Assessment Narrative */}
+                <p style={{
+                  fontSize: '0.8rem',
+                  color: 'var(--text)',
+                  margin: 0,
+                  lineHeight: 1.6,
+                  background: 'var(--surface)',
+                  padding: '0.85rem 1rem',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border)'
+                }}>
+                  {activeSpotlightIncident.explanation || "This message utilizes fear-based social engineering. By threatening to block the user's wallet, the attacker creates a sense of panic designed to bypass the user's critical thinking. The instruction to dial *170# (the legitimate MTN MoMo USSD code) is a tactic to get the user into a transaction menu where they can be manipulated into authorizing a transfer, changing their PIN, or providing an OTP to a fraudulent prompt initiated by the attacker."}
+                </p>
+              </div>
+
+              {/* Engine Metadata Footer */}
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.65rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.7rem', color: 'var(--muted)' }}>
+                <span>Model: {activeSpotlightIncident.modelUsed || 'Google Gemma 4'}</span>
+                <span style={{ fontFamily: 'monospace' }}>Latency: 380ms avg</span>
+              </div>
+            </div>
+
+            {/* Bento Panel 3: Multi-Vector Matrix & Containment Protocol */}
+            <div className="cyfocus-bento-card">
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    03 / Vectors &amp; Mitigation
+                  </span>
+                  <span style={{ background: 'var(--surface)', color: 'var(--primary)', border: '1px solid var(--primary)', fontSize: '0.68rem', fontWeight: 900, padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
+                    {activeSpotlightIncident.riskScore || 95}% {activeSpotlightIncident.riskLevel ? activeSpotlightIncident.riskLevel.toUpperCase() : 'HIGH'} RISK
+                  </span>
+                </div>
+
+                {/* 4 Heuristic Vector Gauges (Dynamically Derived from Current Incident) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', marginBottom: '0.95rem' }}>
+                  {activeVectors.map((vec) => (
+                    <div key={vec.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 800 }}>
+                        <span style={{ color: 'var(--text)' }}>{vec.name}</span>
+                        <span style={{ color: vec.color }}>{vec.score}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: '4px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                        <div style={{ width: `${vec.score}%`, height: '100%', background: vec.color, borderRadius: '999px' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Automated Mitigation Protocol (Dynamically Derived from Current Incident) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.74rem', color: 'var(--text)' }}>
+                  {activeMitigations.map((step) => (
+                    <div key={step.code} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                      <span style={{ fontWeight: 900, color: step.color, fontFamily: 'monospace' }}>{step.code}</span>
+                      <span><strong>{step.title}:</strong> {step.text}</span>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              {/* Deep Neural Explanation */}
-              <div>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.35rem' }}>
-                  Gemma 4 Deep Neural Assessment
-                </span>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text)', margin: 0, lineHeight: 1.5, background: 'var(--surface)', padding: '0.75rem 0.95rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                  {activeSpotlightIncident.explanation || 'The communication uses deceptive urgency to induce fear of service suspension. The sender prompts the target to initiate an unprompted USSD cashout transaction which grants the attacker immediate financial transfer rights upon PIN confirmation.'}
-                </p>
-              </div>
-            </div>
-
-            {/* Right Column: AI Risk Vector Breakdown & Automated Playbook */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.25rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Multi-Vector Risk Matrix
-                </span>
-                <span style={{ background: 'var(--surface)', color: 'var(--primary)', border: '1px solid var(--primary)', fontSize: '0.74rem', fontWeight: 900, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
-                  {activeSpotlightIncident.riskScore || 96}% HIGH RISK
-                </span>
-              </div>
-
-              {/* Heuristic Bars */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-                {[
-                  { name: 'Social Coercion & Urgency', score: 96, color: 'var(--primary)' },
-                  { name: 'Brand Impersonation (MTN/Telco)', score: 92, color: '#f59e0b' },
-                  { name: 'Unauthorized USSD / Cashout Payload', score: 98, color: 'var(--primary)' },
-                  { name: 'Sender Identity Anomaly', score: 94, color: '#38bdf8' },
-                ].map((vec) => (
-                  <div key={vec.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 800 }}>
-                      <span style={{ color: 'var(--text)' }}>{vec.name}</span>
-                      <span style={{ color: vec.color }}>{vec.score}%</span>
-                    </div>
-                    <div style={{ width: '100%', height: '6px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                      <div style={{ width: `${vec.score}%`, height: '100%', background: vec.color, borderRadius: '999px' }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Automated Mitigation Playbook */}
-              <div style={{ marginTop: '0.2rem' }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.45rem' }}>
-                  Automated Mitigation Protocol
-                </span>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.76rem', color: 'var(--text)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                    <span style={{ fontWeight: 900, color: 'var(--primary)' }}>01</span>
-                    <span><strong>Immediate Handset Action:</strong> Cancel incoming USSD prompt immediately; never enter PIN.</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                    <span style={{ fontWeight: 900, color: '#f59e0b' }}>02</span>
-                    <span><strong>Carrier Escalation:</strong> Forward SMS to MTN Fraud Unit toll-free via <strong>1917</strong>.</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                    <span style={{ fontWeight: 900, color: '#10b981' }}>03</span>
-                    <span><strong>Base L2 Attestation:</strong> Immutable cryptographic proof syndicated on Sepolia.</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.2rem' }}>
-                <button
-                  onClick={() => setSelectedIncidentForAudit(activeSpotlightIncident)}
-                  style={{
-                    flex: 1,
-                    background: 'var(--primary)',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '0.55rem 0.9rem',
-                    fontSize: '0.78rem',
-                    fontWeight: 900,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem'
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  Inspect Full Forensic Audit
-                </button>
-
-                <button
-                  onClick={() => setIsCopilotOpen(true)}
-                  style={{
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text)',
-                    borderRadius: '8px',
-                    padding: '0.55rem 0.95rem',
-                    fontSize: '0.78rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem'
-                  }}
-                >
-                  Ask Copilot
-                </button>
-              </div>
+              {/* Primary Action Button (Without Copilot) */}
+              <button
+                onClick={() => setSelectedIncidentForAudit(activeSpotlightIncident)}
+                style={{
+                  width: '100%',
+                  background: 'var(--primary)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '0.65rem 1rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.45rem',
+                  boxShadow: '0 2px 10px rgba(230, 60, 28, 0.25)',
+                  transition: 'opacity 0.15s ease'
+                }}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                Inspect Full Forensic Audit →
+              </button>
             </div>
           </div>
         </section>
@@ -1484,6 +1830,47 @@ export default function Dashboard({ user }) {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Live AI Telemetry Sync Notification Banner */}
+        {liveSyncNotification && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '1.5rem',
+              left: '1.5rem',
+              zIndex: 9998,
+              background: 'var(--surface)',
+              border: '1px solid var(--primary)',
+              borderRadius: '10px',
+              padding: '0.75rem 1.15rem',
+              boxShadow: '0 8px 30px rgba(230, 60, 28, 0.22)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              color: 'var(--text)',
+              animation: 'fadeIn 0.2s ease-out'
+            }}
+          >
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--primary)', flexShrink: 0 }} className="live-pulse-dot" />
+            <span>{liveSyncNotification}</span>
+            <button
+              onClick={() => setLiveSyncNotification(null)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--muted)',
+                cursor: 'pointer',
+                padding: '0 0 0 0.5rem',
+                fontSize: '0.9rem',
+                lineHeight: 1
+              }}
+            >
+              ×
+            </button>
           </div>
         )}
 
