@@ -2,19 +2,67 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const GEMMA_MODELS = [
-  process.env.GEMMA_MODEL || 'gemma-4-26b-a4b-it',
-  'gemma-4-31b-it',
+  process.env.GEMMA_MODEL || 'gemma-4-31b-it',
+  'gemma-4-26b-a4b-it',
+  'gemini-3.5-flash',
+  'gemini-flash-latest',
 ]
 
 export function getGemmaModelInfo() {
-  const model = process.env.GEMMA_MODEL || 'gemma-4-26b-a4b-it'
+  const model = process.env.GEMMA_MODEL || 'gemma-4-31b-it'
   const hasKey = Boolean(process.env.GEMINI_API_KEY)
   return {
     activeModel: model,
     availableModels: GEMMA_MODELS,
     hasApiKey: hasKey,
-    provider: 'Google AI Studio (Gemma 4 only)',
+    provider: 'Google AI Studio (Google Gemma 4 & Gemini)',
   }
+}
+
+/**
+ * Extracts and parses valid JSON from models that may output internal reasoning or code fences.
+ */
+function extractJson(text) {
+  if (!text) return null
+  // 1. Look for markdown json code fence
+  const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i)
+  if (codeBlockMatch && codeBlockMatch[1]) {
+    try {
+      return JSON.parse(codeBlockMatch[1].trim())
+    } catch {}
+  }
+
+  // 2. Scan from last closing brace backwards to find matching opening brace (handles internal reasoning)
+  const lastClose = text.lastIndexOf('}')
+  if (lastClose !== -1) {
+    let depth = 0
+    let startIdx = -1
+    for (let i = lastClose; i >= 0; i--) {
+      if (text[i] === '}') depth++
+      else if (text[i] === '{') {
+        depth--
+        if (depth === 0) {
+          startIdx = i
+          break
+        }
+      }
+    }
+    if (startIdx !== -1) {
+      try {
+        return JSON.parse(text.substring(startIdx, lastClose + 1))
+      } catch {}
+    }
+  }
+
+  // 3. Fallback regex
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
+  if (jsonMatch) {
+    try {
+      return JSON.parse(jsonMatch[0])
+    } catch {}
+  }
+
+  return JSON.parse(text)
 }
 
 /**
@@ -140,12 +188,7 @@ You MUST respond ONLY with a single JSON object matching this exact schema:
   let cleaned = rawJsonText.trim()
   let parsed = null
   try {
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      parsed = JSON.parse(jsonMatch[0])
-    } else {
-      parsed = JSON.parse(cleaned)
-    }
+    parsed = extractJson(cleaned)
   } catch (err) {
     console.error('[SafeLens AI] Failed to parse Gemma 4 JSON:', cleaned)
     throw new Error('Failed to parse AI output into structured threat intelligence.')
