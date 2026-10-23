@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: safelens-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: RPC_URL
+        value: https://sepolia.base.org
+      - key: CONTRACT_ADDRESS
+        value: 0xb0E56de2C6aD146F9b6c8c86084046EC1200859c
+      - key: GEMMA_MODEL
+        value: gemma-4-31b-it
+      - key: NEON_BRANCH
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: PRIVATE_KEY
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
