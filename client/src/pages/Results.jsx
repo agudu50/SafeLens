@@ -201,8 +201,11 @@ export default function Results() {
                 >
                   {result.riskLevel.toUpperCase()} RISK DETECTED
                 </span>
-                <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 700 }}>
-                  SafeLens AI Threat Engine
+                <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  {result.modelUsed || 'Google Gemma 4 AI Engine'}
                 </span>
               </div>
 

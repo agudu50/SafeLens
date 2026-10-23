@@ -9,11 +9,13 @@ import {
   CONTRACT_ADDRESS_VALUE,
   EXPLORER_BASE_URL,
 } from './contract.js'
+import { analyzeThreatWithGemma4, getGemmaModelInfo } from './gemmaService.js'
 
 dotenv.config()
 
 const app = express()
-app.use(express.json())
+// Increase JSON limit so screenshot base64 images can be received cleanly
+app.use(express.json({ limit: '10mb' }))
 
 const allowedOrigins = (process.env.CLIENT_ORIGIN || '')
   .split(',')
@@ -27,7 +29,30 @@ app.use(
 )
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, contract: CONTRACT_ADDRESS_VALUE })
+  res.json({
+    ok: true,
+    contract: CONTRACT_ADDRESS_VALUE,
+    ai: getGemmaModelInfo(),
+  })
+})
+
+// Scan content or screenshot images using Google Gemma 4
+app.post('/api/scan', async (req, res) => {
+  const { type = 'message', input = '', image = null } = req.body || {}
+
+  if (!input && !image) {
+    return res.status(400).json({ error: 'Please provide either text content or an image to analyze.' })
+  }
+
+  try {
+    const scanResult = await analyzeThreatWithGemma4({ type, input, image })
+    res.json(scanResult)
+  } catch (err) {
+    console.error('Threat scan error with Gemma 4:', err)
+    res.status(500).json({
+      error: err.message || 'Failed to complete threat analysis with Gemma 4.',
+    })
+  }
 })
 
 // Registers a scam report's hash on-chain, using the backend service wallet

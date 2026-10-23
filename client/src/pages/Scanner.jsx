@@ -5,7 +5,7 @@ import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Alert from '../components/ui/Alert'
 import AnalysisLoader from '../features/scanner/AnalysisLoader'
-import { createMockScanResult } from '../services/scannerService'
+import { scanThreat, createMockScanResult } from '../services/scannerService'
 
 const SCAN_TYPES = [
   {
@@ -152,16 +152,23 @@ export default function Scanner() {
     setIsScanning(true)
     setError('')
 
-    // Visual multi-step loading delay for human trust building
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
     const content = activeType === 'screenshot' && !input.trim()
       ? 'Screenshot uploaded for OCR analysis (no additional text provided).'
       : input.trim()
 
-    const result = createMockScanResult({ type: activeType, input: content })
-    setIsScanning(false)
-    navigate(`/results/${result.id}`)
+    try {
+      const result = await scanThreat({
+        type: activeType,
+        input: content,
+        image: activeType === 'screenshot' ? imagePreview : null,
+      })
+      setIsScanning(false)
+      navigate(`/results/${result.id}`)
+    } catch (err) {
+      console.error('Scan error:', err)
+      setError('An error occurred during threat scanning. Please try again.')
+      setIsScanning(false)
+    }
   }
 
   return (
@@ -173,17 +180,20 @@ export default function Scanner() {
         <section className="scanner-workstation-card animate-fade-in">
           {/* Header */}
           <div className="scanner-workstation-header">
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem' }}>
-              <Badge tone="medium">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+              <Badge variant="info">
                 <span className="live-pulse-dot" style={{ width: '6px', height: '6px', background: 'var(--primary)', marginRight: '0.35rem' }} />
                 AI THREAT SCANNER
+              </Badge>
+              <Badge variant="neutral">
+                POWERED BY GOOGLE GEMMA 4
               </Badge>
             </div>
             <h1 className="scanner-workstation-title">
               Scan Messages &amp; Fraud Lures
             </h1>
             <p className="scanner-workstation-desc">
-              Paste suspicious SMS text, web links, or upload screenshots to get an instant AI risk score tailored for Ghana mobile security.
+              Paste suspicious SMS text, web links, or upload screenshots to get an instant AI risk score tailored for Ghana mobile security powered by Google Gemma 4.
             </p>
           </div>
 

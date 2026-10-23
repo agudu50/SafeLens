@@ -240,9 +240,46 @@ function buildResult({ type = 'message', input = '', riskLevel = '' }) {
   }
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+
+/**
+ * Scans content via backend Gemma 4 AI engine.
+ * Falls back seamlessly to local heuristic engine if the backend is unreachable.
+ */
+export async function scanThreat({ type = 'message', input = '', image = null, riskLevel = '' }) {
+  try {
+    const response = await fetch(`${API_URL}/api/scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, input, image }),
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      loadHistory()
+      history.unshift(data)
+      saveHistory()
+      return data
+    } else {
+      const errData = await response.json().catch(() => ({}))
+      console.warn('[SafeLens] Backend Gemma 4 scan returned an error:', errData.error)
+    }
+  } catch (err) {
+    console.warn('[SafeLens] Network error reaching SafeLens Gemma 4 API, utilizing local fallback engine:', err)
+  }
+
+  loadHistory()
+  const fallbackResult = buildResult({ type, input, riskLevel })
+  fallbackResult.modelUsed = 'Local Heuristic Engine (Offline Fallback)'
+  history.unshift(fallbackResult)
+  saveHistory()
+  return fallbackResult
+}
+
 export function createMockScanResult(payload) {
   const riskLevel = payload.riskLevel || ''
   const result = buildResult({ type: payload.type, input: payload.input, riskLevel })
+  loadHistory()
   history.unshift(result)
   saveHistory()
   return result
