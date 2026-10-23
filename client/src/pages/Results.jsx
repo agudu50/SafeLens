@@ -18,8 +18,25 @@ export default function Results() {
   const [isAnchoring, setIsAnchoring] = useState(false)
   const [anchorError, setAnchorError] = useState('')
   const [verification, setVerification] = useState(null)
+  const [result, setResult] = useState(() => getMockScanResult(id))
 
-  const result = getMockScanResult(id)
+  useEffect(() => {
+    const local = getMockScanResult(id)
+    if (local) setResult(local)
+
+    if (id) {
+      const cleanId = String(id).toLowerCase()
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+      fetch(`${API_URL}/api/reports/${cleanId}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((dbData) => {
+          if (dbData && dbData.id) {
+            setResult(dbData)
+          }
+        })
+        .catch(() => {})
+    }
+  }, [id])
 
   useEffect(() => {
     if (copied) {
@@ -151,7 +168,7 @@ export default function Results() {
               <span style={{ color: 'var(--text)', fontWeight: 800, fontSize: '0.84rem' }}>Scan Audit Report</span>
               <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--muted)' }} />
               <span style={{ fontFamily: 'monospace', color: 'var(--primary)', fontWeight: 900, fontSize: '0.82rem' }}>
-                #{result.id ? result.id.slice(0, 8).toUpperCase() : 'SCAN-P79'}
+                #{result.id ? result.id.toUpperCase() : 'SCAN-REPORT'}
               </span>
             </div>
           </div>

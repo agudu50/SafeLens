@@ -491,13 +491,37 @@ export default function History() {
                     const badgeColor = isHigh ? 'var(--primary)' : isMed ? '#f59e0b' : '#10b981'
 
                     return (
-                      <tr key={item.id}>
+                      <tr
+                        key={item.id}
+                        onClick={() => navigate(`/results/${item.id}`)}
+                        style={{ cursor: 'pointer' }}
+                        title="Click to view complete AI Scanner threat details"
+                      >
                         {/* Incident / Hash + Preview */}
                         <td style={{ minWidth: '240px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                            <span style={{ fontFamily: 'monospace', fontWeight: 900, color: 'var(--primary)', fontSize: '0.78rem' }}>
+                            <Link
+                              to={`/results/${item.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              style={{
+                                textDecoration: 'none',
+                                fontFamily: 'monospace',
+                                fontWeight: 900,
+                                color: 'var(--primary)',
+                                fontSize: '0.8rem',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.35rem'
+                              }}
+                              title="Open AI Scan Details"
+                            >
                               #{item.id.slice(0, 10).toUpperCase()}
-                            </span>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                <polyline points="15 3 21 3 21 9" />
+                                <line x1="10" y1="14" x2="21" y2="3" />
+                              </svg>
+                            </Link>
                             <span style={{ color: 'var(--text)', fontWeight: 600, fontSize: '0.8rem', maxWidth: '340px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {item.originalContent || item.summary}
                             </span>
@@ -535,43 +559,51 @@ export default function History() {
 
                         {/* Actions */}
                         <td style={{ textAlign: 'right' }}>
-                          <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
-                            <button
-                              onClick={() => setSelectedIncidentForAudit(item)}
-                              style={{
-                                padding: '0.35rem 0.75rem',
-                                fontSize: '0.74rem',
-                                fontWeight: 800,
-                                borderRadius: '8px',
-                                border: '1px solid var(--border)',
-                                background: 'var(--surface)',
-                                color: 'var(--text)',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease'
-                              }}
-                            >
-                              Forensic Audit →
-                            </button>
-                            <Link to={`/results/${item.id}`} style={{ textDecoration: 'none' }}>
+                          <div style={{ display: 'inline-flex', gap: '0.45rem', alignItems: 'center' }}>
+                            <Link to={`/results/${item.id}`} style={{ textDecoration: 'none' }} onClick={(e) => e.stopPropagation()}>
                               <button
                                 style={{
-                                  padding: '0.35rem 0.55rem',
+                                  padding: '0.4rem 0.85rem',
                                   fontSize: '0.74rem',
                                   fontWeight: 800,
                                   borderRadius: '8px',
                                   border: '1px solid var(--border)',
-                                  background: 'transparent',
-                                  color: 'var(--muted)',
-                                  cursor: 'pointer'
+                                  background: 'var(--surface)',
+                                  color: 'var(--text)',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.35rem'
                                 }}
-                                title="Open Dedicated Forensic Report"
+                                title="View Complete AI Threat Inspection"
                               >
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                  <polyline points="15 3 21 3 21 9" />
-                                </svg>
+                                <span>Forensic Audit →</span>
                               </button>
                             </Link>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedIncidentForAudit(item)
+                              }}
+                              style={{
+                                padding: '0.4rem 0.55rem',
+                                fontSize: '0.74rem',
+                                fontWeight: 800,
+                                borderRadius: '8px',
+                                border: '1px solid var(--border)',
+                                background: 'transparent',
+                                color: 'var(--muted)',
+                                cursor: 'pointer'
+                              }}
+                              title="Quick In-Page Audit Modal"
+                            >
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                                <polyline points="2 17 12 22 22 17" />
+                                <polyline points="2 12 12 17 22 12" />
+                              </svg>
+                            </button>
                           </div>
                         </td>
                       </tr>

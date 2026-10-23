@@ -465,7 +465,8 @@ function buildResult({ type = 'message', input = '', riskLevel = '' }) {
   }
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+const API_URL =
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || 'http://localhost:4000'
 
 /**
  * Scans content via backend Gemma 4 AI engine.
@@ -521,7 +522,22 @@ export function createMockScanResult(payload) {
 
 export function getMockScanResult(id) {
   loadHistory()
-  return history.find((item) => item.id === id) || history[0]
+  if (!id) return history[0]
+  const cleanId = String(id).trim().toLowerCase()
+  const exact = history.find((item) => item.id && item.id.toLowerCase() === cleanId)
+  if (exact) return exact
+  const prefixMatch = history.find(
+    (item) => item.id && (item.id.toLowerCase().startsWith(cleanId) || cleanId.startsWith(item.id.toLowerCase()))
+  )
+  if (prefixMatch) return prefixMatch
+  const cleanAlpha = cleanId.replace(/[^a-z0-9]/g, '')
+  if (cleanAlpha) {
+    const alphaMatch = history.find(
+      (item) => item.id && item.id.toLowerCase().replace(/[^a-z0-9]/g, '').includes(cleanAlpha)
+    )
+    if (alphaMatch) return alphaMatch
+  }
+  return history[0]
 }
 
 export function getScanHistory() {
