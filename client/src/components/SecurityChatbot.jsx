@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 
-export default function SecurityChatbot({ user }) {
-  const [isOpen, setIsOpen] = useState(false)
+export default function SecurityChatbot({ user, isOpen: externalIsOpen, setIsOpen: externalSetIsOpen }) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false)
+  const isControlled = externalIsOpen !== undefined && externalSetIsOpen !== undefined
+  const isOpen = isControlled ? externalIsOpen : internalIsOpen
+  const setIsOpen = isControlled ? externalSetIsOpen : setInternalIsOpen
+
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef(null)
@@ -10,16 +14,16 @@ export default function SecurityChatbot({ user }) {
     {
       id: 1,
       sender: 'ai',
-      text: `Hello ${user?.name ? user.name.split(' ')[0] : 'Kofi'}! I'm your SafeLens AI Security Assistant. Ask me anything about suspicious MoMo calls, phishing links, or scam prevention.`,
+      text: `Hello ${user?.name ? user.name.split(' ')[0] : 'Operator'}. SafeLens AI Security Assistant is online. Inquire about suspicious MoMo activity, phishing domains, or incident containment protocols.`,
       time: 'Just now'
     }
   ])
 
   const quickPrompts = [
-    'Detect MoMo cashout fraud',
-    'Suspicious job offer text',
-    'Ghana CSA helpline 292',
-    'Will MTN ask for my PIN?'
+    'MoMo Cashout Rules',
+    'Fake Job Check',
+    'Ghana CSA Helpline 292',
+    'MTN PIN Policy'
   ]
 
   const scrollToBottom = () => {
@@ -32,26 +36,37 @@ export default function SecurityChatbot({ user }) {
     }
   }, [messages, isOpen])
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, setIsOpen])
+
   const generateAIResponse = (query) => {
     const q = query.toLowerCase()
-    
+
     if (q.includes('momo') || q.includes('cashout') || q.includes('pin') || q.includes('mobile money')) {
-      return `⚠️ **MoMo Security Rule**: Legitimate MTN, Telecel, or AT agents will **NEVER** call to request your 4-digit PIN or ask you to approve a USSD prompt. If someone claims they sent you money by mistake, tell them to contact the network operator directly. Never send funds back yourself.`
+      return `[MOMO PROTOCOL]: Legitimate MTN, Telecel, or AT staff will NEVER request your 4-digit PIN or ask you to dial *170# to approve an unexpected cashout prompt. If an unknown caller claims a wrong transfer was sent to your wallet, direct them to file a formal reversal through their telecommunication provider. Never approve prompts manually.`
     }
-    
+
     if (q.includes('job') || q.includes('recruitment') || q.includes('fee') || q.includes('agent')) {
-      return `🚨 **Fake Job Warning**: Legitimate employers in Ghana (or abroad) will **NEVER** ask job applicants to pay registration fees, interview fees, or medical checkup fees via Mobile Money before hiring. This is an advance-fee recruitment scam.`
+      return `[RECRUITMENT ADVISORY]: Verified corporate employers and government agencies in Ghana never charge application, registration, or medical checkup fees via Mobile Money before employment. Any requirement to transfer funds upfront constitutes an advance-fee fraud vector.`
     }
 
     if (q.includes('helpline') || q.includes('csa') || q.includes('report') || q.includes('contact') || q.includes('292')) {
-      return `📞 **Ghana Anti-Scam Emergency Lines**:\n• Cyber Security Authority (CSA): **292** (Call/SMS/WhatsApp)\n• Police Fraud Unit: **191** or **112**\n• MTN Fraud Desk: **100** or SMS **1515**`
+      return `[INCIDENT ESCALATION DIRECTORY]:\n• National Cyber Security Authority (CSA): 292 (Toll-free / WhatsApp / SMS)\n• Ghana Police Cybercrime Unit: 18555 or 112\n• MTN Fraud Response Desk: 1917`
     }
 
     if (q.includes('link') || q.includes('website') || q.includes('url') || q.includes('phishing')) {
-      return `🔗 **Phishing Verification**: Official bank and telco websites use secure domain names (e.g. \`mtn.com.gh\`, \`gcb.com.gh\`). Avoid links ending in \`.xyz\`, \`.top\`, \`.site\`, or sent via unverified SMS blasts.`
+      return `[DOMAIN VERIFICATION]: Authentic telecom and financial portals strictly use registered corporate domains (e.g., mtn.com.gh, gcb.com.gh). Disregard links terminating in unverified top-level domains (.xyz, .top, .site) or delivered via untrusted bulk SMS sender IDs.`
     }
 
-    return `🛡️ **SafeLens Security Audit**: Always practice the Zero-Trust Protocol. Never share secret credentials, SMS 6-digit OTPs, or Mobile Money PINs with callers. You can paste any suspicious link or message into our Full AI Scanner to run an immediate threat diagnostic!`
+    return `[ZERO-TRUST DIRECTIVE]: Under the Zero-Trust Security Standard, treat all unsolicited urgent requests for credentials, SMS OTP tokens, or USSD approvals as hostile. For immediate automated diagnostic review, pass the message text or URL through the SafeLens Scanner engine.`
   }
 
   const handleSendMessage = (textToSend) => {
@@ -78,92 +93,107 @@ export default function SecurityChatbot({ user }) {
       }
       setMessages(prev => [...prev, aiReply])
       setIsTyping(false)
-    }, 600)
+    }, 500)
   }
 
   return (
     <>
-      {/* Floating Action Circle Bot Trigger Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          position: 'fixed',
-          bottom: '1.5rem',
-          right: '1.5rem',
-          zIndex: 9999,
-          width: '56px',
-          height: '56px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, var(--primary) 0%, #dc2626 100%)',
-          color: '#ffffff',
-          border: 'none',
-          display: 'grid',
-          placeItems: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 8px 24px rgba(230, 60, 28, 0.45)',
-          transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-          transform: isOpen ? 'scale(0.95)' : 'scale(1)'
-        }}
-        title="SafeLens AI Security Assistant"
-      >
-        <div style={{ position: 'relative', display: 'grid', placeItems: 'center' }}>
-          {isOpen ? (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          ) : (
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="10" rx="3"/>
-              <circle cx="12" cy="5" r="2"/>
-              <path d="M12 7v4"/>
-              <line x1="8" y1="15" x2="8.01" y2="15" strokeWidth="3"/>
-              <line x1="16" y1="15" x2="16.01" y2="15" strokeWidth="3"/>
-              <path d="M9 18h6"/>
-            </svg>
-          )}
-          <span className="live-pulse-dot" style={{ position: 'absolute', top: '-4px', right: '-4px', width: '8px', height: '8px', background: '#10b981' }} />
-        </div>
-      </button>
+      <style>{`
+        .safelens-copilot-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.45);
+          z-index: 9998;
+          backdrop-filter: blur(2px);
+          animation: copilotFadeIn 0.2s ease forwards;
+        }
+        .safelens-copilot-drawer {
+          position: fixed;
+          top: 0;
+          right: 0;
+          width: 420px;
+          max-width: 90vw;
+          height: 100vh;
+          background: var(--surface);
+          border-left: 1px solid var(--border);
+          box-shadow: -8px 0 32px rgba(0, 0, 0, 0.22);
+          z-index: 9999;
+          display: flex;
+          flex-direction: column;
+          animation: copilotSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .safelens-copilot-floating-pill {
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          z-index: 9990;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          color: var(--text);
+          padding: 0.5rem 1rem;
+          border-radius: 999px;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.55rem;
+          font-size: 0.78rem;
+          font-weight: 800;
+          cursor: pointer;
+          box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+          transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .safelens-copilot-floating-pill:hover {
+          transform: translateY(-2px);
+          border-color: var(--primary);
+        }
+        @keyframes copilotSlideIn {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+        @keyframes copilotFadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
 
-      {/* Floating Chat Modal Box */}
-      {isOpen && (
-        <div
-          className="animate-fade-in"
-          style={{
-            position: 'fixed',
-            bottom: '5.2rem',
-            right: '1.5rem',
-            width: 'calc(100vw - 3rem)',
-            maxWidth: '380px',
-            height: '520px',
-            maxHeight: 'calc(100vh - 7rem)',
-            background: 'var(--surface-alt)',
-            border: '1px solid var(--border)',
-            borderRadius: '20px',
-            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.25)',
-            zIndex: 9999,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden'
-          }}
+      {/* Floating Pill (Always discreetly parked at bottom-right corner) */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="safelens-copilot-floating-pill"
+          title="Open AI Security Copilot"
         >
-          {/* Header */}
+          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981' }} />
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.2">
+            <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z"/>
+          </svg>
+          <span>AI Copilot</span>
+        </button>
+      )}
+
+      {/* Slide-Over Drawer Backdrop */}
+      {isOpen && (
+        <div className="safelens-copilot-backdrop" onClick={() => setIsOpen(false)} />
+      )}
+
+      {/* Enterprise Slide-Over Drawer */}
+      {isOpen && (
+        <aside className="safelens-copilot-drawer">
+          {/* Drawer Header */}
           <div style={{
-            padding: '0.9rem 1.1rem',
-            background: 'var(--surface)',
+            padding: '1.1rem 1.4rem',
+            background: 'var(--surface-alt)',
             borderBottom: '1px solid var(--border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{
                 width: '34px',
                 height: '34px',
-                borderRadius: '10px',
-                background: 'rgba(230, 60, 28, 0.12)',
-                border: '1px solid rgba(230, 60, 28, 0.25)',
+                borderRadius: '8px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
                 display: 'grid',
                 placeItems: 'center',
                 color: 'var(--primary)'
@@ -173,13 +203,13 @@ export default function SecurityChatbot({ user }) {
                 </svg>
               </div>
               <div>
-                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 850, color: 'var(--text)' }}>
-                  SafeLens Security AI
+                <h4 style={{ margin: 0, fontSize: '0.94rem', fontWeight: 900, color: 'var(--text)' }}>
+                  AI Security Copilot
                 </h4>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '1px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '2px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
-                  <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 650 }}>
-                    Active • Zero-Trust Guard
+                  <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 700 }}>
+                    Google Gemma 4 • Zero-Trust Defense
                   </span>
                 </div>
               </div>
@@ -188,40 +218,40 @@ export default function SecurityChatbot({ user }) {
             <button
               onClick={() => setIsOpen(false)}
               style={{
-                border: 'none',
-                background: 'transparent',
-                color: 'var(--muted)',
+                border: '1px solid var(--border)',
+                background: 'var(--surface)',
+                color: 'var(--text)',
                 cursor: 'pointer',
-                padding: '0.3rem',
+                padding: '0.4rem',
                 display: 'grid',
                 placeItems: 'center',
                 borderRadius: '6px'
               }}
-              title="Close"
+              title="Close Copilot (Esc)"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
           </div>
 
-          {/* Messages Area */}
+          {/* Drawer Messages Body */}
           <div style={{
             flex: 1,
-            padding: '1rem',
+            padding: '1.2rem',
             overflowY: 'auto',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.8rem',
-            background: 'rgba(0,0,0,0.015)'
+            gap: '0.9rem',
+            background: 'var(--surface)'
           }}>
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 style={{
                   alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '85%',
+                  maxWidth: '88%',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start'
@@ -229,41 +259,40 @@ export default function SecurityChatbot({ user }) {
               >
                 <div
                   style={{
-                    background: msg.sender === 'user' ? 'var(--primary)' : 'var(--surface)',
+                    background: msg.sender === 'user' ? 'var(--primary)' : 'var(--surface-alt)',
                     color: msg.sender === 'user' ? '#ffffff' : 'var(--text)',
                     border: msg.sender === 'user' ? 'none' : '1px solid var(--border)',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: msg.sender === 'user' ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
+                    padding: '0.75rem 0.95rem',
+                    borderRadius: msg.sender === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
                     fontSize: '0.82rem',
-                    lineHeight: 1.45,
+                    lineHeight: 1.5,
                     fontWeight: msg.sender === 'user' ? 600 : 500,
-                    whiteSpace: 'pre-wrap',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                    whiteSpace: 'pre-wrap'
                   }}
                 >
                   {msg.text}
                 </div>
-                <span style={{ fontSize: '0.62rem', color: 'var(--muted)', marginTop: '3px', padding: '0 2px' }}>
+                <span style={{ fontSize: '0.64rem', color: 'var(--muted)', marginTop: '4px', padding: '0 2px' }}>
                   {msg.time}
                 </span>
               </div>
             ))}
 
             {isTyping && (
-              <div style={{ alignSelf: 'flex-start', background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.5rem 0.8rem', borderRadius: '12px', fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>
-                SafeLens AI is thinking...
+              <div style={{ alignSelf: 'flex-start', background: 'var(--surface-alt)', border: '1px solid var(--border)', padding: '0.55rem 0.9rem', borderRadius: '10px', fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600 }}>
+                Synthesizing response with Gemma 4...
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Suggestion Chips */}
+          {/* Quick Prompt Suggestions */}
           <div style={{
-            padding: '0.5rem 0.8rem',
-            background: 'var(--surface)',
+            padding: '0.65rem 1rem',
+            background: 'var(--surface-alt)',
             borderTop: '1px solid var(--border)',
             display: 'flex',
-            gap: '0.4rem',
+            gap: '0.45rem',
             overflowX: 'auto',
             scrollbarWidth: 'none'
           }}>
@@ -273,15 +302,15 @@ export default function SecurityChatbot({ user }) {
                 onClick={() => handleSendMessage(prompt)}
                 style={{
                   border: '1px solid var(--border)',
-                  background: 'var(--surface-alt)',
+                  background: 'var(--surface)',
                   color: 'var(--text)',
-                  fontSize: '0.68rem',
+                  fontSize: '0.7rem',
                   fontWeight: 700,
-                  padding: '0.3rem 0.6rem',
+                  padding: '0.35rem 0.65rem',
                   borderRadius: '999px',
                   whiteSpace: 'nowrap',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease'
+                  transition: 'border-color 0.15s ease'
                 }}
               >
                 {prompt}
@@ -293,7 +322,7 @@ export default function SecurityChatbot({ user }) {
           <form
             onSubmit={(e) => { e.preventDefault(); handleSendMessage() }}
             style={{
-              padding: '0.75rem 0.8rem',
+              padding: '0.9rem 1rem',
               background: 'var(--surface)',
               borderTop: '1px solid var(--border)',
               display: 'flex',
@@ -304,27 +333,28 @@ export default function SecurityChatbot({ user }) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask AI security advice..."
+              placeholder="Ask Copilot about any threat or rule..."
               style={{
                 flex: 1,
                 background: 'var(--surface-alt)',
                 border: '1px solid var(--border)',
-                borderRadius: '10px',
-                padding: '0.55rem 0.8rem',
+                borderRadius: '8px',
+                padding: '0.6rem 0.85rem',
                 fontSize: '0.82rem',
                 color: 'var(--text)',
-                outline: 'none'
+                outline: 'none',
+                fontFamily: 'inherit'
               }}
             />
             <button
               type="submit"
               disabled={!input.trim()}
               style={{
-                background: input.trim() ? 'var(--primary)' : 'var(--border)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '0.55rem 0.9rem',
+                background: input.trim() ? 'var(--primary)' : 'var(--surface-alt)',
+                color: input.trim() ? '#ffffff' : 'var(--muted)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '0.6rem 0.95rem',
                 cursor: input.trim() ? 'pointer' : 'default',
                 display: 'grid',
                 placeItems: 'center',
@@ -337,7 +367,7 @@ export default function SecurityChatbot({ user }) {
               </svg>
             </button>
           </form>
-        </div>
+        </aside>
       )}
     </>
   )

@@ -1,725 +1,917 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
 import SecurityChatbot from '../components/SecurityChatbot'
-import { getScanHistory } from '../services/scannerService'
-import ProtectionPlan from '../features/protection/ProtectionPlan'
 import Button from '../components/ui/Button'
-// Import subscription service to fetch protection plan quota and billing data
+import Spinner from '../components/ui/Spinner'
+import { getScanHistory, fetchDbReports } from '../services/scannerService'
 import { subscriptionService } from '../services/subscriptionService'
 
-const graphData = [
-  { day: 'Mon', scans: 4, highRisk: 2 },
-  { day: 'Tue', scans: 6, highRisk: 3 },
-  { day: 'Wed', scans: 3, highRisk: 1 },
-  { day: 'Thu', scans: 8, highRisk: 5 },
-  { day: 'Fri', scans: 5, highRisk: 2 },
-  { day: 'Sat', scans: 7, highRisk: 4 },
-  { day: 'Sun', scans: 9, highRisk: 6 },
-]
-
-const threatVectors = [
-  { name: 'MoMo Transfer & Cashout Fraud', percentage: 54, count: '142 Flagged', color: 'var(--danger)' },
-  { name: 'Fake Job & Recruitment Lures', percentage: 24, count: '63 Flagged', color: 'var(--warning)' },
-  { name: 'Phishing Links & Spoofed Websites', percentage: 14, count: '38 Flagged', color: 'var(--primary)' },
-  { name: 'Impersonation & Advance Fee Scams', percentage: 8, count: '21 Flagged', color: 'var(--success)' },
-]
-
-const defaultAuditTrail = [
-  { id: 'scan-003', type: 'link', riskLevel: 'high', riskScore: 94, threatCategory: 'Phishing Links & Spoofed Websites', originalContent: 'http://mtn-gh-promo.xyz/claim-cashout', submittedAt: '12 mins ago' },
-  { id: 'scan-001', type: 'message', riskLevel: 'high', riskScore: 89, threatCategory: 'Fake Job & Recruitment Lures', originalContent: 'Congratulations! You have been selected for a remote job offer...', submittedAt: '2 hours ago' },
-  { id: 'scan-002', type: 'screenshot', riskLevel: 'medium', riskScore: 62, threatCategory: 'Impersonation & Advance Fee Scams', originalContent: 'Your account has been flagged. Click immediately to secure profile.', submittedAt: 'Yesterday' },
-  { id: 'scan-004', type: 'email', riskLevel: 'high', riskScore: 92, threatCategory: 'MoMo Transfer & Cashout Fraud', originalContent: 'Urgent notice: MoMo wallet transaction reversal approval required.', submittedAt: '2 days ago' },
-]
-
-const tickerReports = [
-  { prompt: 'Never share your MoMo 4-digit PIN with callers claiming to be MTN agents.', priority: 'CRITICAL', time: 'Just now' },
-  { prompt: 'Do not disclose 6-digit SMS OTP codes over phone calls under any circumstances.', priority: 'CRITICAL', time: '5 mins ago' },
-  { prompt: 'Verify banking website URLs carefully before entering GCB or bank passwords.', priority: 'HIGH', time: '18 mins ago' },
-  { prompt: 'Never approve unsolicited *170# USSD cashout prompt requests on your phone.', priority: 'CRITICAL', time: '35 mins ago' },
-  { prompt: 'Report suspicious SIM swap callers immediately to Cyber Security Authority (CSA 292).', priority: 'HIGH', time: '1 hr ago' },
-  { prompt: 'Ignore remote job offers requiring upfront registration fee payments before interview.', priority: 'HIGH', time: '2 hrs ago' },
-  { prompt: 'Never refund money from SMS alerts without verifying your official MoMo balance.', priority: 'HIGH', time: '3 hrs ago' },
-  { prompt: 'Telco & Bank customer service will NEVER ask for your secret password or PIN.', priority: 'CRITICAL', time: '4 hrs ago' },
-]
-
 export default function Dashboard({ user }) {
-  const [scanAuditTrail, setScanAuditTrail] = useState(defaultAuditTrail)
-  const [chartView, setChartView] = useState('donut') // 'donut' or 'bars'
-  const [hoveredSlice, setHoveredSlice] = useState(null)
-  const [hoveredBar, setHoveredBar] = useState(null)
-  const [activeFilter, setActiveFilter] = useState('all') // 'all', 'link', 'screenshot', 'message', 'email'
-  const [auditPage, setAuditPage] = useState(1)
-  const AUDIT_ITEMS_PER_PAGE = 3
-  const [currentTickerIdx, setCurrentTickerIdx] = useState(0)
+  const [reports, setReports] = useState([])
+  const [isLoadingReports, setIsLoadingReports] = useState(true)
+  const [activeTab, setActiveTab] = useState('trends') // 'trends' | 'vectors' | 'matrix'
+  const [filterType, setFilterType] = useState('all') // 'all' | 'message' | 'link' | 'screenshot' | 'email'
+  const [filterSeverity, setFilterSeverity] = useState('all') // 'all' | 'high' | 'medium' | 'low'
+  const [searchQuery, setSearchQuery] = useState('')
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [hoveredDay, setHoveredDay] = useState(4) // Default to Friday peak on load
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false)
+  const [selectedIncidentForAudit, setSelectedIncidentForAudit] = useState(null)
+  const [spotlightIndex, setSpotlightIndex] = useState(0)
 
-  // Interactive Security Checklist state
-  const [checklist, setChecklist] = useState([
-    { id: 'whatsapp2fa', label: 'WhatsApp 2-Step Verification', weight: 25, checked: true, desc: 'Protects chat credentials and OTPs' },
-    { id: 'pinshield', label: 'MTN & Telco PIN Shield', weight: 25, checked: true, desc: 'Blocks unauthorized USSD cashout attempts' },
-    { id: 'urlscan', label: 'Domain Extension Checker', weight: 25, checked: false, desc: 'Auto-flags unverified TLDs (.xyz, .top)' },
-    { id: 'hotline', label: 'Saved emergency contact CSA 292', weight: 25, checked: false, desc: 'Immediate direct fraud escalation line' },
+  // Live Defense Shields state
+  const [defenseShields, setDefenseShields] = useState([
+    { id: 'momo_ussd', label: 'MoMo *170# USSD Interceptor', status: 'ACTIVE', desc: 'Auto-flags fake reversal and unauthorized prompt attacks', active: true },
+    { id: 'phish_guard', label: 'Phishing Domain Repulsor', status: 'ACTIVE', desc: 'Inspects spoofed TLDs (.xyz, .top, .site) and unverified SSL', active: true },
+    { id: 'gemma4_ocr', label: 'Gemma 4 Multimodal Vision', status: 'ACTIVE', desc: 'Analyzes screenshot chat captures directly with AI', active: true },
+    { id: 'sim_swap', label: 'SIM Swap & Impersonation Filter', status: 'ACTIVE', desc: 'Detects high-urgency telco impersonation signatures', active: true },
   ])
 
-  // State storing the logged in user's active billing and protection plan subscription details
-  const [sub, setSub] = useState(null)
+  // Threat Advisory ticker
+  const [advisoryIdx, setAdvisoryIdx] = useState(0)
+  const advisories = [
+    { priority: 'CRITICAL', tag: 'MOMO FRAUD', text: 'Active wave of fraudulent "wrong credit" SMS asking users to dial *170# to refund.', source: 'CSA Ghana' },
+    { priority: 'HIGH', tag: 'DOMAIN SPOOF', text: 'Spoofed telecom domains claiming 50GB free holiday data detected targeting Accra and Kumasi.', source: 'SafeLens AI' },
+    { priority: 'CRITICAL', tag: 'PIN HARVESTING', text: 'Callers impersonating MTN customer service demanding 4-digit MoMo PINs to unblock accounts.', source: 'Telco Alert' },
+    { priority: 'HIGH', tag: 'JOB RECRUITMENT', text: 'Fake remote data entry vacancies demanding GHS 50 registration fees via mobile money.', source: 'CyberWatch' },
+  ]
 
-  // Fetch the active user's subscription quota and details on component mount
+  // Time & Advisory tickers
   useEffect(() => {
-    subscriptionService.getUserSubscription().then(setSub)
-  }, [])
-
-  useEffect(() => {
-    const historyData = getScanHistory()
-    if (historyData && historyData.length > 0) {
-      setScanAuditTrail(historyData.slice(0, 8))
+    const clock = setInterval(() => setCurrentTime(new Date()), 1000)
+    const ticker = setInterval(() => setAdvisoryIdx((prev) => (prev + 1) % advisories.length), 5000)
+    return () => {
+      clearInterval(clock)
+      clearInterval(ticker)
     }
   }, [])
 
+  // Load Neon DB Reports
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTickerIdx((prev) => (prev + 1) % tickerReports.length)
-    }, 4500)
-    return () => clearInterval(timer)
+    async function loadData() {
+      setIsLoadingReports(true)
+      try {
+        const [dbReports] = await Promise.all([
+          fetchDbReports(30),
+          subscriptionService.getUserSubscription().catch(() => null),
+        ])
+        if (dbReports && dbReports.length > 0) {
+          setReports(dbReports)
+        } else {
+          setReports(getScanHistory())
+        }
+      } catch (err) {
+        console.warn('Dashboard data fetch error:', err)
+        setReports(getScanHistory())
+      } finally {
+        setIsLoadingReports(false)
+      }
+    }
+    loadData()
   }, [])
 
-  useEffect(() => {
-    const clockTimer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 10000)
-    return () => clearInterval(clockTimer)
-  }, [])
+  // Metrics computation
+  const metrics = useMemo(() => {
+    const total = reports.length
+    const highRisk = reports.filter((r) => r.riskLevel === 'high').length
+    const mediumRisk = reports.filter((r) => r.riskLevel === 'medium').length
+    const lowRisk = reports.filter((r) => r.riskLevel === 'low').length
+    const avgScore = total > 0 ? Math.round(reports.reduce((acc, r) => acc + (r.riskScore || 0), 0) / total) : 24
+    const exposureRate = total > 0 ? Math.round((highRisk / total) * 100) : 18
 
-  // Dynamic Time-of-day greeting calculation
-  const getGreeting = () => {
-    const hour = currentTime.getHours()
-    if (hour < 12) return 'Good Morning'
-    if (hour < 17) return 'Good Afternoon'
-    return 'Good Evening'
-  }
+    return { total, highRisk, mediumRisk, lowRisk, avgScore, exposureRate }
+  }, [reports])
 
-  // Format live date and time
-  const formattedDate = currentTime.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric'
-  })
+  // Filtered reports table
+  const filteredReports = useMemo(() => {
+    return reports.filter((item) => {
+      const matchType = filterType === 'all' || item.type?.toLowerCase() === filterType.toLowerCase()
+      const matchSev = filterSeverity === 'all' || item.riskLevel?.toLowerCase() === filterSeverity.toLowerCase()
+      const query = searchQuery.toLowerCase().trim()
+      const matchSearch =
+        !query ||
+        item.id?.toLowerCase().includes(query) ||
+        item.summary?.toLowerCase().includes(query) ||
+        item.threatCategory?.toLowerCase().includes(query) ||
+        item.originalContent?.toLowerCase().includes(query)
+      return matchType && matchSev && matchSearch
+    })
+  }, [reports, filterType, filterSeverity, searchQuery])
 
-  const formattedTimeStr = currentTime.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+  // Currently active incident for the AI Spotlight
+  const activeSpotlightIncident = useMemo(() => {
+    if (reports.length > 0 && reports[spotlightIndex]) {
+      return reports[spotlightIndex]
+    }
+    return {
+      id: 'scan-demo-momo',
+      type: 'message',
+      riskLevel: 'high',
+      riskScore: 96,
+      summary: 'High-urgency Mobile Money prompt coercion detected. Attack pattern matches known MTN cashout spoofing campaign in Ghana.',
+      threatCategory: 'MoMo Transfer & Cashout Fraud',
+      originalContent: 'Urgent notice from MTN: You have 1 unread transaction and your wallet will be blocked in 15 mins. Dial *170# immediately.',
+      submittedAt: 'Just now',
+      redFlags: [
+        'High-pressure 15-minute countdown timer',
+        'Direct prompt requesting *170# USSD execution',
+        'Impersonates official MTN Mobile Money customer service',
+        'Unregistered sender shortcode signature'
+      ],
+      explanation: 'The adversary leverages false urgency ("wallet will be blocked") to provoke immediate emotional response, inducing the victim into approving an unprompted USSD cashout request on their handset.',
+      recommendation: 'Reject any unsolicited prompts on your phone. Official telecommunication operators will never threaten automatic wallet termination via unverified SMS.',
+      vectorBreakdown: [
+        { name: 'MoMo Transfer Fraud', percentage: 98, color: 'var(--primary)' },
+        { name: 'Social Engineering Coercion', percentage: 94, color: '#f59e0b' },
+        { name: 'Brand Impersonation', percentage: 91, color: '#38bdf8' },
+        { name: 'Unverified Sender Auth', percentage: 88, color: '#10b981' }
+      ]
+    }
+  }, [reports, spotlightIndex])
 
-  // Calculate dynamic security metrics
-  const readinessScore = checklist.reduce((acc, item) => item.checked ? acc + item.weight : acc, 0)
-  const vulnerabilityScore = 100 - readinessScore
-  const scamsAvoided = checklist.filter(item => item.checked).length + 2
+  // 7-day Telemetry trend data
+  const trendDays = [
+    { day: 'Mon', scans: 14, blocked: 8, safe: 6 },
+    { day: 'Tue', scans: 22, blocked: 15, safe: 7 },
+    { day: 'Wed', scans: 19, blocked: 11, safe: 8 },
+    { day: 'Thu', scans: 28, blocked: 19, safe: 9 },
+    { day: 'Fri', scans: 34, blocked: 24, safe: 10 },
+    { day: 'Sat', scans: 25, blocked: 16, safe: 9 },
+    { day: 'Sun', scans: 31, blocked: 22, safe: 9 },
+  ]
+  const weeklyTotalScans = trendDays.reduce((acc, d) => acc + d.scans, 0)
+  const weeklyBlockedScans = trendDays.reduce((acc, d) => acc + d.blocked, 0)
+  const weeklySafeScans = trendDays.reduce((acc, d) => acc + d.safe, 0)
 
-  const handleCheckboxToggle = (id) => {
-    setChecklist(prev => prev.map(item =>
-      item.id === id ? { ...item, checked: !item.checked } : item
-    ))
-  }
-
-  // Filter scan history
-  const filteredScans = scanAuditTrail.filter(item => {
-    if (activeFilter === 'all') return true
-    return item.type.toLowerCase() === activeFilter.toLowerCase()
-  })
-
-  // SVG Pie (Donut) Chart variables
-  const radius = 55
-  const circumference = 2 * Math.PI * radius // ~345.575
-  
-  // Slices: MoMo (54%), Fake Job (24%), Phishing (14%), Impersonation (8%)
-  const slices = [
-    { name: 'MoMo Transfer & Cashout Fraud', percentage: 54, count: '142 Flagged', color: 'var(--danger)', strokeDasharray: `${(54/100) * circumference} ${circumference}`, strokeDashoffset: '0' },
-    { name: 'Fake Job & Recruitment Lures', percentage: 24, count: '63 Flagged', color: 'var(--warning)', strokeDasharray: `${(24/100) * circumference} ${circumference}`, strokeDashoffset: `-${(54/100) * circumference}` },
-    { name: 'Phishing Links & Spoofed Websites', percentage: 14, count: '38 Flagged', color: 'var(--primary)', strokeDasharray: `${(14/100) * circumference} ${circumference}`, strokeDashoffset: `-${((54+24)/100) * circumference}` },
-    { name: 'Impersonation & Advance Fee Scams', percentage: 8, count: '21 Flagged', color: 'var(--success)', strokeDasharray: `${(8/100) * circumference} ${circumference}`, strokeDashoffset: `-${((54+24+14)/100) * circumference}` }
+  // Threat Vector breakdown stats - Professional SVG Icons (No Emojis)
+  const vectorStats = [
+    {
+      name: 'MoMo Transfer & Cashout Coercion',
+      count: 184,
+      percentage: 56,
+      color: 'var(--primary)',
+      icon: (
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" strokeWidth="3" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Phishing Links & Spoofed Websites',
+      count: 82,
+      percentage: 24,
+      color: '#38bdf8',
+      icon: (
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Fake Job & Recruitment Lures',
+      count: 48,
+      percentage: 14,
+      color: '#f59e0b',
+      icon: (
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Impersonation & Advance Fee Scams',
+      count: 21,
+      percentage: 6,
+      color: '#10b981',
+      icon: (
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      ),
+    },
   ]
 
-  const activeSliceInfo = hoveredSlice !== null ? slices[hoveredSlice] : slices[0]
-
-  const locationIcon = (
-    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem', marginRight: '0.2rem', verticalAlign: 'middle', display: 'inline-block' }}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  )
+  const toggleShield = (id) => {
+    setDefenseShields((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, active: !s.active, status: s.active ? 'PAUSED' : 'ACTIVE' } : s))
+    )
+  }
 
   return (
     <PageContainer>
-      <div className="dash-container">
-        {/* Keyframe Animations Injection & Mobile Overrides */}
+      <div className="cyfocus-soc animate-fade-in">
+        {/* Enterprise SOC Design System - Zero Gradients, Zero Emojis, Clean Uniform Borders */}
         <style>{`
-          @keyframes radarSweep {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          @keyframes radarPulse {
-            0% { transform: scale(0.9); opacity: 0.2; }
-            50% { transform: scale(1.15); opacity: 0.65; }
-            100% { transform: scale(0.9); opacity: 0.2; }
-          }
-          @keyframes alertPulseGlow {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 1px var(--danger)); }
-            50% { transform: scale(1.05); filter: drop-shadow(0 0 6px var(--danger)); }
-          }
-          .radar-sweep-line {
-            transform-origin: 22px 22px;
-            animation: radarSweep 3s linear infinite;
-          }
-          .radar-pulse-ring {
-            transform-origin: 22px 22px;
-            animation: radarPulse 2s ease-in-out infinite;
+          .cyfocus-soc {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+            color: var(--text);
+            padding-bottom: 5rem;
           }
 
-          /* Enhanced Mobile Responsive Overrides for Smartphones & Tablets */
-          @media (max-width: 768px) {
-            .dash-hero-card {
-              padding: 1.2rem 1rem !important;
-            }
-            .dash-hero-title {
-              font-size: 1.35rem !important;
-            }
-            .dash-hero-btn {
-              width: 100% !important;
-              justify-content: center !important;
-              margin-top: 0.4rem !important;
-            }
-            .scanner-card {
-              padding: 1.1rem 0.95rem !important;
-              border-radius: 18px !important;
-            }
-            .weekly-chart-wrapper {
-              height: 205px !important;
-            }
-            .overview-stats-grid {
-              grid-template-columns: repeat(2, 1fr) !important;
-              gap: 0.75rem !important;
-            }
-            .helpline-grid-responsive {
-              grid-template-columns: 1fr !important;
-            }
-            .audit-metadata-row {
-              flex-direction: column !important;
-              align-items: flex-start !important;
-              gap: 0.55rem !important;
-            }
-            .ticker-top-bar {
-              padding: 0.55rem 0.85rem !important;
-            }
-            .ticker-row-responsive {
-              padding: 0.75rem 0.85rem !important;
-              flex-direction: column !important;
-              align-items: flex-start !important;
-              gap: 0.75rem !important;
-            }
-            .ticker-right-controls {
-              width: 100% !important;
-              justify-content: space-between !important;
-            }
-            .ticker-badge-text {
-              font-size: 0.68rem !important;
-              padding: 0.35rem 0.65rem !important;
-            }
+          /* Enterprise Clean Card - Uniform 1px Border */
+          .cyfocus-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.35rem 1.4rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            position: relative;
+            box-sizing: border-box;
+            width: 100%;
           }
 
-          @media (max-width: 480px) {
-            .overview-stats-grid {
-              grid-template-columns: 1fr !important;
+          /* 4-Column KPI Grid */
+          .cyfocus-kpi-deck {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.15rem;
+          }
+
+          /* Balanced 50% / 50% Posture & Escalation Deck */
+          .cyfocus-posture-deck {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.4rem;
+          }
+
+          /* AI Spotlight Layout */
+          .cyfocus-ai-spotlight-deck {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 1.4rem;
+          }
+
+          /* Segmented Switcher */
+          .cyfocus-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--muted);
+            padding: 0.38rem 0.95rem;
+            font-size: 0.76rem;
+            font-weight: 800;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+          }
+          .cyfocus-tab-btn:hover {
+            color: var(--text);
+          }
+          .cyfocus-tab-btn--active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+          }
+
+          /* Clean SOC Data Table */
+          .cyfocus-table-wrap {
+            overflow-x: auto;
+            width: 100%;
+          }
+          .cyfocus-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+          }
+          .cyfocus-table th {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+          }
+          .cyfocus-table td {
+            font-size: 0.82rem;
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+          }
+          .cyfocus-table tr:hover td {
+            background: var(--surface-alt);
+          }
+
+          /* Forensic Audit In-Page Modal */
+          .cyfocus-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            animation: fadeIn 0.15s ease-out;
+          }
+          .cyfocus-modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+          }
+
+          @media (max-width: 1100px) {
+            .cyfocus-kpi-deck {
+              grid-template-columns: repeat(2, 1fr);
             }
-            .dash-stat-card {
-              padding: 1rem 0.9rem !important;
+            .cyfocus-posture-deck, .cyfocus-ai-spotlight-deck {
+              grid-template-columns: 1fr;
+            }
+          }
+          @media (max-width: 640px) {
+            .cyfocus-kpi-deck {
+              grid-template-columns: 1fr;
             }
           }
         `}</style>
 
-        {/* Enhanced Live Threat Advisory HUD Card with clean neutral borders */}
-        <div 
-          className="animate-slide-up" 
-          style={{ 
-            marginBottom: '1.4rem', 
-            background: 'var(--surface-alt)', 
-            border: '1px solid var(--border)',
-            borderRadius: '20px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)'
-          }}
-        >
-          {/* Active Monitoring Top Header Bar */}
-          <div className="ticker-top-bar" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.5rem',
-            padding: '0.75rem 1.1rem',
-            background: 'var(--surface)',
-            borderBottom: '1px solid var(--border)',
-            flexWrap: 'wrap'
-          }}>
-            {/* Left: Shield icon + Active Monitoring label */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{ width: '26px', height: '26px', borderRadius: '8px', background: 'rgba(230, 60, 28, 0.1)', display: 'grid', placeItems: 'center' }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
-                  <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(230,60,28,0.08)"/>
-                  <polyline points="9 12 11 14 15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <span style={{ fontSize: '0.76rem', fontWeight: 900, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                SafeLens Active Monitoring
-              </span>
+        {/* =========================================================================
+            TIER 1: CLEAN COMMAND BAR (Clean Title + Header AI Copilot Button + Scanner CTA)
+            ========================================================================= */}
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.2rem', paddingBottom: '0.2rem' }}>
+          <div>
+            <div style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700, marginBottom: '0.25rem' }}>
+              {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} • {currentTime.toLocaleTimeString()}
             </div>
-
-            {/* Right: Monitoring stats pills */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text)', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '999px', padding: '0.2rem 0.65rem', whiteSpace: 'nowrap' }}>
-                264 Scans Today
-              </span>
-              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--success)', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '999px', padding: '0.2rem 0.65rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: 'var(--success)' }} />
-                4 Shields Active
-              </span>
-            </div>
+            <h1 style={{ fontSize: '1.95rem', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: 'var(--text)' }}>
+              Cybersecurity Command Center
+            </h1>
           </div>
 
-          {/* Ticker Main Content Body */}
-          <div style={{ padding: '1rem 1.1rem' }}>
-            {/* Advisory header row: Priority badge on Left | Prev/Next navigation controls on Right (No time display) */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.8rem' }}>
-              <span 
-                key={`badge-${currentTickerIdx}`}
-                className="animate-fade-in"
-                style={{
-                  background: tickerReports[currentTickerIdx].priority === 'CRITICAL' 
-                    ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' 
-                    : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                  color: '#ffffff',
-                  padding: '0.3rem 0.75rem',
-                  borderRadius: '8px',
-                  fontSize: '0.7rem',
-                  fontWeight: 900,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  whiteSpace: 'nowrap',
-                  boxShadow: tickerReports[currentTickerIdx].priority === 'CRITICAL' 
-                    ? '0 3px 10px rgba(239, 68, 68, 0.25)' 
-                    : '0 3px 10px rgba(245, 158, 11, 0.25)'
-                }}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(255,255,255,0.2)"/>
-                  <line x1="12" y1="9" x2="12" y2="13" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round"/>
-                  <circle cx="12" cy="17" r="1" fill="#ffffff"/>
-                </svg>
-                {tickerReports[currentTickerIdx].priority} ADVISORY
-              </span>
-
-              {/* Advisory navigation control buttons */}
-              <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '2px' }}>
-                <button 
-                  onClick={() => setCurrentTickerIdx(prev => (prev - 1 + tickerReports.length) % tickerReports.length)}
-                  style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.15s ease' }}
-                  title="Previous Advisory"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <polyline points="15 18 9 12 15 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                <button 
-                  onClick={() => setCurrentTickerIdx(prev => (prev + 1) % tickerReports.length)}
-                  style={{ border: 'none', background: 'transparent', color: 'var(--text)', width: '28px', height: '28px', display: 'grid', placeItems: 'center', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.15s ease' }}
-                  title="Next Advisory"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <polyline points="9 18 15 12 9 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Security Prompt Box without harsh side border */}
-            <div 
-              key={currentTickerIdx} 
-              className="animate-fade-in" 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {/* Header AI Copilot Launcher Button */}
+            <button
+              onClick={() => setIsCopilotOpen(true)}
               style={{
                 background: 'var(--surface)',
                 border: '1px solid var(--border)',
-                borderRadius: '12px',
-                padding: '0.85rem 1.1rem'
+                color: 'var(--text)',
+                padding: '0.6rem 1.15rem',
+                fontSize: '0.84rem',
+                fontWeight: 800,
+                borderRadius: '999px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.55rem',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)',
+                transition: 'all 0.18s ease'
               }}
             >
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
-                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block' }} className="live-pulse-dot" />
-                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                  IMPORTANT SECURITY PROMPT
-                </span>
-              </div>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text)', fontWeight: 800, margin: 0, lineHeight: 1.5 }}>
-                {tickerReports[currentTickerIdx].prompt}
-              </p>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981' }} />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.2">
+                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" />
+              </svg>
+              <span>AI Security Copilot</span>
+              <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--muted)', fontSize: '0.68rem', padding: '0.1rem 0.45rem', borderRadius: '4px', marginLeft: '0.15rem' }}>
+                ONLINE
+              </span>
+            </button>
+
+            <Link to="/scanner" style={{ textDecoration: 'none' }}>
+              <Button variant="primary" style={{ background: 'var(--primary)', color: '#ffffff', border: 'none', padding: '0.6rem 1.35rem', fontSize: '0.84rem', fontWeight: 900, borderRadius: '999px', display: 'inline-flex', alignItems: 'center', gap: '0.45rem', boxShadow: '0 4px 14px rgba(230, 60, 28, 0.35)' }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Launch Threat Scanner
+              </Button>
+            </Link>
+          </div>
+        </header>
+
+        {/* =========================================================================
+            TIER 2: ENHANCED REAL-TIME THREAT ADVISORY BANNER
+            ========================================================================= */}
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: '280px' }}>
+            <span style={{ background: 'var(--primary)', color: '#ffffff', fontSize: '0.66rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0.25rem 0.6rem', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span className="live-pulse-dot" style={{ width: '5px', height: '5px', background: '#ffffff' }} />
+              {advisories[advisoryIdx].priority} ADVISORY
+            </span>
+            <span style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text)' }}>
+              <strong style={{ color: 'var(--primary)', marginRight: '0.4rem' }}>[{advisories[advisoryIdx].tag}]</strong>
+              {advisories[advisoryIdx].text}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {/* Slide Indicator Dots */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              {advisories.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setAdvisoryIdx(idx)}
+                  style={{
+                    width: idx === advisoryIdx ? '16px' : '6px',
+                    height: '6px',
+                    borderRadius: '999px',
+                    background: idx === advisoryIdx ? 'var(--primary)' : 'var(--border)',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  title={`View advisory ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+            <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 700 }}>
+              Source: {advisories[advisoryIdx].source}
+            </span>
+
+            <div style={{ display: 'flex', gap: '0.25rem' }}>
+              <button
+                onClick={() => setAdvisoryIdx((p) => (p - 1 + advisories.length) % advisories.length)}
+                style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface-alt)', cursor: 'pointer', display: 'grid', placeItems: 'center', color: 'var(--text)' }}
+                title="Previous advisory"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setAdvisoryIdx((p) => (p + 1) % advisories.length)}
+                style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface-alt)', cursor: 'pointer', display: 'grid', placeItems: 'center', color: 'var(--text)' }}
+                title="Next advisory"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Unified Executive Command Center Banner: Combines User Greeting, CTAs, and Protection Plan Quota widget */}
-        <section
-          className="dash-hero-card animate-fade-in"
-          style={{
-            background: 'linear-gradient(135deg, var(--surface-alt), var(--surface))',
-            padding: '1.6rem 1.6rem',
-            marginBottom: '1.8rem',
-            borderRadius: '24px',
-            border: '1px solid var(--border)',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.03)'
-          }}
-        >
-          <div 
-            style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-              gap: '1.6rem', 
-              alignItems: 'center' 
-            }}
-          >
-            {/* Left Side: Greeting, Live Date/Time & Command Center CTAs */}
-            <div>
-              {/* Security Command Center Status Badge (No time display per user instruction) */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'rgba(16, 185, 129, 0.08)', padding: '0.2rem 0.55rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                  <span className="live-pulse-dot" style={{ width: '7px', height: '7px', background: 'var(--success)' }} />
-                  <span style={{ fontSize: '0.7rem', fontWeight: 850, color: 'var(--success)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    REAL-TIME COMMAND CENTER
-                  </span>
-                </div>
-              </div>
-
-              {/* Main Heading with Time-based Greeting & User Name without emojis */}
-              <h1 className="dash-hero-title" style={{ fontSize: '1.8rem', fontWeight: 900, margin: '0 0 0.4rem 0', color: 'var(--text)', lineHeight: 1.25 }}>
-                {getGreeting()}, <span style={{ color: 'var(--primary)' }}>{user?.name ? user.name.split(' ')[0] : 'Kofi'}</span>
-              </h1>
-
-              {/* Subtitle Description */}
-              <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: '0 0 1.2rem 0', lineHeight: 1.5, maxWidth: '580px' }}>
-                Welcome back to your security command center. Monitor threat activity, check vulnerability status, and run instant AI audits.
-              </p>
-
-              {/* Quick Action Navigation CTAs with vector SVG icons instead of emojis */}
-              <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
-                <Link
-                  to="/scan"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                    padding: '0.6rem 1.2rem',
-                    borderRadius: '999px',
-                    fontWeight: 800,
-                    fontSize: '0.84rem',
-                    textDecoration: 'none',
-                    background: 'var(--primary)',
-                    color: '#ffffff',
-                    boxShadow: '0 4px 14px rgba(230, 60, 28, 0.25)',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                  </svg>
-                  <span>New AI Scan</span>
-                </Link>
-
-                <Link
-                  to="/history"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                    padding: '0.6rem 1.2rem',
-                    borderRadius: '999px',
-                    fontWeight: 800,
-                    fontSize: '0.84rem',
-                    textDecoration: 'none',
-                    background: 'var(--surface-alt)',
-                    color: 'var(--text)',
-                    border: '1px solid var(--border)',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                    <polyline points="10 9 9 9 8 9"/>
-                  </svg>
-                  <span>View Scan History</span>
-                </Link>
-              </div>
+        {/* =========================================================================
+            TIER 3: 4 BALANCED KPI METRIC CARDS (Uniform 1px Borders)
+            ========================================================================= */}
+        <section className="cyfocus-kpi-deck">
+          {/* KPI 1: Threat Exposure Index */}
+          <div className="cyfocus-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Threat Exposure Index
+              </span>
+              <span style={{ background: 'var(--surface-alt)', color: 'var(--primary)', border: '1px solid var(--primary)', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+                Active
+              </span>
             </div>
+            <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--primary)', lineHeight: 1.1, marginBottom: '0.25rem' }}>
+              {metrics.exposureRate}%
+            </div>
+            <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600 }}>
+              {metrics.highRisk} Critical threats identified in recent stream
+            </div>
+          </div>
 
-            {/* Right Side: Active User Protection Plan & Quota Widget Card */}
-            <div>
-              <ProtectionPlan subscription={sub} />
+          {/* KPI 2: Total AI Scans */}
+          <div className="cyfocus-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                AI Telemetry Scans
+              </span>
+              <span style={{ background: 'var(--surface-alt)', color: 'var(--text)', border: '1px solid var(--border)', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+                Gemma 4
+              </span>
+            </div>
+            <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1, marginBottom: '0.25rem' }}>
+              {metrics.total || 42}
+            </div>
+            <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600 }}>
+              Evaluated across SMS, WhatsApp &amp; Screenshots
+            </div>
+          </div>
+
+          {/* KPI 3: Neutralized Scams */}
+          <div className="cyfocus-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Neutralized Threats
+              </span>
+              <span style={{ background: 'var(--surface-alt)', color: '#f59e0b', border: '1px solid #f59e0b', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+                Shields Up
+              </span>
+            </div>
+            <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1, marginBottom: '0.25rem' }}>
+              {metrics.highRisk + metrics.mediumRisk || 31}
+            </div>
+            <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600 }}>
+              Prevented unauthorized transfers and credential theft
+            </div>
+          </div>
+
+          {/* KPI 4: Base L2 On-Chain */}
+          <div className="cyfocus-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Base L2 Smart Registry
+              </span>
+              <span style={{ background: 'var(--surface-alt)', color: '#38bdf8', border: '1px solid #38bdf8', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+                Gasless
+              </span>
+            </div>
+            <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1.1, marginBottom: '0.25rem' }}>
+              142
+            </div>
+            <div style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              Contract: 0xb0E56...859c (Sepolia)
             </div>
           </div>
         </section>
 
-        {/* 4 Core Overview Metrics Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.2rem', marginBottom: '1.8rem' }} className="animate-slide-up overview-stats-grid">
-          
-          {/* Card 1: Total Scans */}
-          <div className="dash-stat-card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 850, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Total Scans
-              </span>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
-                <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        {/* =========================================================================
+            TIER 4: DEDICATED AI THREAT ANALYSIS & FORENSIC INTELLIGENCE SPOTLIGHT (NEW)
+            ========================================================================= */}
+        <section className="cyfocus-card" style={{ padding: '1.4rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.15rem', flexWrap: 'wrap', gap: '0.8rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface-alt)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z" />
+                  <circle cx="9" cy="13" r="1" />
+                  <circle cx="15" cy="13" r="1" />
+                  <path d="M9 17h6" />
                 </svg>
               </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.4rem' }}>
-              <h2 style={{ fontSize: '2.1rem', fontWeight: 900, margin: 0, color: 'var(--text)', lineHeight: 1 }}>
-                {scanAuditTrail.length}
-              </h2>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)' }}>Audits</span>
-            </div>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.7rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.1)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                <polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              100% Analysis Accuracy
-            </span>
-          </div>
-
-          {/* Card 2: Scams Avoided */}
-          <div className="dash-stat-card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 850, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Scams Avoided
-              </span>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--danger)' }}>
-                <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
+              <div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                  Gemma 4 AI Neural Threat Analysis &amp; Heuristics Hub
+                </h3>
+                <p style={{ fontSize: '0.76rem', color: 'var(--muted)', margin: '0.15rem 0 0 0' }}>
+                  Live multimodal forensic breakdown of active threat telemetry targeting Ghanaian infrastructure
+                </p>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.4rem' }}>
-              <h2 style={{ fontSize: '2.1rem', fontWeight: 900, margin: 0, color: 'var(--danger)', lineHeight: 1 }}>
-                {scamsAvoided}
-              </h2>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--danger)' }}>Threats Intercepted</span>
+
+            {/* Incident Quick Switcher */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 700 }}>Telemetry Sample:</span>
+              {(reports.slice(0, 3).length > 0 ? reports.slice(0, 3) : [activeSpotlightIncident]).map((item, idx) => (
+                <button
+                  key={item.id || idx}
+                  onClick={() => setSpotlightIndex(idx)}
+                  style={{
+                    background: spotlightIndex === idx ? 'var(--primary)' : 'var(--surface-alt)',
+                    color: spotlightIndex === idx ? '#ffffff' : 'var(--text)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '6px',
+                    padding: '0.3rem 0.65rem',
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  #{item.id ? item.id.slice(0, 8).toUpperCase() : `AUDIT-${idx + 1}`}
+                </button>
+              ))}
             </div>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.7rem', fontWeight: 850, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="currentColor" strokeWidth="2.5" fill="rgba(239, 68, 68, 0.2)"/>
-              </svg>
-              GH₵ {scamsAvoided * 450} Saved
-            </span>
           </div>
 
-          {/* Card 3: Vulnerability Score */}
-          <div className="dash-stat-card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 850, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Vulnerability Score
-              </span>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--warning)' }}>
-                <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.4rem' }}>
-              <h2 style={{ fontSize: '2.1rem', fontWeight: 900, margin: 0, color: 'var(--warning)', lineHeight: 1 }}>
-                {vulnerabilityScore}%
-              </h2>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--warning)' }}>Risk Level</span>
-            </div>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.7rem', fontWeight: 850, color: 'var(--warning)', background: 'rgba(245, 158, 11, 0.1)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5"/>
-                <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="12" cy="16" r="1" fill="currentColor"/>
-              </svg>
-              {vulnerabilityScore >= 50 ? 'Moderate Exposure' : 'Secured Core'}
-            </span>
-          </div>
-
-          {/* Card 4: Defense Readiness */}
-          <div className="dash-stat-card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-              <span style={{ fontSize: '0.72rem', fontWeight: 850, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Defense Readiness
-              </span>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'grid', placeItems: 'center', color: 'var(--success)' }}>
-                <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.4rem' }}>
-              <h2 style={{ fontSize: '2.1rem', fontWeight: 900, margin: 0, color: 'var(--success)', lineHeight: 1 }}>
-                {readinessScore}%
-              </h2>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--success)' }}>Shield Capacity</span>
-            </div>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.7rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.1)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                <polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              {readinessScore === 100 ? 'Fully Shielded' : 'Action Required'}
-            </span>
-          </div>
-
-        </div>
-
-        {/* FEATURE 1: Enhanced Large Weekly Threat Detection & Scan Volume Visual Analytics */}
-        <div style={{ marginBottom: '2rem' }} className="animate-slide-up delay-1">
-          {/* Card A: Enlarged & Enhanced Weekly Graph Card */}
-          <section className="scanner-card" style={{ padding: '1.8rem 2rem', background: 'var(--surface-alt)', borderRadius: '24px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 8px 30px rgba(0, 0, 0, 0.03)' }}>
-            <div>
-              {/* Header Title & Legend */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div className="cyfocus-ai-spotlight-deck">
+            {/* Left Column: Forensic Evidence & Neural Explanation */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.6rem' }}>
                 <div>
-                  <h2 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
-                    Weekly Threat Detection &amp; Scan Volume
-                  </h2>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--muted)', margin: 0 }}>
-                    Visual analytics tracking scan frequency vs flagged scam attempts across Ghana.
-                  </p>
-                </div>
-
-                {/* Chart Legend Pills */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.84rem', fontWeight: 800 }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text)' }}>
-                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary)', display: 'inline-block', boxShadow: '0 0 8px rgba(230,60,28,0.4)' }} />
-                    Total Scans
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Incident Payload / Target Text
                   </span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text)' }}>
-                    <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--danger)', display: 'inline-block', boxShadow: '0 0 8px rgba(239,68,68,0.4)' }} />
-                    Flagged Scams
-                  </span>
+                  <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text)', marginTop: '0.35rem', lineHeight: 1.45, fontFamily: 'monospace', background: 'var(--surface)', padding: '0.7rem 0.9rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                    "{activeSpotlightIncident.originalContent || activeSpotlightIncident.summary}"
+                  </div>
                 </div>
               </div>
 
-              {/* Dynamic Interactive Tooltip / Daily Details Bar */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.4rem', minHeight: '46px', background: 'var(--surface)', padding: '0.7rem 1.1rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
-                {hoveredBar !== null ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontSize: '0.86rem', width: '100%', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                    <span style={{ color: 'var(--text)', fontWeight: 900, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
-                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                        <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                        <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
-                      </svg>
-                      {{ Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }[graphData[hoveredBar].day]} Statistics:
+              {/* Extracted Red Flags Badges */}
+              <div>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.45rem' }}>
+                  Extracted Behavioral Red Flags ({activeSpotlightIncident.redFlags?.length || 4})
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
+                  {(activeSpotlightIncident.redFlags || [
+                    'Direct prompt requesting *170# execution',
+                    'High psychological urgency and timeout',
+                    'Impersonates official MTN MoMo service',
+                    'Unregistered alphanumeric sender ID'
+                  ]).map((flag, idx) => (
+                    <span
+                      key={idx}
+                      style={{
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        color: 'var(--text)',
+                        fontSize: '0.73rem',
+                        fontWeight: 700,
+                        padding: '0.3rem 0.65rem',
+                        borderRadius: '6px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem'
+                      }}
+                    >
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary)' }} />
+                      {flag}
                     </span>
-                    <span style={{ display: 'flex', gap: '1.2rem', flexWrap: 'wrap' }}>
-                      <span style={{ color: 'var(--primary)', fontWeight: 850 }}>
-                        Total Scans: {graphData[hoveredBar].scans}
-                      </span>
-                      <span style={{ color: 'var(--danger)', fontWeight: 850 }}>
-                        Flagged Scams: {graphData[hoveredBar].highRisk}
-                      </span>
-                      <span style={{ color: 'var(--muted)', fontWeight: 750 }}>
-                        Threat Ratio: {Math.round((graphData[hoveredBar].highRisk / graphData[hoveredBar].scans) * 100)}%
-                      </span>
-                    </span>
-                  </div>
-                ) : (
-                  <div style={{ fontSize: '0.84rem', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 650 }}>
-                    <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '1.1rem', height: '1.1rem', color: 'var(--primary)', flexShrink: 0 }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.083 1.083l-.04.02a.75.75 0 01-1.084-1.083zM12 21a9 9 0 100-18 9 9 0 000 18z" />
-                    </svg>
-                    <span>Hover over any chart column below to inspect detailed daily analytics.</span>
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
 
-              {/* Enlarged SVG Animated Chart (Height increased to 280px, 205px on mobile) */}
-              <div className="weekly-chart-wrapper" style={{ width: '100%', height: '280px', position: 'relative', overflow: 'visible' }}>
-                <svg viewBox="0 0 600 230" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-                  {/* Horizontal Grid Lines */}
-                  <line x1="40" y1="30" x2="580" y2="30" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-                  <line x1="40" y1="85" x2="580" y2="85" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-                  <line x1="40" y1="140" x2="580" y2="140" stroke="var(--border)" strokeDasharray="4 4" strokeWidth="1" />
-                  <line x1="40" y1="195" x2="580" y2="195" stroke="var(--border)" strokeWidth="1.5" />
+              {/* Deep Neural Explanation */}
+              <div>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.35rem' }}>
+                  Gemma 4 Deep Neural Assessment
+                </span>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text)', margin: 0, lineHeight: 1.5, background: 'var(--surface)', padding: '0.75rem 0.95rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  {activeSpotlightIncident.explanation || 'The communication uses deceptive urgency to induce fear of service suspension. The sender prompts the target to initiate an unprompted USSD cashout transaction which grants the attacker immediate financial transfer rights upon PIN confirmation.'}
+                </p>
+              </div>
+            </div>
 
-                  {/* Y Axis Numeric Scale Labels */}
-                  <text x="30" y="34" textAnchor="end" fill="var(--muted)" fontSize="12" fontWeight="800">15</text>
-                  <text x="30" y="89" textAnchor="end" fill="var(--muted)" fontSize="12" fontWeight="800">10</text>
-                  <text x="30" y="144" textAnchor="end" fill="var(--muted)" fontSize="12" fontWeight="800">5</text>
-                  <text x="30" y="199" textAnchor="end" fill="var(--muted)" fontSize="12" fontWeight="800">0</text>
+            {/* Right Column: AI Risk Vector Breakdown & Automated Playbook */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Multi-Vector Risk Matrix
+                </span>
+                <span style={{ background: 'var(--surface)', color: 'var(--primary)', border: '1px solid var(--primary)', fontSize: '0.74rem', fontWeight: 900, padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
+                  {activeSpotlightIncident.riskScore || 96}% HIGH RISK
+                </span>
+              </div>
 
-                  {/* Daily Bar Columns */}
-                  {graphData.map((d, i) => {
-                    const xStart = 60 + i * 74
-                    const totalHeight = d.scans * 15
-                    const threatHeight = d.highRisk * 15
-                    const yTotal = 195 - totalHeight
-                    const yThreat = 195 - threatHeight
+              {/* Heuristic Bars */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                {[
+                  { name: 'Social Coercion & Urgency', score: 96, color: 'var(--primary)' },
+                  { name: 'Brand Impersonation (MTN/Telco)', score: 92, color: '#f59e0b' },
+                  { name: 'Unauthorized USSD / Cashout Payload', score: 98, color: 'var(--primary)' },
+                  { name: 'Sender Identity Anomaly', score: 94, color: '#38bdf8' },
+                ].map((vec) => (
+                  <div key={vec.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 800 }}>
+                      <span style={{ color: 'var(--text)' }}>{vec.name}</span>
+                      <span style={{ color: vec.color }}>{vec.score}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: '6px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                      <div style={{ width: `${vec.score}%`, height: '100%', background: vec.color, borderRadius: '999px' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-                    const isHovered = hoveredBar === i
+              {/* Automated Mitigation Playbook */}
+              <div style={{ marginTop: '0.2rem' }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.45rem' }}>
+                  Automated Mitigation Protocol
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.76rem', color: 'var(--text)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                    <span style={{ fontWeight: 900, color: 'var(--primary)' }}>01</span>
+                    <span><strong>Immediate Handset Action:</strong> Cancel incoming USSD prompt immediately; never enter PIN.</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                    <span style={{ fontWeight: 900, color: '#f59e0b' }}>02</span>
+                    <span><strong>Carrier Escalation:</strong> Forward SMS to MTN Fraud Unit toll-free via <strong>1917</strong>.</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--surface)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                    <span style={{ fontWeight: 900, color: '#10b981' }}>03</span>
+                    <span><strong>Base L2 Attestation:</strong> Immutable cryptographic proof syndicated on Sepolia.</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '0.65rem', marginTop: '0.2rem' }}>
+                <button
+                  onClick={() => setSelectedIncidentForAudit(activeSpotlightIncident)}
+                  style={{
+                    flex: 1,
+                    background: 'var(--primary)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0.55rem 0.9rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.4rem'
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  Inspect Full Forensic Audit
+                </button>
+
+                <button
+                  onClick={() => setIsCopilotOpen(true)}
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text)',
+                    borderRadius: '8px',
+                    padding: '0.55rem 0.95rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem'
+                  }}
+                >
+                  Ask Copilot
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================================
+            TIER 5: THREAT VECTOR ANALYTICS & ATTACK VOLUME (COVERS FULL CONTAINER WIDTH)
+            ========================================================================= */}
+        <section className="cyfocus-card" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
+                Threat Vector Analytics &amp; Attack Volume
+              </h3>
+              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: 0 }}>
+                Real-time telemetry monitoring Mobile Money fraud and domain spoofing
+              </p>
+            </div>
+
+            {/* Segmented Controls */}
+            <div style={{ display: 'flex', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '999px', padding: '3px' }}>
+              <button
+                onClick={() => setActiveTab('trends')}
+                className={`cyfocus-tab-btn ${activeTab === 'trends' ? 'cyfocus-tab-btn--active' : ''}`}
+              >
+                7-Day Trends
+              </button>
+              <button
+                onClick={() => setActiveTab('vectors')}
+                className={`cyfocus-tab-btn ${activeTab === 'vectors' ? 'cyfocus-tab-btn--active' : ''}`}
+              >
+                Vector Share
+              </button>
+              <button
+                onClick={() => setActiveTab('matrix')}
+                className={`cyfocus-tab-btn ${activeTab === 'matrix' ? 'cyfocus-tab-btn--active' : ''}`}
+              >
+                Risk Matrix
+              </button>
+            </div>
+          </div>
+
+          {/* TAB 1: FULL-WIDTH ENHANCED SVG TELEMETRY CHART */}
+          {activeTab === 'trends' && (
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+              {/* Micro Metric Banner */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.55rem 1rem', marginBottom: '1rem', fontSize: '0.78rem', flexWrap: 'wrap' }}>
+                <div>
+                  <span style={{ color: 'var(--muted)', fontWeight: 700 }}>Weekly Volume: </span>
+                  <strong style={{ color: 'var(--text)' }}>{weeklyTotalScans} Audits</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--muted)', fontWeight: 700 }}>Neutralized: </span>
+                  <strong style={{ color: 'var(--primary)' }}>{weeklyBlockedScans} High Risk</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--muted)', fontWeight: 700 }}>Clean Traffic: </span>
+                  <strong style={{ color: '#10b981' }}>{weeklySafeScans} Safe</strong>
+                </div>
+              </div>
+
+              {/* Wide Precision SVG Chart Canvas */}
+              <div style={{ height: '230px', width: '100%', position: 'relative' }}>
+                <svg viewBox="0 0 920 190" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                  {/* Y-Axis Reference Grid Lines and Labels */}
+                  {[
+                    { val: '40', y: 20 },
+                    { val: '30', y: 55 },
+                    { val: '20', y: 90 },
+                    { val: '10', y: 125 },
+                    { val: '0', y: 160 },
+                  ].map((grid) => (
+                    <g key={grid.val}>
+                      <text x="0" y={grid.y + 3} fill="var(--muted)" fontSize="10" fontWeight="700">
+                        {grid.val}
+                      </text>
+                      <line x1="26" y1={grid.y} x2="910" y2={grid.y} stroke="var(--border)" strokeDasharray="3 3" opacity="0.65" />
+                    </g>
+                  ))}
+
+                  {/* Interactive Vertical Guide Line on Hover */}
+                  {hoveredDay !== null && (
+                    <line
+                      x1={70 + hoveredDay * 130}
+                      y1="15"
+                      x2={70 + hoveredDay * 130}
+                      y2="160"
+                      stroke="var(--primary)"
+                      strokeWidth="1.5"
+                      strokeDasharray="2 2"
+                    />
+                  )}
+
+                  {/* Series 1 Line: Total Scans (Solid Blue) */}
+                  <path
+                    d={trendDays
+                      .map((d, i) => {
+                        const x = 70 + i * 130
+                        const y = 160 - (d.scans / 40) * 140
+                        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
+                      })
+                      .join(' ')}
+                    fill="none"
+                    stroke="#38bdf8"
+                    strokeWidth="2.5"
+                  />
+
+                  {/* Series 2 Line: Blocked Critical Threats (Solid Dominant Red) */}
+                  <path
+                    d={trendDays
+                      .map((d, i) => {
+                        const x = 70 + i * 130
+                        const y = 160 - (d.blocked / 40) * 140
+                        return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
+                      })
+                      .join(' ')}
+                    fill="none"
+                    stroke="var(--primary)"
+                    strokeWidth="3.2"
+                  />
+
+                  {/* Day Points & Invisible Hit Areas */}
+                  {trendDays.map((d, i) => {
+                    const x = 70 + i * 130
+                    const yScans = 160 - (d.scans / 40) * 140
+                    const yBlocked = 160 - (d.blocked / 40) * 140
+                    const isHovered = hoveredDay === i
 
                     return (
-                      <g 
-                        key={d.day}
-                        onMouseEnter={() => setHoveredBar(i)}
-                        onMouseLeave={() => setHoveredBar(null)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        {/* Background transparent hit area for hover selection */}
-                        <rect x={xStart - 8} y="15" width="58" height="190" fill="transparent" />
+                      <g key={d.day}>
+                        {/* Invisible hit rect for easy hover */}
+                        <rect
+                          x={x - 50}
+                          y="15"
+                          width="100"
+                          height="160"
+                          fill="transparent"
+                          style={{ cursor: 'pointer' }}
+                          onMouseEnter={() => setHoveredDay(i)}
+                        />
 
-                        {/* Total Scans Bar */}
-                        <rect 
-                          x={xStart} 
-                          y={yTotal} 
-                          width="22" 
-                          height={totalHeight} 
-                          rx="6" 
-                          fill="var(--primary)" 
-                          opacity={hoveredBar === null ? 0.88 : isHovered ? 1 : 0.35} 
-                          style={{ transition: 'all 0.25s ease', transformOrigin: `${xStart + 11}px 195px` }}
-                        >
-                          <animate attributeName="height" from="0" to={totalHeight} dur="0.5s" fill="freeze" />
-                          <animate attributeName="y" from="195" to={yTotal} dur="0.5s" fill="freeze" />
-                        </rect>
+                        {/* Point for Total Scans */}
+                        <circle
+                          cx={x}
+                          cy={yScans}
+                          r={isHovered ? 6 : 4}
+                          fill="#38bdf8"
+                          stroke="var(--surface)"
+                          strokeWidth="2"
+                          style={{ pointerEvents: 'none', transition: 'r 0.15s ease' }}
+                        />
 
-                        {/* High Risk Threats Bar */}
-                        <rect 
-                          x={xStart + 26} 
-                          y={yThreat} 
-                          width="22" 
-                          height={threatHeight} 
-                          rx="6" 
-                          fill="var(--danger)" 
-                          opacity={hoveredBar === null ? 0.95 : isHovered ? 1 : 0.35} 
-                          style={{ transition: 'all 0.25s ease', transformOrigin: `${xStart + 37}px 195px` }}
-                        >
-                          <animate attributeName="height" from="0" to={threatHeight} dur="0.5s" fill="freeze" />
-                          <animate attributeName="y" from="195" to={yThreat} dur="0.5s" fill="freeze" />
-                        </rect>
+                        {/* Point for Critical Blocked */}
+                        <circle
+                          cx={x}
+                          cy={yBlocked}
+                          r={isHovered ? 7 : 5}
+                          fill="var(--primary)"
+                          stroke="var(--surface)"
+                          strokeWidth="2.5"
+                          style={{ pointerEvents: 'none', transition: 'r 0.15s ease' }}
+                        />
 
-                        {/* X Axis Day Label */}
-                        <text 
-                          x={xStart + 24} 
-                          y="218" 
-                          textAnchor="middle" 
-                          fill={isHovered ? 'var(--primary)' : 'var(--text)'} 
-                          fontSize="13" 
-                          fontWeight={isHovered ? '900' : '800'}
-                          style={{ transition: 'fill 0.2s ease' }}
+                        {/* X-Axis Day Label */}
+                        <text
+                          x={x}
+                          y="178"
+                          textAnchor="middle"
+                          fill={isHovered ? 'var(--primary)' : 'var(--muted)'}
+                          fontSize="11"
+                          fontWeight={isHovered ? '900' : '700'}
                         >
                           {d.day}
                         </text>
@@ -727,594 +919,583 @@ export default function Dashboard({ user }) {
                     )
                   })}
                 </svg>
-              </div>
-            </div>
 
-            {/* AI Warning Callout Banner */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', background: 'rgba(220, 38, 38, 0.08)', border: '1px solid rgba(220, 38, 38, 0.18)', padding: '0.8rem 1.1rem', borderRadius: '14px', marginTop: '1.2rem', width: '100%' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--danger)', flexShrink: 0 }}>
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(220,38,38,0.15)"/>
-                <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
-                <circle cx="12" cy="17" r="1" fill="currentColor"/>
-              </svg>
-              <span style={{ fontSize: '0.84rem', color: 'var(--danger)', fontWeight: 750, lineHeight: 1.45 }}>
-                <strong>AI Threat Indicator:</strong> Fraudulent cashout spikes by 80% on weekends. Remain alert on Saturdays &amp; Sundays.
-              </span>
-            </div>
-          </section>
-        </div>
-
-        {/* FEATURE 2 GRID: Scam Type Donut / Pie Chart & Recent Audit Trail */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '1.4rem', marginBottom: '2rem' }} className="animate-slide-up delay-2">
-          {/* Card A: Scam Type distribution with Donut Pie Chart option */}
-          <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                  AI Detected Scam &amp; Threat Vectors in Ghana
-                </h3>
-                
-                {/* Toggler button group */}
-                <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '2px' }}>
-                  <button 
-                    onClick={() => setChartView('bars')}
+                {/* High-Contrast Interactive Hover Tooltip */}
+                {hoveredDay !== null && (
+                  <div
                     style={{
-                      border: 'none',
-                      background: chartView === 'bars' ? 'var(--primary)' : 'transparent',
-                      color: chartView === 'bars' ? '#fff' : 'var(--text)',
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    List
-                  </button>
-                  <button 
-                    onClick={() => setChartView('donut')}
-                    style={{
-                      border: 'none',
-                      background: chartView === 'donut' ? 'var(--primary)' : 'transparent',
-                      color: chartView === 'donut' ? '#fff' : 'var(--text)',
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    Pie
-                  </button>
-                </div>
-              </div>
-
-              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 0.8rem 0', lineHeight: 1.4 }}>
-                Scam threat distribution analysis from submitted links, emails, and screenshots:
-              </p>
-
-              {/* Sub-header metric readout pill */}
-              <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.1)', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                  Total Cataloged Scams: 264
-                </span>
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)', padding: '0.25rem 0.6rem', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                  Top Vector: MoMo Cashout (54%)
-                </span>
-              </div>
-
-              {chartView === 'bars' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  {slices.map((vec, idx) => {
-                    const isHovered = hoveredSlice === idx
-                    return (
-                      <div 
-                        key={vec.name}
-                        onMouseEnter={() => setHoveredSlice(idx)}
-                        onMouseLeave={() => setHoveredSlice(null)}
-                        style={{ 
-                          background: isHovered ? 'var(--surface)' : 'var(--surface-alt)',
-                          border: `1px solid ${isHovered ? vec.color : 'var(--border)'}`,
-                          padding: '0.75rem 0.95rem',
-                          borderRadius: '14px',
-                          opacity: hoveredSlice !== null && !isHovered ? 0.45 : 1,
-                          transform: isHovered ? 'translateY(-2px)' : 'none',
-                          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                          cursor: 'pointer',
-                          boxShadow: isHovered ? `0 4px 14px rgba(0,0,0,0.06)` : 'none'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
-                          <span style={{ color: 'var(--text)', fontSize: '0.84rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: vec.color, flexShrink: 0 }} />
-                            {vec.name}
-                          </span>
-                          <span style={{ fontSize: '0.78rem', fontWeight: 850, color: vec.color, background: 'var(--surface)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                            {vec.percentage}% ({vec.count})
-                          </span>
-                        </div>
-                        <div style={{ width: '100%', height: '8px', background: 'var(--surface)', borderRadius: '999px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                          <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px', transition: 'width 0.6s ease' }} />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1.4rem', padding: '0.4rem 0' }}>
-                  {/* SVG Interactive Donut/Pie Chart */}
-                  <div style={{ position: 'relative', width: '165px', height: '165px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg viewBox="0 0 130 130" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
-                      {slices.map((slice, idx) => {
-                        const isHovered = hoveredSlice === idx
-                        return (
-                          <circle
-                            key={slice.name}
-                            cx="65"
-                            cy="65"
-                            r={radius}
-                            fill="transparent"
-                            stroke={slice.color}
-                            strokeWidth={isHovered ? 14 : 10}
-                            strokeDasharray={slice.strokeDasharray}
-                            strokeDashoffset={slice.strokeDashoffset}
-                            style={{
-                              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                              cursor: 'pointer',
-                              filter: isHovered ? `drop-shadow(0 0 6px ${slice.color})` : 'none'
-                            }}
-                            onMouseEnter={() => setHoveredSlice(idx)}
-                            onMouseLeave={() => setHoveredSlice(null)}
-                          >
-                            <animate attributeName="stroke-dasharray" from={`0 ${circumference}`} to={slice.strokeDasharray} dur="0.6s" fill="freeze" />
-                          </circle>
-                        )
-                      })}
-                    </svg>
-                    
-                    {/* Dynamic Donut Center Details HUD */}
-                    <div style={{
                       position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      textAlign: 'center',
+                      top: '10px',
+                      left: `${Math.min(hoveredDay * 13.5 + 4, 76)}%`,
+                      background: 'var(--surface-strong)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      padding: '0.5rem 0.85rem',
+                      fontSize: '0.74rem',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.14)',
                       pointerEvents: 'none',
-                      width: '92px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <span style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--text)', lineHeight: 1 }}>
-                        {activeSliceInfo.percentage}%
-                      </span>
-                      <span style={{
-                        fontSize: '0.64rem',
-                        fontWeight: 850,
-                        color: activeSliceInfo.color,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.04em',
-                        marginTop: '3px',
-                        background: 'var(--surface)',
-                        padding: '0.1rem 0.4rem',
-                        borderRadius: '4px',
-                        border: `1px solid ${activeSliceInfo.color}`,
-                        lineHeight: 1.1,
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {{
-                          'MoMo Transfer & Cashout Fraud': 'MoMo Fraud',
-                          'Fake Job & Recruitment Lures': 'Fake Jobs',
-                          'Phishing Links & Spoofed Websites': 'Phishing',
-                          'Impersonation & Advance Fee Scams': 'Scams'
-                        }[activeSliceInfo.name] || 'Scams'}
-                      </span>
-                      <span style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--muted)', marginTop: '3px' }}>
-                        {activeSliceInfo.count.split(' ')[0]} Flags
-                      </span>
+                      zIndex: 2,
+                    }}
+                  >
+                    <strong style={{ display: 'block', color: 'var(--text)', marginBottom: '3px' }}>
+                      {trendDays[hoveredDay].day} Threat Intelligence
+                    </strong>
+                    <div style={{ color: '#38bdf8', fontWeight: 700 }}>
+                      Total Evaluated: {trendDays[hoveredDay].scans}
+                    </div>
+                    <div style={{ color: 'var(--primary)', fontWeight: 800 }}>
+                      High Risk Blocked: {trendDays[hoveredDay].blocked}
+                    </div>
+                    <div style={{ color: '#10b981', fontWeight: 700 }}>
+                      Verified Safe: {trendDays[hoveredDay].safe}
                     </div>
                   </div>
+                )}
+              </div>
 
-                  {/* Human-Centered Donut Legend Cards */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', flex: 1, minWidth: '190px' }}>
-                    {slices.map((slice, idx) => {
-                      const isHovered = hoveredSlice === idx
-                      return (
-                        <div 
-                          key={slice.name}
-                          onMouseEnter={() => setHoveredSlice(idx)}
-                          onMouseLeave={() => setHoveredSlice(null)}
-                          style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'space-between',
-                            gap: '0.6rem',
-                            padding: '0.6rem 0.8rem',
-                            background: isHovered ? 'var(--surface)' : 'rgba(0,0,0,0.015)',
-                            border: `1px solid ${isHovered ? slice.color : 'var(--border)'}`,
-                            borderRadius: '12px',
-                            opacity: hoveredSlice !== null && !isHovered ? 0.4 : 1,
-                            transform: isHovered ? 'translateX(4px)' : 'none',
-                            transition: 'all 0.2s ease',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: slice.color, display: 'inline-block', flexShrink: 0 }} />
-                            <span style={{ color: 'var(--text)', fontSize: '0.78rem', fontWeight: 750 }}>
-                              {slice.name}
-                            </span>
-                          </div>
-                          <span style={{ fontSize: '0.74rem', fontWeight: 850, color: slice.color, whiteSpace: 'nowrap', background: 'var(--surface)', padding: '0.1rem 0.45rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                            {slice.percentage}% ({slice.count.split(' ')[0]})
-                          </span>
-                        </div>
-                      )
-                    })}
+              {/* SVG Chart Legend */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '2.5rem', marginTop: '1rem', fontSize: '0.76rem', fontWeight: 800 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ width: '12px', height: '3px', background: '#38bdf8', borderRadius: '2px' }} />
+                  <span style={{ color: 'var(--muted)' }}>Total Telemetry Audits</span>
+                </div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ width: '12px', height: '3px', background: 'var(--primary)', borderRadius: '2px' }} />
+                  <span style={{ color: 'var(--primary)', fontWeight: 900 }}>Critical / High Risk Threats</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: FULL-WIDTH VECTOR BREAKDOWN */}
+          {activeTab === 'vectors' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.5rem 0', width: '100%' }}>
+              {vectorStats.map((vec) => (
+                <div key={vec.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.84rem', fontWeight: 800 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.55rem' }}>
+                      <span style={{ color: vec.color, display: 'grid', placeItems: 'center' }}>{vec.icon}</span>
+                      <span>{vec.name}</span>
+                    </span>
+                    <span style={{ color: vec.color }}>{vec.percentage}% ({vec.count} Incidents)</span>
+                  </div>
+                  <div style={{ width: '100%', height: '9px', background: 'var(--surface-alt)', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ width: `${vec.percentage}%`, height: '100%', background: vec.color, borderRadius: '999px' }} />
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Human-Centered Scam Insight Callout */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: 'rgba(56, 189, 248, 0.08)',
-              border: '1px solid rgba(56, 189, 248, 0.2)',
-              borderRadius: '12px',
-              padding: '0.7rem 0.95rem',
-              marginTop: '1rem'
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--primary)', flexShrink: 0 }}>
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="12" cy="8" r="1" fill="currentColor"/>
-              </svg>
-              <span style={{ fontSize: '0.76rem', color: 'var(--text)', fontWeight: 700, lineHeight: 1.35 }}>
-                <strong style={{ color: 'var(--primary)' }}>Human Insight:</strong> MoMo &amp; Mobile Money scams constitute over 54% of all threat reports in Ghana. Never share your 4-digit PIN with anyone.
-              </span>
-            </div>
-          </div>
-
-          {/* Card B: Recent AI Scan Audit Trail with Dynamic Filter Tabs */}
-          <div className="scanner-card" style={{ padding: '1.5rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                Recent AI Scan Audit Trail
-              </h3>
-              <Link to="/history" style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', textDecoration: 'none', background: 'rgba(56, 189, 248, 0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
-                VIEW ALL LOGS →
-              </Link>
-            </div>
-
-            <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0 0 0.8rem 0', lineHeight: 1.4 }}>
-              Latest automated threat analyses across submitted inputs:
-            </p>
-
-            {/* Filter Tabs */}
-            <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', marginBottom: '0.8rem', paddingBottom: '4px' }}>
-              {['all', 'link', 'message', 'screenshot', 'email'].map(type => (
-                <button
-                  key={type}
-                  onClick={() => {
-                    setActiveFilter(type)
-                    setAuditPage(1)
-                  }}
-                  style={{
-                    border: 'none',
-                    background: activeFilter === type ? 'var(--primary)' : 'var(--surface)',
-                    color: activeFilter === type ? '#fff' : 'var(--muted)',
-                    border: '1px solid var(--border)',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    padding: '0.25rem 0.6rem',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.02em',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  {type}
-                </button>
               ))}
             </div>
+          )}
 
-            {/* Audit Trail List (Max 3 items per page) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {filteredScans.length > 0 ? (
-                filteredScans
-                  .slice((auditPage - 1) * AUDIT_ITEMS_PER_PAGE, auditPage * AUDIT_ITEMS_PER_PAGE)
-                  .map((item) => (
+          {/* TAB 3: FULL-WIDTH RISK MATRIX */}
+          {activeTab === 'matrix' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', padding: '0.5rem 0', width: '100%' }}>
+              <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.2rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--primary)' }}>{metrics.highRisk}</div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--primary)', textTransform: 'uppercase', marginTop: '0.25rem' }}>Critical Risk</div>
+                <p style={{ fontSize: '0.74rem', color: 'var(--muted)', margin: '0.4rem 0 0 0' }}>MoMo PIN theft &amp; prompt hijacking attacks</p>
+              </div>
+              <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.2rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#f59e0b' }}>{metrics.mediumRisk}</div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#f59e0b', textTransform: 'uppercase', marginTop: '0.25rem' }}>Medium Risk</div>
+                <p style={{ fontSize: '0.74rem', color: 'var(--muted)', margin: '0.4rem 0 0 0' }}>Spoofed job lures &amp; phishing domains</p>
+              </div>
+              <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1.2rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', fontWeight: 900, color: '#10b981' }}>{metrics.lowRisk}</div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#10b981', textTransform: 'uppercase', marginTop: '0.25rem' }}>Verified Safe</div>
+                <p style={{ fontSize: '0.74rem', color: 'var(--muted)', margin: '0.4rem 0 0 0' }}>Official communications &amp; clean alerts</p>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* =========================================================================
+            TIER 6: BALANCED 50% / 50% POSTURE & INCIDENT ESCALATION DECK
+            ========================================================================= */}
+        <section className="cyfocus-posture-deck">
+          {/* Card 1: Live Defense Posture & Active Shields */}
+          <div className="cyfocus-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Live Defense Posture
+                </span>
+                <span style={{ background: 'var(--surface-alt)', color: '#10b981', border: '1px solid #10b981', fontSize: '0.66rem', fontWeight: 900, borderRadius: '999px', padding: '0.15rem 0.5rem' }}>
+                  OPTIMAL
+                </span>
+              </div>
+
+              {/* Circular Gauge Display */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', background: 'var(--surface-alt)', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid var(--border)', marginBottom: '0.8rem' }}>
+                <div style={{ position: 'relative', width: '58px', height: '58px', flexShrink: 0 }}>
+                  <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="var(--border)"
+                      strokeWidth="3.5"
+                    />
+                    <path
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="var(--primary)"
+                      strokeWidth="3.8"
+                      strokeDasharray="92, 100"
+                    />
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: '0.86rem', color: 'var(--text)' }}>
+                    92%
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text)' }}>Vigilant Defense Level</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '0.15rem', lineHeight: 1.35 }}>
+                    Zero critical bypasses detected. Continuous AI heuristic inspection enabled.
+                  </div>
+                </div>
+              </div>
+
+              {/* Defense Shields List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                {defenseShields.map((shield) => (
                   <div
-                    key={item.id}
+                    key={shield.id}
+                    onClick={() => toggleShield(shield.id)}
                     style={{
-                      background: 'var(--surface)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '14px',
-                      padding: '0.85rem 1rem',
                       display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.55rem'
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      background: 'var(--surface-alt)',
+                      border: '1px solid var(--border)',
+                      padding: '0.5rem 0.75rem',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'border-color 0.15s ease',
                     }}
                   >
-                    {/* Scanned text content - soft muted text color to prevent glare in dark mode */}
-                    <Link
-                      to="/history"
-                      style={{
-                        textDecoration: 'none',
-                        margin: 0,
-                        fontSize: '0.88rem',
-                        fontWeight: 500,
-                        color: 'var(--muted)',
-                        lineHeight: 1.5,
-                        wordBreak: 'break-word'
-                      }}
-                    >
-                      &ldquo;{item.originalContent}&rdquo;
-                    </Link>
-
-                    {/* Metadata row: Category, timestamp, risk badge, audit link to history */}
-                    <div className="audit-metadata-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.4rem', borderTop: '1px dashed var(--border)' }}>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>
-                          {item.threatCategory || 'MoMo Transfer & Cashout Fraud'}
-                        </span>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--muted)' }}>•</span>
-                        <span style={{ fontSize: '0.73rem', color: 'var(--muted)', fontWeight: 600 }}>{item.submittedAt || 'Recently'}</span>
+                    <div>
+                      <div style={{ fontSize: '0.76rem', fontWeight: 800, color: shield.active ? 'var(--text)' : 'var(--muted)' }}>
+                        {shield.label}
                       </div>
-
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}>
-                        <span
-                          style={{
-                            fontSize: '0.7rem',
-                            fontWeight: 850,
-                            color: item.riskLevel === 'high' ? 'var(--danger)' : item.riskLevel === 'medium' ? 'var(--warning)' : 'var(--success)',
-                            background: item.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.12)' : item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)',
-                            border: `1px solid ${item.riskLevel === 'high' ? 'rgba(239, 68, 68, 0.25)' : item.riskLevel === 'medium' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(16, 185, 129, 0.25)'}`,
-                            padding: '0.2rem 0.6rem',
-                            borderRadius: '8px',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {item.riskLevel ? item.riskLevel.toUpperCase() : 'HIGH'} RISK ({item.riskScore || 85}%)
-                        </span>
-                        <Link
-                          to="/history"
-                          style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 850, textDecoration: 'none' }}
-                        >
-                          Audit &rarr;
-                        </Link>
+                      <div style={{ fontSize: '0.66rem', color: 'var(--muted)' }}>
+                        {shield.desc}
                       </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', color: 'var(--muted)' }}>
-                  <svg fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" style={{ width: '2.5rem', height: '2.5rem', margin: '0 auto 0.6rem', display: 'block', opacity: 0.5 }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                  </svg>
-                  <p style={{ fontSize: '0.84rem', fontWeight: 600, margin: '0 0 0.4rem 0' }}>No {activeFilter} scans recorded</p>
-                  <Link to="/history" style={{ fontSize: '0.78rem', color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}>View scan history &rarr;</Link>
-                </div>
-              )}
-            </div>
-
-            {/* Pagination Controls Footer */}
-            {filteredScans.length > AUDIT_ITEMS_PER_PAGE && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '0.8rem', borderTop: '1px dashed var(--border)', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 650 }}>
-                  Showing {(auditPage - 1) * AUDIT_ITEMS_PER_PAGE + 1}–{Math.min(auditPage * AUDIT_ITEMS_PER_PAGE, filteredScans.length)} of {filteredScans.length} logs
-                </span>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <button
-                    disabled={auditPage === 1}
-                    onClick={() => setAuditPage(prev => Math.max(prev - 1, 1))}
-                    style={{
-                      border: '1px solid var(--border)',
-                      background: 'var(--surface)',
-                      color: auditPage === 1 ? 'var(--muted)' : 'var(--text)',
-                      fontSize: '0.72rem',
-                      fontWeight: 750,
-                      padding: '0.25rem 0.55rem',
-                      borderRadius: '6px',
-                      cursor: auditPage === 1 ? 'default' : 'pointer',
-                      opacity: auditPage === 1 ? 0.5 : 1
-                    }}
-                  >
-                    &larr; Prev
-                  </button>
-
-                  {Array.from({ length: Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE) }, (_, i) => i + 1).map(p => (
-                    <button
-                      key={p}
-                      onClick={() => setAuditPage(p)}
+                    <span
                       style={{
-                        border: '1px solid var(--border)',
-                        background: auditPage === p ? 'var(--primary)' : 'var(--surface)',
-                        color: auditPage === p ? '#ffffff' : 'var(--text)',
-                        fontSize: '0.72rem',
-                        fontWeight: 800,
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        display: 'grid',
-                        placeItems: 'center'
+                        fontSize: '0.62rem',
+                        fontWeight: 900,
+                        padding: '0.15rem 0.45rem',
+                        borderRadius: '999px',
+                        background: shield.active ? '#10b981' : 'var(--surface)',
+                        color: shield.active ? '#ffffff' : 'var(--muted)',
+                        border: `1px solid ${shield.active ? '#10b981' : 'var(--border)'}`,
+                        flexShrink: 0,
                       }}
                     >
-                      {p}
-                    </button>
-                  ))}
-
-                  <button
-                    disabled={auditPage === Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE)}
-                    onClick={() => setAuditPage(prev => Math.min(prev + 1, Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE)))}
-                    style={{
-                      border: '1px solid var(--border)',
-                      background: 'var(--surface)',
-                      color: auditPage === Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE) ? 'var(--muted)' : 'var(--text)',
-                      fontSize: '0.72rem',
-                      fontWeight: 750,
-                      padding: '0.25rem 0.55rem',
-                      borderRadius: '6px',
-                      cursor: auditPage === Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE) ? 'default' : 'pointer',
-                      opacity: auditPage === Math.ceil(filteredScans.length / AUDIT_ITEMS_PER_PAGE) ? 0.5 : 1
-                    }}
-                  >
-                    Next &rarr;
-                  </button>
-                </div>
+                      {shield.status}
+                    </span>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Enhanced Ghana Emergency Anti-Scam Helplines Direct-Dial Action Cards Section */}
-        <section 
-          className="scanner-card animate-slide-up" 
-          style={{ 
-            padding: '1.8rem 2rem', 
-            background: 'linear-gradient(135deg, rgba(230, 60, 28, 0.03), var(--surface-alt))', 
-            borderRadius: '24px', 
-            border: '1px solid var(--border)', 
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.03)',
-            marginBottom: '1rem'
-          }}
-        >
-          {/* Header Title & Subtitle */}
-          <div style={{ textAlign: 'center', marginBottom: '1.4rem' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(230, 60, 28, 0.1)', color: 'var(--primary)', display: 'grid', placeItems: 'center' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-                </svg>
-              </div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-                Ghana Emergency Anti-Scam Helplines
-              </h3>
             </div>
-            <p style={{ fontSize: '0.88rem', color: 'var(--muted)', margin: 0 }}>
-              If you suspect an active wallet compromise or fraud attempt, tap support below to dial immediately:
-            </p>
           </div>
 
-          {/* Interactive Direct-Dial Action Cards Grid */}
-          <div className="helpline-grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-            {/* Card 1: Cyber Security Authority (CSA) 292 */}
-            <a 
-              href="tel:292" 
-              style={{ 
-                textDecoration: 'none', 
-                background: 'var(--surface)', 
-                border: '1px solid var(--border)', 
-                borderRadius: '16px', 
-                padding: '1.1rem 1.2rem', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justify: 'space-between',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.02)'
-              }}
-              className="helpline-card-hover"
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--primary)', background: 'rgba(230,60,28,0.1)', padding: '0.2rem 0.65rem', borderRadius: '999px' }}>
-                  CSA Hotline
-                </span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--primary)' }}>
-                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+          {/* Card 2: Ghana Incident Escalation Directory */}
+          <div className="cyfocus-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem' }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2.2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
+                <h4 style={{ fontSize: '0.92rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                  Ghana Incident Escalation
+                </h4>
               </div>
-              <div>
-                <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', display: 'block', lineHeight: 1.2, marginBottom: '0.2rem' }}>
-                  292
-                </strong>
-                <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 650 }}>
-                  Toll-Free National Incident Line
-                </span>
-              </div>
-            </a>
+              <p style={{ fontSize: '0.74rem', color: 'var(--muted)', margin: '0 0 0.85rem 0' }}>
+                If you suspect an active Mobile Money breach, contact these authorities immediately:
+              </p>
 
-            {/* Card 2: MTN Mobile Money Fraud 1917 */}
-            <a 
-              href="tel:1917" 
-              style={{ 
-                textDecoration: 'none', 
-                background: 'var(--surface)', 
-                border: '1px solid var(--border)', 
-                borderRadius: '16px', 
-                padding: '1.1rem 1.2rem', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justify: 'space-between',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.02)'
-              }}
-              className="helpline-card-hover"
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--warning)', background: 'rgba(245,158,11,0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px' }}>
-                  MTN Fraud
-                </span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--warning)' }}>
-                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-                </svg>
-              </div>
-              <div>
-                <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', display: 'block', lineHeight: 1.2, marginBottom: '0.2rem' }}>
-                  1917
-                </strong>
-                <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 650 }}>
-                  Free SMS &amp; Voice Fraud Report
-                </span>
-              </div>
-            </a>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+                <a
+                  href="tel:292"
+                  style={{ textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', border: '1px solid var(--border)', padding: '0.65rem 0.85rem', borderRadius: '8px' }}
+                >
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text)' }}>National Cyber Security Authority</div>
+                    <div style={{ fontSize: '0.66rem', color: 'var(--muted)' }}>Official 24/7 National CERT Reporting</div>
+                  </div>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--primary)', fontFamily: 'monospace' }}>292</span>
+                </a>
 
-            {/* Card 3: Telecel / AT Support 100 */}
-            <a 
-              href="tel:100" 
-              style={{ 
-                textDecoration: 'none', 
-                background: 'var(--surface)', 
-                border: '1px solid var(--border)', 
-                borderRadius: '16px', 
-                padding: '1.1rem 1.2rem', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justify: 'space-between',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.02)'
-              }}
-              className="helpline-card-hover"
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                <span style={{ fontSize: '0.74rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16,185,129,0.12)', padding: '0.2rem 0.65rem', borderRadius: '999px' }}>
-                  Telecel / AT
-                </span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--success)' }}>
-                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-                </svg>
+                <a
+                  href="tel:1917"
+                  style={{ textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', border: '1px solid var(--border)', padding: '0.65rem 0.85rem', borderRadius: '8px' }}
+                >
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text)' }}>MTN Fraud Prevention Unit</div>
+                    <div style={{ fontSize: '0.66rem', color: 'var(--muted)' }}>Wallet Freezes &amp; Reversals</div>
+                  </div>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#f59e0b', fontFamily: 'monospace' }}>1917</span>
+                </a>
+
+                <a
+                  href="tel:18555"
+                  style={{ textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-alt)', border: '1px solid var(--border)', padding: '0.65rem 0.85rem', borderRadius: '8px' }}
+                >
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text)' }}>Ghana Police Cybercrime Unit</div>
+                    <div style={{ fontSize: '0.66rem', color: 'var(--muted)' }}>Criminal Investigation &amp; Recovery</div>
+                  </div>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'monospace' }}>18555</span>
+                </a>
               </div>
-              <div>
-                <strong style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', display: 'block', lineHeight: 1.2, marginBottom: '0.2rem' }}>
-                  100
-                </strong>
-                <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 650 }}>
-                  Network Operator Customer Care
-                </span>
-              </div>
-            </a>
+            </div>
           </div>
         </section>
+
+        {/* =========================================================================
+            TIER 7: FULL-WIDTH LIVE SECURITY INCIDENT FEED & FORENSIC TRIAGE TABLE
+            ========================================================================= */}
+        <section className="cyfocus-card" style={{ padding: '1.4rem', width: '100%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                  Live Security Incident Feed &amp; Triage
+                </h3>
+                <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--muted)', fontSize: '0.72rem', fontWeight: 800, padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
+                  {filteredReports.length} Records
+                </span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.25rem 0 0 0' }}>
+                Chronological threat intelligence telemetry synced directly with Neon Postgres
+              </p>
+            </div>
+
+            {/* Search & Filter Bar */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="Search incidents, hashes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    background: 'var(--surface-alt)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text)',
+                    borderRadius: '999px',
+                    padding: '0.45rem 0.9rem 0.45rem 2.1rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    outline: 'none',
+                    width: '220px',
+                  }}
+                />
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </div>
+
+              {/* Type Select */}
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '999px', padding: '0.45rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, outline: 'none' }}
+              >
+                <option value="all">All Channels</option>
+                <option value="message">SMS / WhatsApp</option>
+                <option value="link">Phishing URLs</option>
+                <option value="screenshot">Screenshots OCR</option>
+                <option value="email">Emails</option>
+              </select>
+
+              {/* Severity Select */}
+              <select
+                value={filterSeverity}
+                onChange={(e) => setFilterSeverity(e.target.value)}
+                style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '999px', padding: '0.45rem 0.85rem', fontSize: '0.78rem', fontWeight: 800, outline: 'none' }}
+              >
+                <option value="all">All Severities</option>
+                <option value="high">Critical Risk</option>
+                <option value="medium">Medium Risk</option>
+                <option value="low">Verified Safe</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Table Container */}
+          {isLoadingReports ? (
+            <div style={{ textAlign: 'center', padding: '3rem' }}>
+              <Spinner />
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.6rem' }}>Syncing telemetry with Neon Postgres...</p>
+            </div>
+          ) : filteredReports.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2.5rem', background: 'var(--surface-alt)', borderRadius: '10px', border: '1px dashed var(--border)' }}>
+              <p style={{ margin: 0, fontWeight: 700, color: 'var(--muted)' }}>No security incidents match your filter query.</p>
+            </div>
+          ) : (
+            <div className="cyfocus-table-wrap">
+              <table className="cyfocus-table">
+                <thead>
+                  <tr>
+                    <th>Incident / Hash</th>
+                    <th>Channel</th>
+                    <th>Threat Classification</th>
+                    <th>Risk Assessment</th>
+                    <th>Logged At</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredReports.slice(0, 8).map((item) => {
+                    const isHigh = item.riskLevel === 'high'
+                    const isMed = item.riskLevel === 'medium'
+                    const badgeColor = isHigh ? 'var(--primary)' : isMed ? '#f59e0b' : '#10b981'
+
+                    return (
+                      <tr key={item.id}>
+                        {/* ID + Preview */}
+                        <td style={{ minWidth: '220px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                            <span style={{ fontFamily: 'monospace', fontWeight: 900, color: 'var(--primary)', fontSize: '0.78rem' }}>
+                              #{item.id.slice(0, 10).toUpperCase()}
+                            </span>
+                            <span style={{ color: 'var(--text)', fontWeight: 600, fontSize: '0.8rem', maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {item.originalContent || item.summary}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Channel */}
+                        <td>
+                          <span style={{ textTransform: 'capitalize', fontWeight: 800, fontSize: '0.76rem', color: 'var(--muted)', background: 'var(--surface-alt)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                            {item.type || 'message'}
+                          </span>
+                        </td>
+
+                        {/* Threat Category */}
+                        <td>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text)' }}>
+                            {item.threatCategory || 'MoMo Transfer Fraud'}
+                          </span>
+                        </td>
+
+                        {/* Risk Assessment */}
+                        <td>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'var(--surface)', color: badgeColor, border: `1px solid ${badgeColor}`, padding: '0.2rem 0.55rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 900 }}>
+                            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: badgeColor }} />
+                            {item.riskScore}% {item.riskLevel?.toUpperCase()}
+                          </span>
+                        </td>
+
+                        {/* Logged At */}
+                        <td>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 600 }}>
+                            {item.submittedAt || 'Recent'}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
+                            <button
+                              onClick={() => setSelectedIncidentForAudit(item)}
+                              style={{
+                                padding: '0.35rem 0.75rem',
+                                fontSize: '0.74rem',
+                                fontWeight: 800,
+                                borderRadius: '8px',
+                                border: '1px solid var(--border)',
+                                background: 'var(--surface-alt)',
+                                color: 'var(--text)',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Forensic Audit →
+                            </button>
+                            <Link to={`/results/${item.id}`} style={{ textDecoration: 'none' }}>
+                              <button
+                                style={{
+                                  padding: '0.35rem 0.55rem',
+                                  fontSize: '0.74rem',
+                                  fontWeight: 800,
+                                  borderRadius: '8px',
+                                  border: '1px solid var(--border)',
+                                  background: 'transparent',
+                                  color: 'var(--muted)',
+                                  cursor: 'pointer'
+                                }}
+                                title="Open Dedicated Result Page"
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                  <polyline points="15 3 21 3 21 9" />
+                                  <line x1="10" y1="14" x2="21" y2="3" />
+                                </svg>
+                              </button>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* =========================================================================
+            INTERACTIVE IN-PAGE FORENSIC AUDIT MODAL (DEEP AI DRILLDOWN)
+            ========================================================================= */}
+        {selectedIncidentForAudit && (
+          <div className="cyfocus-modal-overlay" onClick={() => setSelectedIncidentForAudit(null)}>
+            <div className="cyfocus-modal-card" onClick={(e) => e.stopPropagation()}>
+              {/* Modal Header */}
+              <div style={{ padding: '1.2rem 1.4rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                      <polyline points="2 17 12 22 22 17" />
+                      <polyline points="2 12 12 17 22 12" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, color: 'var(--text)' }}>
+                      Forensic Telemetry Audit #{selectedIncidentForAudit.id?.slice(0, 10).toUpperCase()}
+                    </h3>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>
+                      Google Gemma 4 AI Deep Inspection • Base L2 Sepolia
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedIncidentForAudit(null)}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: '0.4rem', display: 'grid', placeItems: 'center' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div style={{ padding: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+                {/* Risk Score Pill */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-alt)', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                  <div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase' }}>Classification</span>
+                    <div style={{ fontSize: '0.94rem', fontWeight: 900, color: 'var(--text)', marginTop: '2px' }}>
+                      {selectedIncidentForAudit.threatCategory || 'MoMo Transfer Fraud'}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase' }}>Confidence Index</span>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--primary)', marginTop: '2px' }}>
+                      {selectedIncidentForAudit.riskScore}% {selectedIncidentForAudit.riskLevel?.toUpperCase()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Raw Target Content */}
+                <div>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.4rem' }}>
+                    Evaluated Payload / Content
+                  </span>
+                  <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.8rem', fontSize: '0.82rem', fontFamily: 'monospace', color: 'var(--text)', lineHeight: 1.45 }}>
+                    {selectedIncidentForAudit.originalContent || selectedIncidentForAudit.summary}
+                  </div>
+                </div>
+
+                {/* Red Flags List */}
+                {selectedIncidentForAudit.redFlags && selectedIncidentForAudit.redFlags.length > 0 && (
+                  <div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.4rem' }}>
+                      Identified Attack Vectors &amp; Red Flags
+                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      {selectedIncidentForAudit.redFlags.map((flag, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', fontSize: '0.78rem', background: 'var(--surface-alt)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary)', flexShrink: 0 }} />
+                          <span style={{ color: 'var(--text)', fontWeight: 700 }}>{flag}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Explanation */}
+                {selectedIncidentForAudit.explanation && (
+                  <div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.4rem' }}>
+                      AI Forensic Rationale
+                    </span>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1.5, background: 'var(--surface-alt)', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                      {selectedIncidentForAudit.explanation}
+                    </p>
+                  </div>
+                )}
+
+                {/* Recommendation */}
+                {selectedIncidentForAudit.recommendation && (
+                  <div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.4rem' }}>
+                      Containment Protocol
+                    </span>
+                    <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.8rem', fontSize: '0.8rem', color: 'var(--text)', lineHeight: 1.45 }}>
+                      {selectedIncidentForAudit.recommendation}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div style={{ padding: '1rem 1.4rem', background: 'var(--surface-alt)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                  Base L2: 0xb0e5...859c
+                </span>
+                <div style={{ display: 'flex', gap: '0.65rem' }}>
+                  <button
+                    onClick={() => setSelectedIncidentForAudit(null)}
+                    style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.45rem 0.95rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text)', cursor: 'pointer' }}
+                  >
+                    Close
+                  </button>
+                  <Link to={`/results/${selectedIncidentForAudit.id}`} style={{ textDecoration: 'none' }}>
+                    <Button variant="primary" style={{ background: 'var(--primary)', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0.45rem 1rem', fontSize: '0.78rem', fontWeight: 900 }}>
+                      Open Full Report Page →
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SLIDE-OVER AI SECURITY COPILOT DRAWER (TRIGGERED FROM HEADER OR CORNER DOCK)
+            ========================================================================= */}
+        <SecurityChatbot
+          user={user}
+          isOpen={isCopilotOpen}
+          setIsOpen={setIsCopilotOpen}
+        />
       </div>
-      <SecurityChatbot user={user} />
     </PageContainer>
   )
 }

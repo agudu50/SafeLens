@@ -295,6 +295,31 @@ export function getScanHistory() {
   return history
 }
 
+/**
+ * Fetches recent threat reports from the Neon Postgres database.
+ */
+export async function fetchDbReports(limit = 20) {
+  try {
+    const res = await fetch(`${API_URL}/api/reports?limit=${limit}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.reports && data.reports.length > 0) {
+        loadHistory()
+        for (const r of data.reports) {
+          if (!history.some((h) => h.id === r.id)) {
+            history.push(r)
+          }
+        }
+        saveHistory()
+        return data.reports
+      }
+    }
+  } catch (err) {
+    console.warn('[SafeLens] Failed to sync reports from Neon DB:', err)
+  }
+  return getScanHistory()
+}
+
 export function clearScanHistory() {
   history = []
   saveHistory()
