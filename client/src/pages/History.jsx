@@ -1,32 +1,111 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import PageContainer from '../components/layout/PageContainer'
-import Modal from '../components/ui/Modal'
-import { getScanHistory } from '../services/scannerService'
-
-const typeOptions = ['All', 'Message', 'Screenshot', 'Link', 'Email']
-const riskOptions = ['All', 'High', 'Medium', 'Low']
-const ITEMS_PER_PAGE = 5
+import Spinner from '../components/ui/Spinner'
+import { getScanHistory, fetchDbReports } from '../services/scannerService'
 
 export default function History() {
   const navigate = useNavigate()
-  const [scans, setScans] = useState(() => getScanHistory())
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedType, setSelectedType] = useState('All')
-  const [selectedRisk, setSelectedRisk] = useState('All')
-  const [currentPage, setCurrentPage] = useState(1)
 
-  // Date Range Export Modal State
+  // Synchronously initialize from persistent history for zero-flicker frame rendering
+  const [scans, setScans] = useState(() => {
+    try {
+      const cached = localStorage.getItem('safelens_history')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Array.isArray(parsed) && parsed.length >= 10) return parsed
+      }
+      return getScanHistory()
+    } catch {
+      return getScanHistory()
+    }
+  })
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterType, setFilterType] = useState('all') // 'all' | 'message' | 'link' | 'screenshot' | 'email'
+  const [filterSeverity, setFilterSeverity] = useState('all') // 'all' | 'high' | 'medium' | 'low'
+  const [selectedIncidentForAudit, setSelectedIncidentForAudit] = useState(null)
+
+  // Export CSV Modal State
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
   const [presetRange, setPresetRange] = useState('all')
 
-  // Reset to page 1 whenever search query or filters change
+  // Fetch from Neon DB on mount & listen for real-time scans
   useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery, selectedType, selectedRisk])
+    async function syncData() {
+      try {
+        const dbReports = await fetchDbReports(50)
+        if (dbReports && dbReports.length > 0) {
+          setScans(dbReports)
+        }
+      } catch (err) {
+        console.warn('[SafeLens] Failed to sync history from DB:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    syncData()
 
+    const handleScanCompleted = (e) => {
+      const newScan = e.detail
+      if (!newScan || !newScan.id) return
+      setScans((prev) => {
+        if (prev.some((r) => r.id === newScan.id)) return prev
+        return [newScan, ...prev]
+      })
+    }
+
+    const handleStorageChange = (e) => {
+      if (e.key === 'safelens_history') {
+        const fresh = getScanHistory()
+        if (fresh && fresh.length > 0) setScans(fresh)
+      }
+    }
+
+    window.addEventListener('safelens_scan_completed', handleScanCompleted)
+    window.addEventListener('storage', handleStorageChange)
+    return () => {
+      window.removeEventListener('safelens_scan_completed', handleScanCompleted)
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
+
+  // Metrics
+  const metrics = useMemo(() => {
+    const total = scans.length
+    const critical = scans.filter((s) => s.riskLevel === 'high').length
+    const medium = scans.filter((s) => s.riskLevel === 'medium').length
+    const safe = scans.filter((s) => s.riskLevel === 'low').length
+    const avgScore = total > 0 ? Math.round(scans.reduce((acc, c) => acc + (c.riskScore || 0), 0) / total) : 0
+    return { total, critical, medium, safe, avgScore }
+  }, [scans])
+
+  // Filtered Incident Feed
+  const filteredScans = useMemo(() => {
+    return scans.filter((scan) => {
+      const query = searchQuery.trim().toLowerCase()
+      const matchesSearch =
+        !query ||
+        (scan.id && scan.id.toLowerCase().includes(query)) ||
+        (scan.summary && scan.summary.toLowerCase().includes(query)) ||
+        (scan.originalContent && scan.originalContent.toLowerCase().includes(query)) ||
+        (scan.threatCategory && scan.threatCategory.toLowerCase().includes(query)) ||
+        (scan.redFlags && scan.redFlags.some((f) => f.toLowerCase().includes(query)))
+
+      const matchesType =
+        filterType === 'all' || (scan.type && scan.type.toLowerCase() === filterType.toLowerCase())
+
+      const matchesSeverity =
+        filterSeverity === 'all' || (scan.riskLevel && scan.riskLevel.toLowerCase() === filterSeverity.toLowerCase())
+
+      return matchesSearch && matchesType && matchesSeverity
+    })
+  }, [scans, searchQuery, filterType, filterSeverity])
+
+  // CSV Export Handlers
   const handleOpenExportModal = () => {
     setPresetRange('all')
     setFromDate('')
@@ -55,682 +134,688 @@ export default function History() {
     }
   }
 
-  // Filter scans for export preview based on selected date range
-  const previewExportScans = useMemo(() => {
-    if (!isExportModalOpen) return []
-    return scans.filter((s) => {
+  const handleConfirmExportCSV = () => {
+    const recordsToExport = filteredScans.filter((s) => {
       const recordDate = s.createdAt || new Date().toISOString().slice(0, 10)
       if (fromDate && recordDate < fromDate) return false
       if (toDate && recordDate > toDate) return false
       return true
     })
-  }, [scans, fromDate, toDate, isExportModalOpen])
+    if (recordsToExport.length === 0) return
 
-  // Download CSV file for previewed records
-  const handleConfirmExportCSV = () => {
-    if (previewExportScans.length === 0) return
-    
-    const headers = 'Scan ID,Type,Risk Level,Risk Score,Verdict Summary,Date,Content\n'
-    const rows = previewExportScans
+    const headers = 'Scan ID,Channel,Risk Level,Risk Score,Threat Category,Content,Summary,Logged At\n'
+    const rows = recordsToExport
       .map((s) => {
-        const cleanSummary = (s.summary || '').replace(/"/g, '""')
-        const cleanContent = (s.originalContent || '').replace(/"/g, '""')
-        const recordDate = s.createdAt || s.submittedAt || ''
-        return `"${s.id}","${s.type}","${s.riskLevel}",${s.riskScore},"${cleanSummary}","${recordDate}","${cleanContent}"`
+        const id = s.id ? s.id.slice(0, 10).toUpperCase() : ''
+        const type = s.type || 'message'
+        const riskLevel = s.riskLevel || 'high'
+        const riskScore = s.riskScore || 0
+        const cat = (s.threatCategory || '').replace(/"/g, '""')
+        const content = (s.originalContent || '').replace(/"/g, '""')
+        const summary = (s.summary || '').replace(/"/g, '""')
+        const loggedAt = s.submittedAt || ''
+        return `"#${id}","${type}","${riskLevel}",${riskScore},"${cat}","${content}","${summary}","${loggedAt}"`
       })
       .join('\n')
-      
+
     const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.setAttribute('href', url)
-    const rangeSuffix = fromDate && toDate ? `${fromDate}_to_${toDate}` : 'all_time'
-    link.setAttribute('download', `safelens_scan_history_${rangeSuffix}.csv`)
+    const suffix = fromDate && toDate ? `${fromDate}_to_${toDate}` : 'all_time'
+    link.setAttribute('download', `safelens_security_incidents_${suffix}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     setIsExportModalOpen(false)
   }
 
-  // Calculate statistics from the history array
-  const stats = useMemo(() => {
-    const total = scans.length
-    const avoided = scans.filter((s) => s.riskLevel === 'high').length
-    const totalScore = scans.reduce((acc, curr) => acc + curr.riskScore, 0)
-    const avgScore = total > 0 ? Math.round(totalScore / total) : 0
-    return { total, avoided, avgScore }
-  }, [scans])
-
-  // Filter history based on search query, type selection, and risk selection
-  const filteredScans = useMemo(() => {
-    return scans.filter((scan) => {
-      const query = searchQuery.toLowerCase()
-      const matchesSearch =
-        searchQuery === '' ||
-        scan.summary.toLowerCase().includes(query) ||
-        scan.originalContent.toLowerCase().includes(query) ||
-        (scan.redFlags && scan.redFlags.some(f => f.toLowerCase().includes(query)))
-      
-      const matchesType = selectedType === 'All' || scan.type.toLowerCase() === selectedType.toLowerCase()
-      const matchesRisk = selectedRisk === 'All' || scan.riskLevel.toLowerCase() === selectedRisk.toLowerCase()
-
-      return matchesSearch && matchesType && matchesRisk
-    })
-  }, [scans, searchQuery, selectedType, selectedRisk])
-
-  // Paginated records for current page
-  const totalPages = Math.ceil(filteredScans.length / ITEMS_PER_PAGE) || 1
-
-  const paginatedScans = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    return filteredScans.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  }, [filteredScans, currentPage])
-
   return (
     <PageContainer>
-      <div className="dash-container">
-        {/* Header section with Export & Clear action buttons */}
-        <section
-          className="dash-hero-card animate-fade-in"
-          style={{
-            background: 'var(--surface-alt)',
-            padding: '1.6rem 1.4rem',
-            marginBottom: '1.5rem',
-            borderRadius: '20px',
-            border: '1px solid var(--border)'
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
-                <span className="live-pulse-dot" style={{ width: '8px', height: '8px', background: 'var(--primary)' }} />
-                <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  PERSONAL AUDIT LOGS
-                </span>
-              </div>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: 900, margin: '0 0 0.25rem 0', color: 'var(--text)' }}>
-                Scan History &amp; Threat Intelligence Logs
-              </h1>
-              <p style={{ color: 'var(--muted)', fontSize: '0.88rem', margin: 0 }}>
-                Review past scan verdicts, filter threat categories, and export audit reports.
-              </p>
-            </div>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+        <style>{`
+          .cyhist-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.4rem;
+            position: relative;
+          }
+          .cyhist-table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface-alt);
+          }
+          .cyhist-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+            text-align: left;
+          }
+          .cyhist-table th {
+            padding: 0.85rem 1rem;
+            background: var(--surface-alt);
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+          }
+          .cyhist-table td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+          }
+          .cyhist-table tbody tr:last-child td {
+            border-bottom: none;
+          }
+          .cyhist-table tbody tr:hover td {
+            background: var(--surface);
+          }
+          .cyhist-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+          }
+          .cyhist-modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+          }
+        `}</style>
 
-            {scans.length > 0 && (
-              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={handleOpenExportModal}
-                  style={{
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--text)',
-                    padding: '0.55rem 1rem',
-                    borderRadius: '999px',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem'
-                  }}
-                >
-                  <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.95rem', height: '0.95rem' }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                  </svg>
-                  <span>Export CSV</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* 3 Metric Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.8rem' }} className="animate-slide-up">
-          <div className="dash-stat-card">
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Total Scans Logged</span>
-            <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: '0.2rem 0 0 0', color: 'var(--text)' }}>
-              {stats.total}
-            </h2>
-            <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', marginTop: '0.2rem' }}>
-              Stored in Local Encrypted Memory
-            </span>
-          </div>
-
-          <div className="dash-stat-card">
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>High Risk Avoided</span>
-            <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: '0.2rem 0 0 0', color: 'var(--danger)' }}>
-              {stats.avoided}
-            </h2>
-            <span style={{ fontSize: '0.72rem', color: 'var(--danger)', fontWeight: 700, display: 'block', marginTop: '0.2rem' }}>
-              Threats Intercepted
-            </span>
-          </div>
-
-          <div className="dash-stat-card">
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Average Risk Score</span>
-            <h2 style={{ fontSize: '1.9rem', fontWeight: 900, margin: '0.2rem 0 0 0', color: stats.avgScore > 50 ? 'var(--danger)' : 'var(--success)' }}>
-              {stats.avgScore}%
-            </h2>
-            <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', marginTop: '0.2rem' }}>
-              Overall Vulnerability Index
-            </span>
-          </div>
-        </div>
-
-        {/* Real-Time Filter & Search Bar */}
-        <section className="scanner-card animate-slide-up delay-1" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-          {/* Search Input */}
-          <div style={{ marginBottom: '1.1rem', position: 'relative' }}>
-            <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', width: '1rem', height: '1rem', color: 'var(--muted)' }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search content, red flags, or verdict summaries..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.65rem 0.9rem 0.65rem 2.5rem',
-                borderRadius: '12px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
-                fontSize: '0.88rem',
-                outline: 'none'
-              }}
-            />
-          </div>
-
-          {/* TYPE Filters Row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.9rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', minWidth: '55px' }}>
-              TYPE:
-            </span>
-            {typeOptions.map((type) => {
-              const isActive = selectedType === type
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setSelectedType(type)}
-                  style={{
-                    background: isActive ? 'var(--primary)' : 'var(--surface)',
-                    color: isActive ? '#ffffff' : 'var(--text)',
-                    border: isActive ? '1px solid var(--primary)' : '1px solid var(--border)',
-                    padding: '0.35rem 0.85rem',
-                    borderRadius: '999px',
-                    fontSize: '0.8rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {type}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* RISK Filters Row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', minWidth: '55px' }}>
-              RISK:
-            </span>
-            {riskOptions.map((risk) => {
-              const isActive = selectedRisk === risk
-              let activeBg = 'var(--primary)'
-              if (risk === 'High') activeBg = 'var(--danger)'
-              if (risk === 'Medium') activeBg = 'var(--warning)'
-              if (risk === 'Low') activeBg = 'var(--success)'
-
-              return (
-                <button
-                  key={risk}
-                  type="button"
-                  onClick={() => setSelectedRisk(risk)}
-                  style={{
-                    background: isActive ? activeBg : 'var(--surface)',
-                    color: isActive ? '#ffffff' : 'var(--text)',
-                    border: isActive ? `1px solid ${activeBg}` : '1px solid var(--border)',
-                    padding: '0.35rem 0.85rem',
-                    borderRadius: '999px',
-                    fontSize: '0.8rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {risk}
-                </button>
-              )
-            })}
-          </div>
-        </section>
-
-        {/* Filtered History Log Records */}
-        <section className="scanner-card animate-slide-up delay-2" style={{ padding: '1.6rem 1.4rem', marginBottom: '2rem', background: 'var(--surface-alt)', borderRadius: '20px', border: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
-              Evaluation Logs ({filteredScans.length})
-            </h3>
-
-            {(searchQuery || selectedType !== 'All' || selectedRisk !== 'All') && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery('')
-                  setSelectedType('All')
-                  setSelectedRisk('All')
-                }}
-                style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
-              >
-                Reset Active Filters
-              </button>
-            )}
-          </div>
-
-          {filteredScans.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'var(--surface)', borderRadius: '14px', border: '1px solid var(--border)' }}>
-              <p style={{ color: 'var(--muted)', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
-                No scan history records match your search or filter selections.
-              </p>
-              <Link to="/dashboard" className="button-primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.84rem', textDecoration: 'none', borderRadius: '999px' }}>
-                Go to Dashboard
-              </Link>
-            </div>
-          ) : (
-            <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {paginatedScans.map((scan) => {
-                  const isHigh = scan.riskLevel === 'high' || scan.riskLevel === 'High'
-                  const isMedium = scan.riskLevel === 'medium' || scan.riskLevel === 'Medium'
-
-                  let badgeColor = 'var(--success)'
-                  let badgeBg = 'rgba(16, 185, 129, 0.12)'
-                  let badgeBorder = 'rgba(16, 185, 129, 0.25)'
-
-                  if (isHigh) {
-                    badgeColor = 'var(--danger)'
-                    badgeBg = 'rgba(239, 68, 68, 0.12)'
-                    badgeBorder = 'rgba(239, 68, 68, 0.25)'
-                  } else if (isMedium) {
-                    badgeColor = 'var(--warning)'
-                    badgeBg = 'rgba(245, 158, 11, 0.12)'
-                    badgeBorder = 'rgba(245, 158, 11, 0.25)'
-                  }
-
-                  return (
-                    <div
-                      key={scan.id}
-                      style={{
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '16px',
-                        padding: '1.2rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.75rem',
-                        transition: 'transform 0.2s ease, border-color 0.2s ease'
-                      }}
-                    >
-                      {/* Record Top Row */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--primary)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.18rem 0.6rem', borderRadius: '999px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
-                            {scan.type.toUpperCase()}
-                          </span>
-                          <span style={{ fontSize: '0.76rem', color: 'var(--muted)', fontWeight: 700 }}>
-                            {scan.submittedAt}
-                          </span>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          <span style={{ fontSize: '0.68rem', fontWeight: 850, color: 'var(--success)', background: 'rgba(16, 185, 129, 0.1)', padding: '0.18rem 0.5rem', borderRadius: '999px', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
-                            🛡️ Blockchain Verified
-                          </span>
-                          <span style={{ fontSize: '0.76rem', fontWeight: 800, color: badgeColor, background: badgeBg, padding: '0.2rem 0.65rem', borderRadius: '999px', border: `1px solid ${badgeBorder}` }}>
-                            {scan.riskScore}% {scan.riskLevel.toUpperCase()} RISK
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Scanned Input Text */}
-                      <div style={{ background: 'var(--surface-alt)', padding: '0.8rem 0.95rem', borderRadius: '10px', fontSize: '0.86rem', color: 'var(--text)', fontFamily: 'monospace', lineHeight: 1.45, border: '1px solid var(--border)' }}>
-                        &ldquo;{scan.originalContent}&rdquo;
-                      </div>
-
-                      {/* Summary */}
-                      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
-                        <strong style={{ color: 'var(--text)' }}>Summary: </strong>
-                        {scan.summary}
-                      </p>
-
-                      {/* Red Flags Tags */}
-                      {scan.redFlags && scan.redFlags.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                          {scan.redFlags.map((flag) => (
-                            <span key={flag} style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', background: 'var(--surface-alt)', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                              &bull; {flag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Action Bar */}
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.8rem', borderTop: '1px solid var(--border)', paddingTop: '0.65rem', marginTop: '0.2rem' }}>
-                        <Link
-                          to={`/results/${scan.id}`}
-                          style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--primary)', textDecoration: 'none' }}
-                        >
-                          View Full Report &rarr;
-                        </Link>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Numbered Pagination Bar */}
-              {totalPages > 1 && (
-                <div style={{
-                  display: 'flex',
-                  justify: 'space-between',
-                  alignItems: 'center',
-                  marginTop: '1.6rem',
-                  paddingTop: '1.2rem',
-                  borderTop: '1px solid var(--border)',
-                  flexWrap: 'wrap',
-                  gap: '0.8rem'
-                }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>
-                    Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredScans.length)}–
-                    {Math.min(currentPage * ITEMS_PER_PAGE, filteredScans.length)} of {filteredScans.length} records
-                  </span>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
-                    {/* Previous Button */}
-                    <button
-                      type="button"
-                      disabled={currentPage === 1}
-                      onClick={() => {
-                        setCurrentPage(p => Math.max(p - 1, 1))
-                        window.scrollTo({ top: 300, behavior: 'smooth' })
-                      }}
-                      style={{
-                        padding: '0.4rem 0.8rem',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border)',
-                        background: 'var(--surface)',
-                        color: currentPage === 1 ? 'var(--muted)' : 'var(--text)',
-                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '0.8rem',
-                        fontWeight: 750,
-                        opacity: currentPage === 1 ? 0.5 : 1,
-                        transition: 'all 0.15s ease',
-                      }}
-                    >
-                      &larr; Prev
-                    </button>
-
-                    {/* Numbered Page Buttons */}
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-                      const isActive = pageNum === currentPage
-                      return (
-                        <button
-                          key={pageNum}
-                          type="button"
-                          onClick={() => {
-                            setCurrentPage(pageNum)
-                            window.scrollTo({ top: 300, behavior: 'smooth' })
-                          }}
-                          style={{
-                            minWidth: '34px',
-                            height: '34px',
-                            padding: '0 0.45rem',
-                            borderRadius: '8px',
-                            border: isActive ? '1px solid var(--primary)' : '1px solid var(--border)',
-                            background: isActive ? 'var(--primary)' : 'var(--surface)',
-                            color: isActive ? '#ffffff' : 'var(--text)',
-                            fontSize: '0.82rem',
-                            fontWeight: isActive ? 900 : 700,
-                            cursor: 'pointer',
-                            transition: 'all 0.15s ease',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justify: 'center',
-                            boxShadow: isActive ? '0 2px 8px rgba(230, 60, 28, 0.25)' : 'none',
-                          }}
-                        >
-                          {pageNum}
-                        </button>
-                      )
-                    })}
-
-                    {/* Next Button */}
-                    <button
-                      type="button"
-                      disabled={currentPage === totalPages}
-                      onClick={() => {
-                        setCurrentPage(p => Math.min(p + 1, totalPages))
-                        window.scrollTo({ top: 300, behavior: 'smooth' })
-                      }}
-                      style={{
-                        padding: '0.4rem 0.8rem',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border)',
-                        background: 'var(--surface)',
-                        color: currentPage === totalPages ? 'var(--muted)' : 'var(--text)',
-                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                        fontSize: '0.8rem',
-                        fontWeight: 750,
-                        opacity: currentPage === totalPages ? 0.5 : 1,
-                        transition: 'all 0.15s ease',
-                      }}
-                    >
-                      Next &rarr;
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </section>
-      </div>
-
-      {/* Date Range Selection & Live Preview CSV Export Modal */}
-      <Modal
-        isOpen={isExportModalOpen}
-        onClose={() => setIsExportModalOpen(false)}
-        title="Export Threat Intelligence Logs to CSV"
-        maxWidth="720px"
-      >
-        <div>
-          {/* Step 1: Select Date Range */}
-          <div style={{ marginBottom: '1.2rem' }}>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.5rem' }}>
-              1. Select Export Date Range
-            </label>
-
-            {/* Quick Preset Range Buttons */}
-            <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', marginBottom: '0.85rem' }}>
-              {[
-                { id: 'all', label: 'All Time' },
-                { id: '7days', label: 'Last 7 Days' },
-                { id: '30days', label: 'Last 30 Days' },
-                { id: 'custom', label: 'Custom Range' },
-              ].map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => handleApplyPreset(p.id)}
-                  style={{
-                    padding: '0.35rem 0.8rem',
-                    borderRadius: '999px',
-                    fontSize: '0.78rem',
-                    fontWeight: 750,
-                    cursor: 'pointer',
-                    border: presetRange === p.id ? '1px solid var(--primary)' : '1px solid var(--border)',
-                    background: presetRange === p.id ? 'var(--primary)' : 'var(--surface-alt)',
-                    color: presetRange === p.id ? '#ffffff' : 'var(--text)',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Date Pickers From Date -> To Date */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', background: 'var(--surface-alt)', padding: '0.9rem', borderRadius: '14px', border: '1px solid var(--border)' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.3rem' }}>
-                  From Date (Start)
-                </label>
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => {
-                    setFromDate(e.target.value)
-                    setPresetRange('custom')
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '0.45rem 0.65rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
-                    background: 'var(--surface)',
-                    color: 'var(--text)',
-                    fontSize: '0.84rem',
-                    boxSizing: 'border-box',
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.3rem' }}>
-                  To Date (End)
-                </label>
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => {
-                    setToDate(e.target.value)
-                    setPresetRange('custom')
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '0.45rem 0.65rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
-                    background: 'var(--surface)',
-                    color: 'var(--text)',
-                    fontSize: '0.84rem',
-                    boxSizing: 'border-box',
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Step 2: Live Export Preview Header & Table */}
-          <div style={{ marginBottom: '1.4rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-              <label style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)' }}>
-                2. Live Export Data Preview
-              </label>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: previewExportScans.length > 0 ? 'var(--success)' : 'var(--danger)' }}>
-                {previewExportScans.length} {previewExportScans.length === 1 ? 'record' : 'records'} ready
+        {/* =========================================================================
+            HEADER DECK WITH LIVE POSTURE & EXPORT TRIGGER
+            ========================================================================= */}
+        <div className="cyhist-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.2rem' }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.35rem' }}>
+              <span className="live-pulse-dot" style={{ width: '8px', height: '8px', background: 'var(--primary)' }} />
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                LIVE INCIDENT REGISTRY
               </span>
             </div>
-
-            {previewExportScans.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '1.6rem 1rem', background: 'var(--surface-alt)', borderRadius: '12px', border: '1px dashed var(--border)' }}>
-                <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--muted)' }}>
-                  ⚠️ No scan history records fall within the selected date range ({fromDate || 'Start'} to {toDate || 'End'}).
-                </p>
-              </div>
-            ) : (
-              <div style={{ maxHeight: '220px', overflowY: 'auto', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-alt)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)', color: 'var(--muted)', fontWeight: 800 }}>
-                      <th style={{ padding: '0.55rem 0.75rem' }}>Date</th>
-                      <th style={{ padding: '0.55rem 0.75rem' }}>Type</th>
-                      <th style={{ padding: '0.55rem 0.75rem' }}>Risk Level</th>
-                      <th style={{ padding: '0.55rem 0.75rem' }}>Summary Preview</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {previewExportScans.map((s) => (
-                      <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{ padding: '0.5rem 0.75rem', whiteSpace: 'nowrap', fontWeight: 700 }}>
-                          {s.createdAt || s.submittedAt}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.75rem', textTransform: 'uppercase', fontWeight: 800, color: 'var(--primary)' }}>
-                          {s.type}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.75rem', fontWeight: 800, color: s.riskLevel === 'high' || s.riskLevel === 'High' ? 'var(--danger)' : 'var(--success)' }}>
-                          {s.riskScore}% {s.riskLevel.toUpperCase()}
-                        </td>
-                        <td style={{ padding: '0.5rem 0.75rem', color: 'var(--text)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {s.summary}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 900, margin: '0 0 0.35rem 0', color: 'var(--text)' }}>
+              Scan History &amp; Threat Intelligence Telemetry
+            </h1>
+            <p style={{ color: 'var(--muted)', fontSize: '0.84rem', margin: 0 }}>
+              Chronological forensic audit logs synchronized in real time with Neon Postgres and Base Sepolia L2.
+            </p>
           </div>
 
-          {/* Actions Footer */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.6rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
             <button
-              type="button"
-              onClick={() => setIsExportModalOpen(false)}
+              onClick={handleOpenExportModal}
               style={{
-                padding: '0.5rem 1.1rem',
-                borderRadius: '999px',
-                border: '1px solid var(--border)',
                 background: 'var(--surface-alt)',
+                border: '1px solid var(--border)',
                 color: 'var(--text)',
-                fontSize: '0.84rem',
-                fontWeight: 750,
-                cursor: 'pointer',
-              }}
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              disabled={previewExportScans.length === 0}
-              onClick={handleConfirmExportCSV}
-              style={{
-                padding: '0.5rem 1.4rem',
+                padding: '0.55rem 1.05rem',
                 borderRadius: '999px',
-                border: 'none',
-                background: previewExportScans.length > 0 ? 'var(--primary)' : 'var(--border)',
-                color: '#ffffff',
-                fontSize: '0.84rem',
-                fontWeight: 850,
-                cursor: previewExportScans.length > 0 ? 'pointer' : 'not-allowed',
-                boxShadow: previewExportScans.length > 0 ? '0 4px 14px rgba(230, 60, 28, 0.25)' : 'none',
+                fontSize: '0.8rem',
+                fontWeight: 800,
+                cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.4rem',
+                gap: '0.45rem'
               }}
             >
-              <svg fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24" style={{ width: '0.9rem', height: '0.9rem' }}>
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
-              Download CSV ({previewExportScans.length})
+              <span>Export CSV</span>
             </button>
+            <Link to="/scanner" style={{ textDecoration: 'none' }}>
+              <button
+                style={{
+                  background: 'var(--primary)',
+                  border: '1px solid var(--primary)',
+                  color: '#ffffff',
+                  padding: '0.55rem 1.05rem',
+                  borderRadius: '999px',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem'
+                }}
+              >
+                <span>+ New AI Scan</span>
+              </button>
+            </Link>
           </div>
         </div>
-      </Modal>
+
+        {/* =========================================================================
+            3-CARD METRICS TELEMETRY STRIP
+            ========================================================================= */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          <div className="cyhist-card" style={{ padding: '1.2rem' }}>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase' }}>
+              Total Audits Synced
+            </span>
+            <div style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--text)', marginTop: '0.2rem' }}>
+              {metrics.total}
+            </div>
+            <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', marginTop: '0.25rem' }}>
+              Direct Neon Serverless Postgres Registry
+            </span>
+          </div>
+
+          <div className="cyhist-card" style={{ padding: '1.2rem' }}>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase' }}>
+              Critical Threats Neutralized
+            </span>
+            <div style={{ fontSize: '1.85rem', fontWeight: 900, color: 'var(--primary)', marginTop: '0.2rem' }}>
+              {metrics.critical}
+            </div>
+            <span style={{ fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 800, display: 'block', marginTop: '0.25rem' }}>
+              MoMo &amp; Credential Exploits Intercepted
+            </span>
+          </div>
+
+          <div className="cyhist-card" style={{ padding: '1.2rem' }}>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase' }}>
+              Average Exposure Score
+            </span>
+            <div style={{ fontSize: '1.85rem', fontWeight: 900, color: metrics.avgScore > 50 ? 'var(--primary)' : '#10b981', marginTop: '0.2rem' }}>
+              {metrics.avgScore}%
+            </div>
+            <span style={{ fontSize: '0.72rem', color: 'var(--muted)', display: 'block', marginTop: '0.25rem' }}>
+              Google Gemma 4 Confidence Index
+            </span>
+          </div>
+        </div>
+
+        {/* =========================================================================
+            EXACT INCIDENT FEED & TRIAGE TABLE SPECIFICATION
+            ========================================================================= */}
+        <section className="cyhist-card" style={{ padding: '1.4rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <h2 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text)' }}>
+                  Live Security Incident Feed &amp; Triage
+                </h2>
+                <span style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--primary)', fontSize: '0.72rem', fontWeight: 800, padding: '0.2rem 0.55rem', borderRadius: '999px' }}>
+                  {filteredScans.length} Records
+                </span>
+              </div>
+              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', margin: '0.25rem 0 0 0' }}>
+                Chronological threat intelligence telemetry synced directly with Neon Postgres
+              </p>
+            </div>
+
+            {/* Search & Filter Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+              {/* Search Bar */}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="Search incidents, hashes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    background: 'var(--surface-alt)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text)',
+                    borderRadius: '999px',
+                    padding: '0.45rem 0.9rem 0.45rem 2.1rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    outline: 'none',
+                    width: '230px',
+                  }}
+                />
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }}
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+              </div>
+
+              {/* Channel Filter */}
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                style={{
+                  background: 'var(--surface-alt)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                  borderRadius: '999px',
+                  padding: '0.45rem 0.85rem',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  outline: 'none'
+                }}
+              >
+                <option value="all">All Channels</option>
+                <option value="message">SMS / WhatsApp</option>
+                <option value="link">Phishing URLs</option>
+                <option value="screenshot">Screenshots OCR</option>
+                <option value="email">Emails</option>
+              </select>
+
+              {/* Severity Filter */}
+              <select
+                value={filterSeverity}
+                onChange={(e) => setFilterSeverity(e.target.value)}
+                style={{
+                  background: 'var(--surface-alt)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text)',
+                  borderRadius: '999px',
+                  padding: '0.45rem 0.85rem',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  outline: 'none'
+                }}
+              >
+                <option value="all">All Severities</option>
+                <option value="high">Critical Risk</option>
+                <option value="medium">Medium Risk</option>
+                <option value="low">Verified Safe</option>
+              </select>
+
+              {(searchQuery || filterType !== 'all' || filterSeverity !== 'all') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('')
+                    setFilterType('all')
+                    setFilterSeverity('all')
+                  }}
+                  style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Table Container */}
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '3.5rem' }}>
+              <Spinner />
+              <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.6rem' }}>
+                Synchronizing threat intelligence records...
+              </p>
+            </div>
+          ) : filteredScans.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2.5rem', background: 'var(--surface-alt)', borderRadius: '10px', border: '1px dashed var(--border)' }}>
+              <p style={{ margin: 0, fontWeight: 700, color: 'var(--muted)' }}>
+                No security incidents match your filter query.
+              </p>
+            </div>
+          ) : (
+            <div className="cyhist-table-wrap">
+              <table className="cyhist-table">
+                <thead>
+                  <tr>
+                    <th>Incident / Hash</th>
+                    <th>Channel</th>
+                    <th>Threat Classification</th>
+                    <th>Risk Assessment</th>
+                    <th>Logged At</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredScans.map((item) => {
+                    const isHigh = item.riskLevel === 'high'
+                    const isMed = item.riskLevel === 'medium'
+                    const badgeColor = isHigh ? 'var(--primary)' : isMed ? '#f59e0b' : '#10b981'
+
+                    return (
+                      <tr key={item.id}>
+                        {/* Incident / Hash + Preview */}
+                        <td style={{ minWidth: '240px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                            <span style={{ fontFamily: 'monospace', fontWeight: 900, color: 'var(--primary)', fontSize: '0.78rem' }}>
+                              #{item.id.slice(0, 10).toUpperCase()}
+                            </span>
+                            <span style={{ color: 'var(--text)', fontWeight: 600, fontSize: '0.8rem', maxWidth: '340px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {item.originalContent || item.summary}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Channel */}
+                        <td>
+                          <span style={{ textTransform: 'capitalize', fontWeight: 800, fontSize: '0.76rem', color: 'var(--muted)', background: 'var(--surface)', padding: '0.2rem 0.55rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                            {item.type || 'message'}
+                          </span>
+                        </td>
+
+                        {/* Threat Classification */}
+                        <td>
+                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text)' }}>
+                            {item.threatCategory || 'MoMo Transfer Fraud'}
+                          </span>
+                        </td>
+
+                        {/* Risk Assessment */}
+                        <td>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'var(--surface)', color: badgeColor, border: `1px solid ${badgeColor}`, padding: '0.2rem 0.55rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 900 }}>
+                            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: badgeColor }} />
+                            {item.riskScore}% {item.riskLevel?.toUpperCase()}
+                          </span>
+                        </td>
+
+                        {/* Logged At */}
+                        <td>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 600 }}>
+                            {item.submittedAt || 'Recent'}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
+                            <button
+                              onClick={() => setSelectedIncidentForAudit(item)}
+                              style={{
+                                padding: '0.35rem 0.75rem',
+                                fontSize: '0.74rem',
+                                fontWeight: 800,
+                                borderRadius: '8px',
+                                border: '1px solid var(--border)',
+                                background: 'var(--surface)',
+                                color: 'var(--text)',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              Forensic Audit →
+                            </button>
+                            <Link to={`/results/${item.id}`} style={{ textDecoration: 'none' }}>
+                              <button
+                                style={{
+                                  padding: '0.35rem 0.55rem',
+                                  fontSize: '0.74rem',
+                                  fontWeight: 800,
+                                  borderRadius: '8px',
+                                  border: '1px solid var(--border)',
+                                  background: 'transparent',
+                                  color: 'var(--muted)',
+                                  cursor: 'pointer'
+                                }}
+                                title="Open Dedicated Forensic Report"
+                              >
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                  <polyline points="15 3 21 3 21 9" />
+                                </svg>
+                              </button>
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* =========================================================================
+            DEEP AI FORENSIC DRILLDOWN MODAL
+            ========================================================================= */}
+        {selectedIncidentForAudit && (
+          <div className="cyhist-modal-overlay" onClick={() => setSelectedIncidentForAudit(null)}>
+            <div className="cyhist-modal-card" onClick={(e) => e.stopPropagation()}>
+              {/* Header */}
+              <div style={{ padding: '1.2rem 1.4rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--surface)', border: '1px solid var(--border)', display: 'grid', placeItems: 'center', color: 'var(--primary)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                      <polyline points="2 17 12 22 22 17" />
+                      <polyline points="2 12 12 17 22 12" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, color: 'var(--text)' }}>
+                      Forensic Telemetry Audit #{selectedIncidentForAudit.id?.slice(0, 10).toUpperCase()}
+                    </h3>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>
+                      Google Gemma 4 AI Deep Inspection • Base L2 Sepolia
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedIncidentForAudit(null)}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: '0.4rem', display: 'grid', placeItems: 'center' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Body */}
+              <div style={{ padding: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-alt)', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                  <div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase' }}>Classification</span>
+                    <div style={{ fontSize: '0.94rem', fontWeight: 900, color: 'var(--text)', marginTop: '2px' }}>
+                      {selectedIncidentForAudit.threatCategory || 'MoMo Transfer Fraud'}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase' }}>Confidence Index</span>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--primary)', marginTop: '2px' }}>
+                      {selectedIncidentForAudit.riskScore}% {selectedIncidentForAudit.riskLevel?.toUpperCase()}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.4rem' }}>
+                    Evaluated Payload / Content
+                  </span>
+                  <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.8rem', fontSize: '0.82rem', fontFamily: 'monospace', color: 'var(--text)', lineHeight: 1.45 }}>
+                    {selectedIncidentForAudit.originalContent || selectedIncidentForAudit.summary}
+                  </div>
+                </div>
+
+                {selectedIncidentForAudit.redFlags && selectedIncidentForAudit.redFlags.length > 0 && (
+                  <div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.4rem' }}>
+                      Identified Attack Vectors &amp; Red Flags
+                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      {selectedIncidentForAudit.redFlags.map((flag, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', fontSize: '0.78rem', background: 'var(--surface-alt)', padding: '0.45rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--primary)', flexShrink: 0 }} />
+                          <span style={{ color: 'var(--text)', fontWeight: 700 }}>{flag}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedIncidentForAudit.explanation && (
+                  <div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.4rem' }}>
+                      AI Forensic Rationale
+                    </span>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1.5, background: 'var(--surface-alt)', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                      {selectedIncidentForAudit.explanation}
+                    </p>
+                  </div>
+                )}
+
+                {selectedIncidentForAudit.recommendation && (
+                  <div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '0.4rem' }}>
+                      Containment Protocol
+                    </span>
+                    <div style={{ background: 'var(--surface-alt)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.8rem', fontSize: '0.8rem', color: 'var(--text)', lineHeight: 1.45 }}>
+                      {selectedIncidentForAudit.recommendation}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div style={{ padding: '1rem 1.4rem', background: 'var(--surface-alt)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                  Base L2: 0xb0e5...859c
+                </span>
+                <div style={{ display: 'flex', gap: '0.65rem' }}>
+                  <button
+                    onClick={() => setSelectedIncidentForAudit(null)}
+                    style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.45rem 0.95rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text)', cursor: 'pointer' }}
+                  >
+                    Close
+                  </button>
+                  <Link to={`/results/${selectedIncidentForAudit.id}`} style={{ textDecoration: 'none' }}>
+                    <button
+                      style={{ background: 'var(--primary)', border: '1px solid var(--primary)', borderRadius: '8px', padding: '0.45rem 0.95rem', fontSize: '0.78rem', fontWeight: 800, color: '#ffffff', cursor: 'pointer' }}
+                    >
+                      Open Full Page →
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            EXPORT DATE RANGE PRESET MODAL
+            ========================================================================= */}
+        {isExportModalOpen && (
+          <div className="cyhist-modal-overlay" onClick={() => setIsExportModalOpen(false)}>
+            <div className="cyhist-modal-card" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
+              <div style={{ padding: '1.2rem 1.4rem', background: 'var(--surface-alt)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, color: 'var(--text)' }}>
+                  Export Incident Intelligence (CSV)
+                </h3>
+                <button
+                  onClick={() => setIsExportModalOpen(false)}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              <div style={{ padding: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+                <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--muted)' }}>
+                  Choose a date window or quick preset to export active threat incident telemetry for compliance and forensic auditing.
+                </p>
+
+                {/* Preset Chips */}
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {[
+                    { id: 'all', label: 'All Time' },
+                    { id: '7days', label: 'Last 7 Days' },
+                    { id: '30days', label: 'Last 30 Days' },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleApplyPreset(p.id)}
+                      style={{
+                        padding: '0.4rem 0.85rem',
+                        borderRadius: '999px',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        background: presetRange === p.id ? 'var(--primary)' : 'var(--surface-alt)',
+                        color: presetRange === p.id ? '#ffffff' : 'var(--text)',
+                        border: `1px solid ${presetRange === p.id ? 'var(--primary)' : 'var(--border)'}`,
+                      }}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Date Inputs */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.35rem' }}>
+                      From Date
+                    </label>
+                    <input
+                      type="date"
+                      value={fromDate}
+                      onChange={(e) => {
+                        setFromDate(e.target.value)
+                        setPresetRange('custom')
+                      }}
+                      style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface-alt)', color: 'var(--text)', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', display: 'block', marginBottom: '0.35rem' }}>
+                      To Date
+                    </label>
+                    <input
+                      type="date"
+                      value={toDate}
+                      onChange={(e) => {
+                        setToDate(e.target.value)
+                        setPresetRange('custom')
+                      }}
+                      style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface-alt)', color: 'var(--text)', fontSize: '0.82rem' }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: '1rem 1.4rem', background: 'var(--surface-alt)', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '0.65rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsExportModalOpen(false)}
+                  style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.5rem 1rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text)', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmExportCSV}
+                  style={{ background: 'var(--primary)', border: '1px solid var(--primary)', borderRadius: '8px', padding: '0.5rem 1.1rem', fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', cursor: 'pointer' }}
+                >
+                  Download CSV
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </PageContainer>
   )
 }

@@ -230,6 +230,56 @@ const defaultHistory = [
     submittedAt: '2 days ago',
     createdAt: '2026-10-21',
     modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-enqud',
+    type: 'message',
+    riskLevel: 'medium',
+    riskScore: 56,
+    summary: 'Congratulations! You have been selected for a remote job offer with guaranteed earnings of GHS 2,000/week. Send a GHS 50 registration fee to proceed.',
+    redFlags: [
+      "Unsolicited remote recruitment offer",
+      "Guaranteed weekly earnings without verification",
+      "Advance registration fee solicited before employment contracts",
+      "Mobile Money payment vector"
+    ],
+    explanation: "This incident demonstrates advance-fee recruitment manipulation targeting remote job seekers. Fraudsters solicit upfront payments under the guise of credential verification or administrative processing.",
+    recommendation: 'Refuse all upfront onboarding payments. Legitimate employers will never demand Mobile Money transfers to process job applications.',
+    threatCategory: 'Fake Job & Recruitment Lures',
+    vectorBreakdown: [
+      { name: 'Fake Job & Recruitment Lures', percentage: 86, match: true, color: 'var(--warning)' },
+      { name: 'Advance Fee Demands', percentage: 78, match: true, color: 'var(--warning)' },
+      { name: 'Social Engineering', percentage: 65, match: true, color: 'var(--primary)' }
+    ],
+    originalContent: 'Congratulations! You have been selected for a remote job offer with guaranteed earnings of GHS 2,000/week. Send a GHS 50 registration fee to proceed.',
+    submittedAt: 'Just now',
+    createdAt: '2026-10-23',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
+  },
+  {
+    id: 'scan-003',
+    type: 'link',
+    riskLevel: 'high',
+    riskScore: 92,
+    summary: 'http://mtn-gh-promo.xyz/claim-cashout',
+    redFlags: [
+      "Spoofed brand domain using untrusted top-level domain (.xyz)",
+      "Fake cashout promotion bait",
+      "Unverified SSL certificate and credential harvest signature",
+      "Impersonation of MTN Ghana"
+    ],
+    explanation: "This URL routes victims to a cloned telecom portal designed to capture Mobile Money credentials, login PINs, and OTP authenticators under the pretense of claiming promotional bonuses.",
+    recommendation: 'Do not click or enter credentials on .xyz domains. MTN Ghana exclusively operates via mtn.com.gh and official carrier USSD menus (*170#).',
+    threatCategory: 'MoMo Transfer Fraud',
+    vectorBreakdown: [
+      { name: 'MoMo Transfer Fraud', percentage: 92, match: true, color: 'var(--primary)' },
+      { name: 'Phishing Links & Spoofed Websites', percentage: 96, match: true, color: 'var(--primary)' },
+      { name: 'Brand Impersonation (MTN)', percentage: 90, match: true, color: '#f59e0b' }
+    ],
+    originalContent: 'http://mtn-gh-promo.xyz/claim-cashout',
+    submittedAt: '3 days ago',
+    createdAt: '2026-10-20',
+    modelUsed: 'Google Gemma 4 (gemma-4-31b-it)'
   }
 ]
 
@@ -239,7 +289,7 @@ const loadHistory = () => {
     const stored = localStorage.getItem('safelens_history')
     if (stored) {
       const parsed = JSON.parse(stored)
-      if (Array.isArray(parsed) && parsed.length >= 8) {
+      if (Array.isArray(parsed) && parsed.length >= 10) {
         history = parsed
         return
       }
@@ -499,6 +549,8 @@ export async function fetchDbReports(limit = 30) {
           'scan-001': 7,
           'scan-002': 8,
           'scan-m8k2p': 9,
+          'scan-enqud': 10,
+          'scan-003': 11,
         }
         const merged = [...data.reports]
         for (const h of history) {

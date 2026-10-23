@@ -16,7 +16,7 @@ export default function Dashboard({ user }) {
       const cached = localStorage.getItem('safelens_history')
       if (cached) {
         const parsed = JSON.parse(cached)
-        if (Array.isArray(parsed) && parsed.length >= 8) return parsed
+        if (Array.isArray(parsed) && parsed.length >= 10) return parsed
       }
       return getScanHistory()
     } catch {
